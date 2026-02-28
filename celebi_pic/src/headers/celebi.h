@@ -1,0 +1,26 @@
+#include "HTTP.h"
+
+typedef struct AgentParams {
+	char *payload_uuid;
+	char *callback_host;
+	int callback_port;
+	int callback_https;
+	char *callback_uri;
+} AgentParams;
+
+typedef struct CheckinReply {
+	char *payload_uuid;
+	char *callback_uuid;
+	char *status;
+	
+} CheckinReply;
+
+void append_str(char *string, char *append);
+void base64_encode(const char *in, const unsigned long in_len, char *out);
+
+char *generate_checkin_message(char *payload_uuid, int len);
+void parse_checkin_reply(HttpResponse *response, CheckinReply *reply);
+void free_checkin_reply(CheckinReply *reply);
+
+void unpack_params(char *raw_params, AgentParams *params);
+void free_params(AgentParams *params);

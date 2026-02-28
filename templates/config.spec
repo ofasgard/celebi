@@ -1,0 +1,7 @@
+x64:
+	setg "%PAYLOAD_UUID" "### PAYLOAD_UUID ###"
+	setg "%CALLBACK_HOST" "### CALLBACK_HOST ###"
+	setg "%CALLBACK_PORT" "### CALLBACK_PORT ###"
+	setg "%CALLBACK_HTTPS" "### CALLBACK_HTTPS ###"
+	setg "%CALLBACK_URI" "### CALLBACK_URI ###"
+
