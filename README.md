@@ -4,6 +4,16 @@
 
 A WIP Mythic agent that uses Crystal Palace to build its payloads. 
 
+Installation:
+
+```console
+$ cd Mythic/InstalledServices
+$ git clone https://github.com/ofasgard/celebi
+$ mythic-cli add celebi
+$ mythic-cli build celebi
+$ mythic-cli start celebi
+```
+
 Current features:
 
 - Performs a plaintext checkin with the specified C2 server via HTTP(S)
