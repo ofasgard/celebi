@@ -31,6 +31,7 @@ Current limitations:
 
 Currently working on:
 
+- Implement a translation container (so I don't have to do cursed JSON parsing)
 - Implement tasking messages
 - Implement an exit command
 
