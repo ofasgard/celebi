@@ -15,6 +15,7 @@ typedef struct CheckinRequest {
 } CheckinRequest;
 
 typedef struct CheckinReply {
+	char action;
 	char *callback_uuid;
 	char *status;
 } CheckinReply;

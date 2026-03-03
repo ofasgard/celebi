@@ -48,8 +48,11 @@ class CelebiTranslation(TranslationContainer):
     def serialize_checkin_reply(self, msg):
         output = bytearray()
         
+        output.append(MESSAGE_TYPE_CHECKIN)
+        
         output.extend(msg["id"].encode())
         output.append(0)
+        
         output.extend(msg["status"].encode())
         output.append(0)
         

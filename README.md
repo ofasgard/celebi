@@ -21,7 +21,6 @@ Current limitations:
 
 Currently working on:
 
-- Make translation container API fully representative of the checkin message format (inclusive of action and UUID field).
 - Implement tasking messages
 - Implement an exit command
 

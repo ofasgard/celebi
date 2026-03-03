@@ -174,6 +174,10 @@ void parse_checkin_reply(HttpResponse *response, CheckinReply *reply) {
 	base64_decode(response->body, response->body_size, decoded_body);
 	
 	int offset = 0;
+	
+	reply->action = decoded_body[0];
+	offset += 1;
+	
 	reply->callback_uuid = unpack_str(decoded_body, &offset);
 	reply->status = unpack_str(decoded_body, &offset);
 }
