@@ -21,7 +21,7 @@ Current limitations:
 
 Currently working on:
 
-- Implement a translation container (so I don't have to do cursed JSON parsing)
+- Make translation container API fully representative of the checkin message format (inclusive of action and UUID field).
 - Implement tasking messages
 - Implement an exit command
 

