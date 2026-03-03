@@ -23,6 +23,15 @@ Currently working on:
 
 - Implement tasking messages
 - Implement an exit command
+- Implement host recon during checkin
+
+Longterm goals:
+
+- Fully implement parameters from the http C2 profile
+- Implement AES256 traffic encryption
+- Implement PICO-based obfuscation
+- Implement configuration parameters to swap obfuscation PICOs
+- Implement a command to swap obfuscation PICOs at runtime
 
 To be clear, that means this agent **only performs checkin**. As of right now, that's it. It doesn't receive tasking and it doesn't implement any commands, not even an exit command. It is an unfinished WIP, and it is also not opsec safe. Please don't try to use it in a real red team engagement.
 
