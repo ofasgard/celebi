@@ -29,6 +29,13 @@ To be clear, that means this agent **only performs checkin**. As of right now, t
 
 > This project is released strictly for educational purposes, and is intended solely for use by authorised parties performing legitimate security research and red team assessments. My only intention is to share my work for the purposes of uplifting security.
 
+## Installation
+
+1. Clone the repository and copy both `celebi` and `celebi_translator` to your `Mythic/InstalledServices` folder.
+2. Add them both to your docker-compose file: `mythic-cli add celebi` and `mythic-cli add celebi_translator`.
+3. Build both containers: `mythic-cli build celebi` and `mythic-cli build celebi_translator`.
+4. Build payloads for Celebi using the http C2 profile. You can use HTTP or HTTPS, but make sure that `AESPSK` is set to "none". 
+
 ## Acknowledgements
 
 Thanks to:
