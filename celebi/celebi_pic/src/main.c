@@ -65,7 +65,8 @@ void go() {
 		USER32$MessageBoxA(NULL, "Successful Checkin!", "Celebi", MB_OKCANCEL);
 		USER32$MessageBoxA(NULL, reply.callback_uuid, "Celebi", MB_OKCANCEL);
 	} else {
-			USER32$MessageBoxA(NULL, "Checkin failed :(", "Celebi", MB_OKCANCEL);
+		USER32$MessageBoxA(NULL, "Checkin failed :(", "Celebi", MB_OKCANCEL);
+		USER32$MessageBoxA(NULL, reply.status, "Celebi", MB_OKCANCEL);
 	}
 
 	free_params(&params);

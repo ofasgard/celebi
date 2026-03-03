@@ -10,11 +10,11 @@ class CelebiAgent(PayloadType):
 	file_extension = "bin"
 	agent_type = AgentType.Agent
 	author = "@ofasgard"
-	mythic_encrypts = True
+	mythic_encrypts = False
 	supported_os = [
 		SupportedOS.Windows
 	]
-	semver = "0.0.1"
+	semver = "0.0.2"
 	note = "A PoC agent that uses Crystal Palace to build its payload."
 	wrapped_payloads = []
 	supports_dynamic_loading = True
@@ -26,6 +26,7 @@ class CelebiAgent(PayloadType):
 	build_steps = []
 	c2_profiles = ["http"]
 	c2_parameter_deviations = {}
+	translation_container = "celebi_translator"
 	agent_path = pathlib.Path(".")
 	agent_code_path = agent_path / "celebi_agent"
 	agent_icon_path = agent_path / "icon.svg"

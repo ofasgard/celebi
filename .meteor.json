@@ -1,6 +1,7 @@
 {
   "scopes": [
     { "name": "Agent" },
+    { "name": "Translator" },
     { "name": "PIC" }
   ]
 }
