@@ -26,6 +26,9 @@ class CelebiTranslation(TranslationContainer):
         if inputMsg.Message["action"] == "checkin":
             serialized_reply = self.serialize_checkin_reply(inputMsg.Message)
             response.Message = base64.b64encode(serialized_reply)
+        if inputMsg.Message["action"] == "get_tasking":
+            serialized_reply = self.serialize_tasking_reply(inputMsg.Message)
+            response.Message = base64.b64encode(serialized_reply)
             
         return response
 
@@ -64,6 +67,29 @@ class CelebiTranslation(TranslationContainer):
         
         output.extend(msg["status"].encode())
         output.append(0)
+        
+        return bytes(output)
+        
+    def serialize_tasking_reply(self, msg):
+        output = bytearray()
+        
+        output.append(MESSAGE_TYPE_TASKING)
+        
+        task_count = len(msg["tasks"])
+        output.extend(task_count.to_bytes(1, "big"))
+        
+        for task in msg["tasks"]:
+                output.extend(task["id"])
+                output.append(0)
+                
+                output.extend(task["command"])
+                output.append(0)
+                
+                output.extend(task["parameters"])
+                output.append(0)
+                
+                rounded_timestamp = int(task["timestamp"])
+                output.extend(rounded_timestamp.to_bytes(4, "big"))
         
         return bytes(output)
 
