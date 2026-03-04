@@ -5,6 +5,7 @@ import json, base64
 from mythic_container.TranslationBase import *
 
 MESSAGE_TYPE_CHECKIN = 1
+MESSAGE_TYPE_TASKING = 2
 
 class CelebiTranslation(TranslationContainer):
     name = "celebi_translator"
@@ -33,7 +34,9 @@ class CelebiTranslation(TranslationContainer):
         response = TrCustomMessageToMythicC2FormatMessageResponse(Success=True)
         
         if inputMsg.Message[0] == MESSAGE_TYPE_CHECKIN:
-        	    response.Message = self.deserialize_checkin_request(inputMsg.UUID, inputMsg.Message)
+            response.Message = self.deserialize_checkin_request(inputMsg.UUID, inputMsg.Message)
+        if inputMsg.Message[0] == MESSAGE_TYPE_TASKING:
+            response.Message = self.deserialize_tasking_request(inputMsg.Message)        
         
         return response
 
@@ -43,6 +46,12 @@ class CelebiTranslation(TranslationContainer):
         data = {}
         data["action"] = "checkin"
         data["uuid"] = payload_uuid
+        return data
+        
+    def deserialize_tasking_request(self, packed_msg):
+        data = {}
+        data["action"] = "get_tasking"
+        data["tasking_size"] = ord(packed_msg[1])
         return data
 
     def serialize_checkin_reply(self, msg):
