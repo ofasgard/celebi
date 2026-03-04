@@ -186,3 +186,38 @@ void free_checkin_reply(CheckinReply *reply) {
 	if (reply->callback_uuid != NULL) { KERNEL32$VirtualFree(reply->callback_uuid, 0, MEM_RELEASE); }
 	if (reply->status != NULL) { KERNEL32$VirtualFree(reply->status, 0, MEM_RELEASE); }
 }
+
+/*
+ *
+ * TASKING LOGIC
+ *
+*/
+
+char *generate_tasking_message(TaskingRequest *tasking) {
+	// Allocate space and construct the serialized tasking message.
+	
+	int len = 1024; // TODO dynamically calculate len based on what we're sending
+	int offset = 0;
+	
+	char *msg = KERNEL32$VirtualAlloc(0, len, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	
+	// Prepend the Callback UUID (36 bytes).
+	for (int i = 0; i < 36; i++) {
+		msg[offset] = tasking->callback_uuid[i];
+		offset++;
+	}
+	
+	// 1 byte for the message type.
+	msg[offset] = MESSAGE_TYPE_TASKING;
+	offset += 1;
+	
+	// 1 byte for the tasking size.
+	msg[offset] = tasking->tasking_size;
+	
+	// Base64-encode the serialized message.
+	char *encoded_msg = KERNEL32$VirtualAlloc(0, len * 1.5, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	base64_encode(msg, offset, encoded_msg);
+	
+	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
+	return encoded_msg;
+}

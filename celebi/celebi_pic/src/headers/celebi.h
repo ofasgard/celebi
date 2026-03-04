@@ -1,6 +1,7 @@
 #include "HTTP.h"
 
 #define MESSAGE_TYPE_CHECKIN 1
+#define MESSAGE_TYPE_TASKING 2
 
 typedef struct AgentParams {
 	char *payload_uuid;
@@ -19,6 +20,11 @@ typedef struct CheckinReply {
 	char *callback_uuid;
 	char *status;
 } CheckinReply;
+
+typedef struct TaskingRequest {
+	char *callback_uuid;
+	char tasking_size;
+} TaskingRequest;
 
 void append_str(char *string, char *append);
 void base64_encode(const char *in, const unsigned long in_len, char *out);
