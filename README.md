@@ -12,7 +12,7 @@ Current features:
 
 Current limitations:
 
-- Only performs checkin (no tasking or commands)
+- Only performs checkin and basic tasking (no commands)
 - Only communicates using plaintext (no AES256)
 - Only supports the http C2 profile
 - Ignores most C2 profile parameters
