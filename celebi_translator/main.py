@@ -79,13 +79,13 @@ class CelebiTranslation(TranslationContainer):
         output.extend(task_count.to_bytes(1, "big"))
         
         for task in msg["tasks"]:
-                output.extend(task["id"])
+                output.extend(task["id"].encode())
                 output.append(0)
                 
-                output.extend(task["command"])
+                output.extend(task["command"].encode())
                 output.append(0)
                 
-                output.extend(task["parameters"])
+                output.extend(task["parameters"].encode())
                 output.append(0)
                 
                 rounded_timestamp = int(task["timestamp"])
