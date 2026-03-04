@@ -24,7 +24,6 @@ Currently working on:
 - Implement an exit command
 - Implement host recon during checkin
 - Improve hygiene of string pointers passed around between structs (alloc & copy).
-- Replace message box output with an ifdef that uses `dprintf()` from LibTCG for error reporting.
 
 Longterm goals:
 
