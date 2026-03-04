@@ -51,7 +51,7 @@ class CelebiTranslation(TranslationContainer):
     def deserialize_tasking_request(self, packed_msg):
         data = {}
         data["action"] = "get_tasking"
-        data["tasking_size"] = ord(packed_msg[1])
+        data["tasking_size"] = packed_msg[1]
         return data
 
     def serialize_checkin_reply(self, msg):
