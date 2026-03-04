@@ -251,5 +251,12 @@ void parse_tasking_reply(HttpResponse *response, TaskingReply *reply) {
 }
 
 void free_tasking_reply(TaskingReply *reply) {
-	if (reply->tasks != NULL) { KERNEL32$VirtualFree(reply->tasks, 0, MEM_RELEASE); }
+	if (reply->tasks != NULL) {
+		for (int i = 0; i < reply->tasking_size; i++) {
+			KERNEL32$VirtualFree(reply->tasks[0].id, 0, MEM_RELEASE);
+			KERNEL32$VirtualFree(reply->tasks[0].command, 0, MEM_RELEASE);
+			KERNEL32$VirtualFree(reply->tasks[0].parameters, 0, MEM_RELEASE);
+		}
+		KERNEL32$VirtualFree(reply->tasks, 0, MEM_RELEASE);
+	}
 }
