@@ -4,6 +4,8 @@
 
 A WIP Mythic agent that uses Crystal Palace to build its payloads.
 
+To be clear, this agent currently **only performs checkin and tasking**. As of right now, that's it. It doesn't implement any commands, not even an exit command. It is an unfinished WIP, and it is also not opsec safe. Please don't try to use it in a real red team engagement.
+
 Current features:
 
 - Performs a plaintext checkin with the specified C2 server via HTTP(S)
@@ -32,8 +34,6 @@ Longterm goals:
 - Implement PICO-based obfuscation
 - Implement configuration parameters to swap obfuscation PICOs
 - Implement a command to swap obfuscation PICOs at runtime
-
-To be clear, that means this agent **only performs checkin**. As of right now, that's it. It doesn't receive tasking and it doesn't implement any commands, not even an exit command. It is an unfinished WIP, and it is also not opsec safe. Please don't try to use it in a real red team engagement.
 
 > This project is released strictly for educational purposes, and is intended solely for use by authorised parties performing legitimate security research and red team assessments. My only intention is to share my work for the purposes of uplifting security.
 
