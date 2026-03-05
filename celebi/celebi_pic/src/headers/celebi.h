@@ -64,3 +64,27 @@ char *unpack_str(char *raw_params, int *offset);
 int unpack_int(char *raw_params, int *offset);
 void unpack_params(char *raw_params, AgentParams *params);
 void free_params(AgentParams *params);
+
+/*
+ *
+ * PICOs
+ *
+*/
+
+typedef void (*CHECKIN_PICO)(CheckinRequest *req);
+
+typedef struct {
+    __typeof__(LoadLibraryA)   * LoadLibraryA;
+    __typeof__(GetProcAddress) * GetProcAddress;
+    __typeof__(VirtualAlloc)   * VirtualAlloc;
+    __typeof__(VirtualFree)    * VirtualFree;
+} WIN32FUNCS;
+
+typedef struct {
+	char        *CheckinPicoCode;
+	char        *CheckinPicoData;
+	CHECKIN_PICO CheckinPicoEntrypoint;
+} AgentCapabilities;
+
+void load_picos(AgentCapabilities *cap);
+void free_picos(AgentCapabilities *cap);

