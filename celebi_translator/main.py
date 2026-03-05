@@ -73,7 +73,7 @@ class CelebiTranslation(TranslationContainer):
             data["host"] += chr(byte)
             offset += 1
         
-         offset +=1 # terminator byte
+        offset +=1 # terminator byte
         
         return data
         
