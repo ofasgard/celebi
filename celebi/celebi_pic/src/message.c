@@ -46,6 +46,9 @@ char *generate_checkin_message(CheckinRequest *checkin) {
 			msg[offset] = checkin->username[i];
 			offset++;
 		}
+		
+		msg[offset] = 0;
+		offset++;
 	}
 	
 	// Optional hostname field.
@@ -55,6 +58,9 @@ char *generate_checkin_message(CheckinRequest *checkin) {
 			msg[offset] = checkin->hostname[i];
 			offset++;
 		}
+		
+		msg[offset] = 0;
+		offset++;
 	}
 	
 	// Add the null byte (if there was no user field, this represents an empty string).
