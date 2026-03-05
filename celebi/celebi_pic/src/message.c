@@ -59,6 +59,10 @@ void parse_checkin_reply(HttpResponse *response, CheckinReply *reply) {
 	KERNEL32$VirtualFree(decoded_body, 0, MEM_RELEASE);
 }
 
+void free_checkin_request(CheckinRequest *request) {
+	if (request->payload_uuid != NULL) { KERNEL32$VirtualFree(request->payload_uuid, 0, MEM_RELEASE); }
+}
+
 void free_checkin_reply(CheckinReply *reply) {
 	if (reply->callback_uuid != NULL) { KERNEL32$VirtualFree(reply->callback_uuid, 0, MEM_RELEASE); }
 	if (reply->status != NULL) { KERNEL32$VirtualFree(reply->status, 0, MEM_RELEASE); }
@@ -127,6 +131,10 @@ void parse_tasking_reply(HttpResponse *response, TaskingReply *reply) {
 	}
 	
 	KERNEL32$VirtualFree(decoded_body, 0, MEM_RELEASE);
+}
+
+void free_tasking_request(TaskingRequest *request) {
+	if (request->callback_uuid != NULL) { KERNEL32$VirtualFree(request->callback_uuid, 0, MEM_RELEASE); }
 }
 
 void free_tasking_reply(TaskingReply *reply) {

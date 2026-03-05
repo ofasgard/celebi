@@ -52,10 +52,12 @@ int base64_decode(const char *in, const unsigned long in_len, char *out);
 
 char *generate_checkin_message(CheckinRequest *checkin);
 void parse_checkin_reply(HttpResponse *response, CheckinReply *reply);
+void free_checkin_request(CheckinRequest *request);
 void free_checkin_reply(CheckinReply *reply);
 
 char *generate_tasking_message(TaskingRequest *tasking);
 void parse_tasking_reply(HttpResponse *response, TaskingReply *reply);
+void free_tasking_request(TaskingRequest *request);
 void free_tasking_reply(TaskingReply *reply);
 
 char *unpack_str(char *raw_params, int *offset);
