@@ -29,9 +29,10 @@ Longterm goals:
 
 - Fully implement parameters from the http C2 profile
 - Implement AES256 traffic encryption
-- Implement PICO-based obfuscation
-- Implement configuration parameters to swap obfuscation PICOs
+- Implement "core" obfuscation logic as a set of PICOs (default PICOs aren't opsec-safe, but you can swap them out for any PICO that follows the same convention!)
+- Implement some basic convenience commands such as `getuid`, again as swappable PICOs
 - Implement a command to swap obfuscation PICOs at runtime
+- Implement a command to load and execute both PICO and BOF capabilities
 
 > This project is released strictly for educational purposes, and is intended solely for use by authorised parties performing legitimate security research and red team assessments. My only intention is to share my work for the purposes of uplifting security.
 
