@@ -33,7 +33,18 @@ char *generate_checkin_message(CheckinRequest *checkin) {
 	msg[offset] = MESSAGE_TYPE_CHECKIN;
 	offset += 1;
 	
-	// TODO if optional fields are included, add them along with their length
+	// Optional user field.
+	if (checkin->user != 0) {
+		int user_len = MSVCRT$strlen(checkin->user);
+		for (int i = 0; i < user_len; i++) {
+			msg[offset] = checkin->user[i];
+			offset++;
+		}
+	}
+	
+	// Add the null byte (if there was no user field, this represents an empty string).
+	msg[offset] = 0;
+	offset++;
 	
 	// Base64-encode the serialized message.
 	char *encoded_msg = KERNEL32$VirtualAlloc(0, len * 1.5, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);

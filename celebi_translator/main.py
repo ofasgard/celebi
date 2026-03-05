@@ -44,11 +44,17 @@ class CelebiTranslation(TranslationContainer):
         return response
 
     def deserialize_checkin_request(self, payload_uuid, packed_msg):
-        # For now, checkin request from agent is literally just UUID and message type.
-        # We don't use the message body to build the request yet, but we will when the agent actually sends data about the host.
         data = {}
         data["action"] = "checkin"
         data["uuid"] = payload_uuid
+        
+        # Parser username
+        data["user"] = ""
+        for byte in packed_msg[1:]:
+            if byte == 0x00:
+                break
+            data["user"] += chr(byte)    
+        
         return data
         
     def deserialize_tasking_request(self, packed_msg):
