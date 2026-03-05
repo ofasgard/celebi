@@ -60,7 +60,20 @@ class CelebiTranslation(TranslationContainer):
         for byte in packed_msg[offset:]:
             if byte == 0x00:
                 break
-            data["user"] += chr(byte)    
+            data["user"] += chr(byte)
+            offset += 1
+        
+        offset +=1 # terminator byte
+        
+        # Parse hostname
+        data["host"] = ""
+        for byte in packed_msg[offset:]:
+            if byte == 0x00:
+                break
+            data["host"] += chr(byte)
+            offset += 1
+        
+         offset +=1 # terminator byte
         
         return data
         

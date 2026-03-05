@@ -16,6 +16,7 @@ typedef struct CheckinRequest {
 	char *payload_uuid;
 	unsigned int pid;
 	char *username;
+	char *hostname;
 } CheckinRequest;
 
 typedef struct CheckinReply {
