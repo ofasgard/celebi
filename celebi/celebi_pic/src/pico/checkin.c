@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "../headers/celebi.h"
 
+WINBASEAPI DWORD KERNEL32$GetCurrentProcessId();
 WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
 WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD  dwFreeType);
 
@@ -9,6 +10,8 @@ WINBASEAPI BOOL ADVAPI32$GetUserNameA(LPCSTR lpBuffer, LPDWORD pcbBuffer);
 void go(CheckinRequest *req) {
 	BOOL result;
 	DWORD len;
+	
+	req->pid = KERNEL32$GetCurrentProcessId();
 	
 	char *username = KERNEL32$VirtualAlloc(0, 256, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 	result = ADVAPI32$GetUserNameA(username, &len);

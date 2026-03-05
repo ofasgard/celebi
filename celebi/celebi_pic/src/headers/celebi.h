@@ -14,6 +14,7 @@ typedef struct AgentParams {
 
 typedef struct CheckinRequest {
 	char *payload_uuid;
+	unsigned int pid;
 	char *username;
 } CheckinRequest;
 

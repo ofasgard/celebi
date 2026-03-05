@@ -33,6 +33,10 @@ char *generate_checkin_message(CheckinRequest *checkin) {
 	msg[offset] = MESSAGE_TYPE_CHECKIN;
 	offset += 1;
 	
+	// 4 bytes for the PID.
+	msg[offset] = checkin->pid;
+	offset += sizeof(unsigned int);
+	
 	// Optional user field.
 	if (checkin->username != 0) {
 		int user_len = MSVCRT$strlen(checkin->username);
