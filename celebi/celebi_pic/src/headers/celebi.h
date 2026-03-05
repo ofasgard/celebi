@@ -41,6 +41,7 @@ typedef struct TaskingReply {
 } TaskingReply;
 
 void append_str(char *string, char *append);
+char *clone_str(char *orig);
 void base64_encode(const char *in, const unsigned long in_len, char *out);
 int base64_decode(const char *in, const unsigned long in_len, char *out);
 

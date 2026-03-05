@@ -1,9 +1,37 @@
 #include "headers/celebi.h"
 
 WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
-WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD  dwFreeType);
 
 WINBASEAPI size_t MSVCRT$strlen(const char *str);
+WINBASEAPI errno_t MSVCRT$strcpy_s(char *dest, rsize_t dest_size, const char *src);
+
+/*
+ *
+ * STRING MANIPULATION
+ *
+*/
+
+void append_str(char *string, char *append) {
+	size_t current_len = MSVCRT$strlen(string);
+	size_t append_len = MSVCRT$strlen(append);
+	
+	for(int i = 0; i < append_len; i++) {
+		string[current_len + i] = append[i];
+	}
+}
+
+char *clone_str(char *orig) {
+	size_t len = MSVCRT$strlen(orig);
+	char *string = KERNEL32$VirtualAlloc(0, len, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	MSVCRT$strcpy_s(string, len, orig);
+	return string;
+}
+
+/*
+ *
+ * ENCODING
+ *
+*/
 
 const int UNBASE64[] = {
 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 0-11
@@ -20,15 +48,6 @@ const int UNBASE64[] = {
 };
 
 const char BASE64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-void append_str(char *string, char *append) {
-	size_t current_len = MSVCRT$strlen(string);
-	size_t append_len = MSVCRT$strlen(append);
-	
-	for(int i = 0; i < append_len; i++) {
-		string[current_len + i] = append[i];
-	}
-}
 
 void base64_encode(const char *in, const unsigned long in_len, char *out) {
 	// Base64 implementation taken from here: https://blog.leonardotamiano.xyz/tech/base64/

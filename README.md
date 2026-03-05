@@ -25,7 +25,6 @@ Currently working on:
 
 - Implement an exit command
 - Implement host recon during checkin
-- Improve hygiene of string pointers passed around between structs (alloc & copy).
 
 Longterm goals:
 
