@@ -48,9 +48,16 @@ class CelebiTranslation(TranslationContainer):
         data["action"] = "checkin"
         data["uuid"] = payload_uuid
         
-        # Parser username
+        offset = 1
+        
+        # Parse PID
+        pid_raw = packed_msg[offset:offset+4]
+        int.from_bytes(pid_raw, "little", signed=False)
+        offset += 4
+        
+        # Parse username
         data["user"] = ""
-        for byte in packed_msg[1:]:
+        for byte in packed_msg[offset:]:
             if byte == 0x00:
                 break
             data["user"] += chr(byte)    

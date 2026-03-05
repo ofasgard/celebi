@@ -34,8 +34,10 @@ char *generate_checkin_message(CheckinRequest *checkin) {
 	offset += 1;
 	
 	// 4 bytes for the PID.
-	msg[offset] = checkin->pid;
-	offset += sizeof(unsigned int);
+	for (int i = 0; i < sizeof(checkin->pid); i++) {
+		msg[offset] = ((char *) &checkin->pid)[offset];
+		offset++;
+	}
 	
 	// Optional user field.
 	if (checkin->username != 0) {
