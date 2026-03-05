@@ -75,6 +75,10 @@ class CelebiTranslation(TranslationContainer):
         
         offset +=1 # terminator byte
         
+        # Hardcoded parameters
+        data["architecture"] = "x64"
+        data["os"] = "Windows"
+        
         return data
         
     def deserialize_tasking_request(self, packed_msg):
