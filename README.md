@@ -4,7 +4,7 @@
 
 A WIP Mythic agent that uses Crystal Palace to build its payloads.
 
-To be clear, this agent currently **only performs checkin and tasking**. As of right now, that's it. It doesn't implement any commands, not even an exit command. It is an unfinished WIP, and it is also not opsec safe. Please don't try to use it in a real red team engagement.
+To be clear, this agent currently **only performs checkin and tasking**. As of right now, that's it. The only command it implements is `exit`. It is an unfinished WIP, and it is also not opsec safe. Please don't try to use it in a real red team engagement.
 
 Current features:
 
@@ -14,7 +14,7 @@ Current features:
 
 Current limitations:
 
-- Only performs checkin and basic tasking (no commands)
+- Only implements basic functionality
 - Only communicates using plaintext (no AES256)
 - Only supports the http C2 profile
 - Ignores most C2 profile parameters
