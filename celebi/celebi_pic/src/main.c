@@ -31,7 +31,7 @@ FARPROC resolve_unloaded(char * mod, char * func) {
 void agent_exit(AgentState *state) {
 	HttpDestroy(state->http);
 	free_params(&state->params);
-	NTDLL$ExitProcess(0); // currently only ExitProcess() is supported TODO
+	KERNEL32$ExitProcess(0); // currently only ExitProcess() is supported TODO
 }
 
 void perform_checkin(AgentParams *params, HttpHandle *http, CheckinReply *reply) {
