@@ -34,10 +34,10 @@ char *generate_checkin_message(CheckinRequest *checkin) {
 	offset += 1;
 	
 	// Optional user field.
-	if (checkin->user != 0) {
-		int user_len = MSVCRT$strlen(checkin->user);
+	if (checkin->username != 0) {
+		int user_len = MSVCRT$strlen(checkin->username);
 		for (int i = 0; i < user_len; i++) {
-			msg[offset] = checkin->user[i];
+			msg[offset] = checkin->username[i];
 			offset++;
 		}
 	}
