@@ -35,7 +35,7 @@ char *generate_checkin_message(CheckinRequest *checkin) {
 	
 	// 4 bytes for the PID.
 	for (int i = 0; i < sizeof(checkin->pid); i++) {
-		msg[offset] = ((char *) &checkin->pid)[offset];
+		msg[offset] = ((char *) &checkin->pid)[i];
 		offset++;
 	}
 	
