@@ -13,7 +13,7 @@ char *unpack_str(char *raw_params, int *offset) {
 	char *str_ptr = &(raw_params[*offset]);
 	int str_len = MSVCRT$strlen(str_ptr);
 	
-	char *unpacked_str = KERNEL32$VirtualAlloc(0, str_len, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	char *unpacked_str = KERNEL32$VirtualAlloc(0, str_len > 0 ? str_len : 10, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 	append_str(unpacked_str, str_ptr);
 	
 	*offset += str_len + 1;
