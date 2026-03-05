@@ -14,7 +14,7 @@ class CelebiAgent(PayloadType):
 	supported_os = [
 		SupportedOS.Windows
 	]
-	semver = "0.0.3"
+	semver = "0.0.4"
 	note = "A PoC agent that uses Crystal Palace to build its payload."
 	wrapped_payloads = []
 	supports_dynamic_loading = True
