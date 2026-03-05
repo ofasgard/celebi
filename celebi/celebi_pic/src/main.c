@@ -12,7 +12,7 @@ WINBASEAPI DWORD WINAPI KERNEL32$WaitForSingleObject(	HANDLE hHandle, DWORD dwMi
 
 WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD  dwFreeType);
 
-WINBASEAPI VOID WINAPI NTDLL$ExitProcess(UINT uExitCode);
+WINBASEAPI VOID NTAPI NTDLL$ExitProcess(UINT uExitCode);
 
 WINBASEAPI size_t MSVCRT$strlen(const char *str);
 WINBASEAPI int MSVCRT$strcmp(const char *string1, const char *string2);
