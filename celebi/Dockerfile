@@ -7,7 +7,7 @@ RUN apt install -y default-jre
 RUN apt install -y zip
 
 RUN mkdir /crystal-palace/
-ADD https://tradecraftgarden.org/download/cpdist20260202.tgz /crystal-palace.tgz
+ADD https://tradecraftgarden.org/download/cpdist20260303.tgz /crystal-palace.tgz
 RUN tar -xvzf /crystal-palace.tgz -C /crystal-palace/
 
 WORKDIR /Mythic/

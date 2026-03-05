@@ -22,3 +22,4 @@ clean:
 	rm -f bin/*.o
 	rm -f out/*.bin
 	cd lib/libtcg && make clean
+	cd lib/LibWinHttp && make clean
