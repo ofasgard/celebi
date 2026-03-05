@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "../headers/celebi.h"
+#include "../headers/tcg.h"
 
 void go(CheckinRequest *req) {
-	// TODO
+	dprintf("Checkin PICO is loaded!");
 }

