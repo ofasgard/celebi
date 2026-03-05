@@ -52,7 +52,7 @@ class CelebiTranslation(TranslationContainer):
         
         # Parse PID
         pid_raw = packed_msg[offset:offset+4]
-        int.from_bytes(pid_raw, "little", signed=False)
+        data["pid"] = int.from_bytes(pid_raw, "little", signed=False)
         offset += 4
         
         # Parse username
