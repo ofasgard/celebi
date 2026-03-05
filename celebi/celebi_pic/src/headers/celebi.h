@@ -40,6 +40,11 @@ typedef struct TaskingReply {
 	TaskInfo *tasks;
 } TaskingReply;
 
+typedef struct AgentState {
+	HttpHandle *http;
+	AgentParams params;
+} AgentState;
+
 void append_str(char *string, char *append);
 char *clone_str(char *orig);
 void base64_encode(const char *in, const unsigned long in_len, char *out);

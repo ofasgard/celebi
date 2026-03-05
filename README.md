@@ -23,7 +23,6 @@ Current limitations:
 
 Currently working on:
 
-- Implement an exit command
 - Implement host recon during checkin
 
 Longterm goals:

