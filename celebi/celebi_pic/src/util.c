@@ -3,7 +3,6 @@
 WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
 
 WINBASEAPI size_t MSVCRT$strlen(const char *str);
-WINBASEAPI errno_t MSVCRT$strcpy_s(char *dest, rsize_t dest_size, const char *src);
 
 /*
  *
@@ -23,7 +22,11 @@ void append_str(char *string, char *append) {
 char *clone_str(char *orig) {
 	size_t len = MSVCRT$strlen(orig);
 	char *string = KERNEL32$VirtualAlloc(0, len, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-	MSVCRT$strcpy_s(string, len, orig);
+	
+	for (int i = 0; i < len; i++) {
+		string[i] = orig[i];
+	}
+	
 	return string;
 }
 
