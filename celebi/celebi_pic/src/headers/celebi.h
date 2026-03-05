@@ -42,6 +42,7 @@ typedef struct TaskingReply {
 
 void append_str(char *string, char *append);
 void base64_encode(const char *in, const unsigned long in_len, char *out);
+int base64_decode(const char *in, const unsigned long in_len, char *out);
 
 char *generate_checkin_message(CheckinRequest *checkin);
 void parse_checkin_reply(HttpResponse *response, CheckinReply *reply);

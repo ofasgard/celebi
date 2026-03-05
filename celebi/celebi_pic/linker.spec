@@ -10,6 +10,9 @@ x64:
 	load "bin/params.o"
 	merge
 	
+	load "bin/util.o"
+	merge
+	
 	export
 	
 	# Make the shellcode.
