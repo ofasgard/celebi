@@ -19,7 +19,7 @@ x64:
 	export
 	
 	# Make the shellcode.
-	make pic +optimize +gofirst
+	make pic +optimize +gofirst +disco +mutate +regdance +blockparty
 	
 	# Merge in LibTCG.
 	mergelib "lib/libtcg/libtcg.x64.zip"
@@ -37,7 +37,7 @@ x64:
 	
 	# Load built-in PICOs.
 	load "bin/pico_checkin.o"
-		make object
+		make object +optimize
 		export
 		link "pico_checkin"
 
