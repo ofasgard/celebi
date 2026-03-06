@@ -38,7 +38,7 @@ void go(CheckinRequest *req) {
 	if (status == NERR_Success) {
 		req->domain = KERNEL32$VirtualAlloc(0, 256, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 		for (int i = 0; i < 256; i++) {
-			req->domain[i] = workstationInfo->wki100_computername[i];
+			req->domain[i] = workstationInfo->wki100_langroup[i];
 			if (req->domain[i] == 0) {
 				break;
 			}
