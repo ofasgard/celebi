@@ -72,16 +72,16 @@ class CelebiAgent(PayloadType):
 		fd.close()
 	
 	def build_pic(self, exit_func):
-		cflags = []
-		
-		if exit_func == "thread":
-			cflags.append("-DCELEBI_EXIT_THREAD")
-			
-		cflags_str = "CFLAGS=\"{}\"".format(" ".join(cflags))
-	
 		proc = subprocess.Popen(["make", "clean"], cwd="/Mythic/celebi_pic/")
 		proc.wait()
-		proc = subprocess.Popen(["make", "pic", cflags_str], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd="/Mythic/celebi_pic/")
+
+		cflags = []
+		if exit_func == "thread":
+			cflags.append("-DCELEBI_EXIT_THREAD")
+		
+		if len(cflags) > 0:
+			cflags_str = "CFLAGS=\"{}\"".format(" ".join(cflags))
+			proc = subprocess.Popen(["make", "pic", cflags_str], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd="/Mythic/celebi_pic/")
+		else:
+			proc = subprocess.Popen(["make", "pic"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd="/Mythic/celebi_pic/")
 		proc.wait()
-		print(proc.stdout.read())
-		print(proc.stderr.read())
