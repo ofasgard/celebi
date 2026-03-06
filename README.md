@@ -2,7 +2,7 @@
 
 *Crystal + Mythic = Celebi*
 
-A WIP Mythic agent that uses Crystal Palace to build its payloads.
+A WIP Mythic agent for x64 Windows that uses Crystal Palace to build its payloads.
 
 To be clear, this agent currently **only performs checkin and tasking**. As of right now, that's it. The only command it implements is `exit`. It is an unfinished WIP, and it is also not opsec safe. Please don't try to use it in a real red team engagement.
 
@@ -20,6 +20,7 @@ Current limitations:
 - Only supports the http C2 profile
 - Ignores most C2 profile parameters
 - Completely opsec unsafe: no sleep masking, no obfuscation logic, no tradecraft (yet!)
+- Only supports x64 architectures.
 
 Longterm goals:
 
@@ -29,6 +30,8 @@ Longterm goals:
 - Implement some basic convenience commands such as `getuid`, again as swappable PICOs
 - Implement a `morph` command to swap obfuscation PICOs at runtime
 - Implement a `load` command to load both PICO and BOF capabilities
+- Support other C2 profiles
+- Include YARA rules for the "default" build of the agent
 
 > This project is released strictly for educational purposes, and is intended solely for use by authorised parties performing legitimate security research and red team assessments. My only intention is to share my work for the purposes of uplifting security.
 
@@ -58,4 +61,4 @@ Thanks to:
 - [Raphael Mudge](https://tradecraftgarden.org/crystalpalace.html) for Crystal Palace and LibTCG.
 - [@pard0p](https://github.com/pard0p/LibWinHttp) for the LibWinHttp library that made implementing messaging much less of a headache.
 - [Cody Thomas](https://github.com/its-a-feature) for Mythic (and excellent documentation!)
-- [Leonardo Tamiano ](https://blog.leonardotamiano.xyz/tech/base64/) for a nice self-contained base64 implementation that plays nicely with PIC.
+- [Leonardo Tamiano](https://blog.leonardotamiano.xyz/tech/base64/) for a nice self-contained base64 implementation that plays nicely with PIC.

