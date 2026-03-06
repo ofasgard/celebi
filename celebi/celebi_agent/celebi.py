@@ -22,7 +22,9 @@ class CelebiAgent(PayloadType):
 	shellcode_bypass_options = ["None"]
 	supports_multiple_c2_instances_in_build = False
 	supports_multiple_c2_in_build = False
-	build_parameters = []
+	build_parameters = [
+	BuildParameter(name="exit_func", parameter_type=BuildParameterType.ChooseOne, choices=["process", "thread"], default_value="process", description="Use ExitProcess() or ExitThread() to exit.")
+	]
 	build_steps = []
 	c2_profiles = ["http"]
 	c2_parameter_deviations = {}
@@ -34,7 +36,7 @@ class CelebiAgent(PayloadType):
 	async def build(self) -> BuildResponse:
 		# This function gets called to create an instance of your payload.
 		self.configure_pic()
-		self.build_pic()
+		self.build_pic(self.get_parameter("exit_func"))
 		
 		resp = BuildResponse(status=BuildStatus.Success)
 		resp.payload = open("/Mythic/celebi_pic/out/main.bin", "rb").read()
@@ -69,10 +71,17 @@ class CelebiAgent(PayloadType):
 	    fd.write(config)
 	    fd.close()
 	
-	def build_pic(self):
+	def build_pic(self, exit_func):
+	    cflags = []
+		
+	    if exit_func == "thread":
+			cflags.append("-DCELEBI_EXIT_THREAD")
+			
+	    cflags_str = "CFLAGS=\"{}\"".format(" ".join(cflags))
+	
 	    proc = subprocess.Popen(["make", "clean"], cwd="/Mythic/celebi_pic/")
 	    proc.wait()
-	    proc = subprocess.Popen(["make", "pic"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd="/Mythic/celebi_pic/")
+	    proc = subprocess.Popen(["make", "pic", cflags_str], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd="/Mythic/celebi_pic/")
 	    proc.wait()
 	    print(proc.stdout.read())
 	    print(proc.stderr.read())

@@ -11,6 +11,7 @@ WINBASEAPI LPVOID WINAPI KERNEL32$GetProcAddress(HMODULE hModule, LPCSTR lpProcN
 WINBASEAPI DWORD WINAPI KERNEL32$WaitForSingleObject(	HANDLE hHandle, DWORD dwMilliseconds);
 WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD  dwFreeType);
 WINBASEAPI VOID WINAPI KERNEL32$ExitProcess(UINT uExitCode);
+WINBASEAPI VOID WINAPI KERNEL32$ExitThread(DWORD dwExitCode);
 
 WINBASEAPI size_t MSVCRT$strlen(const char *str);
 WINBASEAPI int MSVCRT$strcmp(const char *string1, const char *string2);
@@ -32,7 +33,12 @@ void agent_exit(AgentState *state, AgentCapabilities *cap) {
 	HttpDestroy(state->http);
 	free_params(&state->params);
 	free_picos(cap);
-	KERNEL32$ExitProcess(0); // currently only ExitProcess() is supported TODO
+	
+	#ifdef CELEBI_EXIT_THREAD
+	KERNEL32$ExitThread(0);
+	#else
+	KERNEL32$ExitProcess(0);
+	#endif
 }
 
 void perform_checkin(AgentParams *params, AgentCapabilities *cap, HttpHandle *http, CheckinReply *reply) {
