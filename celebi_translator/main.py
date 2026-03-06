@@ -75,6 +75,16 @@ class CelebiTranslation(TranslationContainer):
         
         offset +=1 # terminator byte
         
+        # Parse domain
+        data["domain"] = ""
+        for byte in packed_msg[offset:]:
+            if byte == 0x00:
+                break
+            data["domain"] += chr(byte)
+            offset += 1
+        
+        offset +=1 # terminator byte
+        
         # Hardcoded parameters
         data["architecture"] = "x64"
         data["os"] = "Windows"
