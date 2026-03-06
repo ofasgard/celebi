@@ -44,44 +44,44 @@ class CelebiAgent(PayloadType):
 		return resp
 	
 	def configure_pic(self):
-	    config = open("/Mythic/templates/config.spec", "r").read()
-	    c2params = self.c2info[0].get_parameters_dict()
-	    
-	    # Patch in the payload UUID.
-	    config = config.replace("### PAYLOAD_UUID ###", self.uuid)
-	    
-	    # Patch in the C2 server host.
-	    parsed_url = urlsplit(c2params["callback_host"])
-	    config = config.replace("### CALLBACK_HOST ###", parsed_url.hostname)
-	    
-	    # Patch in the C2 server port.
-	    config = config.replace("### CALLBACK_PORT ###", str(c2params["callback_port"]))
-	    
-	    ## Patch in the C2 server HTTPS toggle.
-	    if "https" in parsed_url.scheme.lower():
-        	    config = config.replace("### CALLBACK_HTTPS ###", "1")
-	    else:
-        	    config = config.replace("### CALLBACK_HTTPS ###", "0")
-	    
-	    # Patch in the C2 server URI.
-	    uri = "/{}".format(c2params["post_uri"])
-	    config = config.replace("### CALLBACK_URI ###", uri)
-	    
-	    fd = open("/Mythic/celebi_pic/config.spec", "w")
-	    fd.write(config)
-	    fd.close()
+		config = open("/Mythic/templates/config.spec", "r").read()
+		c2params = self.c2info[0].get_parameters_dict()
+		
+		# Patch in the payload UUID.
+		config = config.replace("### PAYLOAD_UUID ###", self.uuid)
+		
+		# Patch in the C2 server host.
+		parsed_url = urlsplit(c2params["callback_host"])
+		config = config.replace("### CALLBACK_HOST ###", parsed_url.hostname)
+		
+		# Patch in the C2 server port.
+		config = config.replace("### CALLBACK_PORT ###", str(c2params["callback_port"]))
+		
+		## Patch in the C2 server HTTPS toggle.
+		if "https" in parsed_url.scheme.lower():
+				config = config.replace("### CALLBACK_HTTPS ###", "1")
+		else:
+				config = config.replace("### CALLBACK_HTTPS ###", "0")
+		
+		# Patch in the C2 server URI.
+		uri = "/{}".format(c2params["post_uri"])
+		config = config.replace("### CALLBACK_URI ###", uri)
+		
+		fd = open("/Mythic/celebi_pic/config.spec", "w")
+		fd.write(config)
+		fd.close()
 	
 	def build_pic(self, exit_func):
-	    cflags = []
+		cflags = []
 		
-	    if exit_func == "thread":
+		if exit_func == "thread":
 			cflags.append("-DCELEBI_EXIT_THREAD")
 			
-	    cflags_str = "CFLAGS=\"{}\"".format(" ".join(cflags))
+		cflags_str = "CFLAGS=\"{}\"".format(" ".join(cflags))
 	
-	    proc = subprocess.Popen(["make", "clean"], cwd="/Mythic/celebi_pic/")
-	    proc.wait()
-	    proc = subprocess.Popen(["make", "pic", cflags_str], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd="/Mythic/celebi_pic/")
-	    proc.wait()
-	    print(proc.stdout.read())
-	    print(proc.stderr.read())
+		proc = subprocess.Popen(["make", "clean"], cwd="/Mythic/celebi_pic/")
+		proc.wait()
+		proc = subprocess.Popen(["make", "pic", cflags_str], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd="/Mythic/celebi_pic/")
+		proc.wait()
+		print(proc.stdout.read())
+		print(proc.stderr.read())
