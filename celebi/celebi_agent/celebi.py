@@ -23,7 +23,7 @@ class CelebiAgent(PayloadType):
 	supports_multiple_c2_instances_in_build = False
 	supports_multiple_c2_in_build = False
 	build_parameters = [
-	BuildParameter(name="debug", parameter_type=BuildParameterType.Boolean, default_value=False, description="Enable dprintf() debugging.")
+	BuildParameter(name="debug", parameter_type=BuildParameterType.Boolean, default_value=False, description="Enable dprintf() debugging."),
 	BuildParameter(name="exit_func", parameter_type=BuildParameterType.ChooseOne, choices=["process", "thread"], default_value="process", description="Use ExitProcess() or ExitThread() to exit.")
 	]
 	build_steps = []
