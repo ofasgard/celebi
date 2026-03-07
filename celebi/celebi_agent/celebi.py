@@ -39,7 +39,7 @@ class CelebiAgent(PayloadType):
 		self.configure_pic()
 		
 		parameters = {
-			"debug": self.get_parameter("debug")
+			"debug": self.get_parameter("debug"),
 			"exit_func": self.get_parameter("exit_func")
 		}
 		self.build_pic(parameters)
