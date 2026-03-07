@@ -23,6 +23,7 @@ class CelebiAgent(PayloadType):
 	supports_multiple_c2_instances_in_build = False
 	supports_multiple_c2_in_build = False
 	build_parameters = [
+	BuildParameter(name="debug", parameter_type=BuildParameterType.Boolean, default_value=False, description="Enable dprintf() debugging.")
 	BuildParameter(name="exit_func", parameter_type=BuildParameterType.ChooseOne, choices=["process", "thread"], default_value="process", description="Use ExitProcess() or ExitThread() to exit.")
 	]
 	build_steps = []
@@ -36,7 +37,12 @@ class CelebiAgent(PayloadType):
 	async def build(self) -> BuildResponse:
 		# This function gets called to create an instance of your payload.
 		self.configure_pic()
-		self.build_pic(self.get_parameter("exit_func"))
+		
+		parameters = {
+			"debug": self.get_parameter("debug")
+			"exit_func": self.get_parameter("exit_func")
+		}
+		self.build_pic(parameters)
 		
 		resp = BuildResponse(status=BuildStatus.Success)
 		resp.payload = open("/Mythic/celebi_pic/out/main.bin", "rb").read()
@@ -71,12 +77,14 @@ class CelebiAgent(PayloadType):
 		fd.write(config)
 		fd.close()
 	
-	def build_pic(self, exit_func):
+	def build_pic(self, parameters):
 		proc = subprocess.Popen(["make", "clean"], cwd="/Mythic/celebi_pic/")
 		proc.wait()
 
 		cflags = []
-		if exit_func == "thread":
+		if parameters["debug"] == True:
+			cflags.append("-DCELEBI_DEBUG")
+		if parameters["exit_func"] == "thread":
 			cflags.append("-DCELEBI_EXIT_THREAD")
 		
 		if len(cflags) > 0:

