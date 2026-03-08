@@ -56,7 +56,7 @@ void agent_getuid(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	char *username = cap->GetuidPicoEntrypoint();
 	
 	TaskPostReply reply = { 0 };
-	if (username != 0) {
+	if (username != NULL) {
 		perform_post(state, task, &reply, username, "success");
 	} else {
 		perform_post(state, task, &reply, "<UNKNOWN>", "success");

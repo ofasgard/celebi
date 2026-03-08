@@ -25,7 +25,7 @@ void pack_uint(char *buf, int *offset, unsigned int paydata) {
 }
 
 void pack_string(char *buf, int *offset, char *paydata) {
-	if (paydata != 0) {
+	if (paydata != NULL) {
 		int len = MSVCRT$strlen(paydata);
 		for (int i = 0; i < len; i++) {
 			buf[*offset] = paydata[i];
