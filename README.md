@@ -11,7 +11,7 @@ Current features:
 - Performs a plaintext checkin with the specified C2 server via HTTP(S)
 - Supports the `callback_host` and `callback_port` parameters to specify the C2 listener
 - Supports the `post_uri` parameter to specify the URI for checking in
-- Supports the `exit` command
+- Supports the `exit` and `getuid` commands
 
 Current limitations:
 
@@ -42,6 +42,8 @@ Longterm goals:
 4. Build payloads for Celebi using the http C2 profile. You can use HTTP or HTTPS, but make sure that `AESPSK` is set to "none". 
 
 ## Design
+
+*Note that the design described here represents my aspirations for Celebi rather than its current state.*
 
 The overall design goal of Celebi is to hardcode as little functionality as possible. Instead, we implement basic functionality such as sleep masking, information gathering, or command execution into a set of PICOs that are linked into the final implant. The PICOs that ship with Celebi by default are intended to "just work" without being opsec safe, but they can be replaced with your own custom Crystal Palace PICOs that implement the same interface.
 
