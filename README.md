@@ -4,7 +4,7 @@
 
 A WIP Mythic agent for x64 Windows that uses Crystal Palace to build its payloads.
 
-To be clear, this agent currently **only performs checkin and tasking**. As of right now, that's it. The only command it implements is `exit`. It is an unfinished WIP, and it is also not opsec safe. Please don't try to use it in a real red team engagement.
+To be clear, this agent currently **only performs checkin and tasking**. As of right now, that's it. The only commands it implements are `exit` and `getuid`. It is an unfinished WIP, and it is also not opsec safe. Please don't try to use it in a real red team engagement.
 
 Current features:
 
@@ -48,6 +48,7 @@ The overall design goal of Celebi is to hardcode as little functionality as poss
 The list of built-in PICOs currently includes:
 
 - `checkin.c`: Performs basic information gathering about the target system and uses the collected data to enrich a `CheckinRequest` struct.
+- `getuid.c`: Basically the same as the checkin PICO, except it only returns the current user's username. Used by the `getuid` built-in command.
 
 In addition, the design calls for the ability to change every aspect about the implant while it is running. This is currently not implemented, but will come in the form of a command that allows you to replace any of the built-in PICOs with an uploaded PICO at runtime. This allows your agent to dynamically change its TTPs and behaviour without recompiling the underlying shellcode.
 
