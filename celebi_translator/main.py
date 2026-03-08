@@ -140,6 +140,7 @@ class CelebiTranslation(TranslationContainer):
         
         offset +=1 # terminator byte           
         
+        response["completed"] = True
         data["responses"] = [response]
         return data
 
