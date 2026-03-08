@@ -6,6 +6,7 @@ from mythic_container.TranslationBase import *
 
 MESSAGE_TYPE_CHECKIN = 1
 MESSAGE_TYPE_TASKING = 2
+MESSAGE_TYPE_POST    = 3
 
 class CelebiTranslation(TranslationContainer):
     name = "celebi_translator"
@@ -38,10 +39,15 @@ class CelebiTranslation(TranslationContainer):
         
         if inputMsg.Message[0] == MESSAGE_TYPE_CHECKIN:
             response.Message = self.deserialize_checkin_request(inputMsg.UUID, inputMsg.Message)
+            return response
         if inputMsg.Message[0] == MESSAGE_TYPE_TASKING:
-            response.Message = self.deserialize_tasking_request(inputMsg.Message)        
+            response.Message = self.deserialize_tasking_request(inputMsg.Message)
+            return response
+        if inputMsg.Message[0] == MESSAGE_TYPE_POST:
+            response.Message = self.deserialize_post_request(inputMsg.Message) 
+            return response
         
-        return response
+        raise Exception("UNRECOGNISED INPUT MESSAGE TYPE: {}".format(inputMsg.Message))
 
     def deserialize_checkin_request(self, payload_uuid, packed_msg):
         data = {}
@@ -95,6 +101,46 @@ class CelebiTranslation(TranslationContainer):
         data = {}
         data["action"] = "get_tasking"
         data["tasking_size"] = packed_msg[1]
+        return data
+        
+    def deserialize_post_request(self, packed_msg):
+        data = {}
+        data["action"] = "post_response"
+        
+        response = {}
+        offset = 1
+        
+        # Parse task ID
+        response["task_id"] = ""
+        for byte in packed_msg[offset:]:
+            if byte == 0x00:
+                break
+            response["task_id"] += chr(byte)
+            offset += 1
+        
+        offset +=1 # terminator byte   
+        
+        # Parse task output
+        response["user_output"] = ""
+        for byte in packed_msg[offset:]:
+            if byte == 0x00:
+                break
+            response["user_output"] += chr(byte)
+            offset += 1
+        
+        offset +=1 # terminator byte   
+        
+        # Parse task status
+        response["status"] = ""
+        for byte in packed_msg[offset:]:
+            if byte == 0x00:
+                break
+            response["status"] += chr(byte)
+            offset += 1
+        
+        offset +=1 # terminator byte           
+        
+        data["responses"] = [response]
         return data
 
     def serialize_checkin_reply(self, msg):
