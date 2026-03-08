@@ -97,13 +97,13 @@ char *generate_checkin_message(CheckinRequest *checkin);
 void parse_checkin_reply(HttpResponse *response, CheckinReply *reply);
 void free_checkin_request(CheckinRequest *request);
 void free_checkin_reply(CheckinReply *reply);
-void perform_checkin(AgentParams *params, AgentCapabilities *cap, HttpHandle *http, CheckinReply *reply);
+void perform_checkin(AgentState *state, AgentCapabilities *cap, CheckinReply *reply);
 
 char *generate_tasking_message(TaskingRequest *tasking);
 void parse_tasking_reply(HttpResponse *response, TaskingReply *reply);
 void free_tasking_request(TaskingRequest *request);
 void free_tasking_reply(TaskingReply *reply);
-void perform_tasking(AgentParams *params, HttpHandle *http, TaskingReply *reply);
+void perform_tasking(AgentState *state, TaskingReply *reply);
 
 char *unpack_str(char *raw_params, int *offset);
 int unpack_int(char *raw_params, int *offset);

