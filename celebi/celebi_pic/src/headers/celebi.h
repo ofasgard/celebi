@@ -109,8 +109,12 @@ char *generate_post_message(TaskPostRequest *post);
 void free_post_request(TaskPostRequest *request);
 void perform_post(AgentState *state, TaskInfo *task, char *output, char *status);
 
-char *unpack_str(char *raw_params, int *offset);
+void pack_char(char *buf, int *offset, char paydata);
+void pack_uint(char *buf, int *offset, unsigned int paydata);
+void pack_string(char *buf, int *offset, char *paydata);
+char unpack_char(char *buf, int *offset);
 int unpack_int(char *raw_params, int *offset);
+char *unpack_str(char *raw_params, int *offset);
 void unpack_params(char *raw_params, AgentParams *params);
 void free_params(AgentParams *params);
 

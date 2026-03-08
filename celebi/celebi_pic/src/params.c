@@ -6,11 +6,67 @@ WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWO
 
 WINBASEAPI size_t MSVCRT$strlen(const char *str);
 
-char *unpack_str(char *raw_params, int *offset) {
+/*
+ *
+ * PACK
+ *
+*/
+
+void pack_char(char *buf, int *offset, char paydata) {
+	buf[*offset] = paydata;
+	*offset += 1;
+}
+
+void pack_uint(char *buf, int *offset, unsigned int paydata) {
+	for (int i = 0; i < sizeof(unsigned int); i++) {
+		buf[*offset] = ((char *) &paydata)[i];
+		*offset += 1;
+	}
+}
+
+void pack_string(char *buf, int *offset, char *paydata) {
+	if (paydata != 0) {
+		int len = MSVCRT$strlen(paydata);
+		for (int i = 0; i < len; i++) {
+			buf[*offset] = paydata[i];
+			*offset += 1;
+		}
+	}
+	
+	// Add the null byte. If paydata is NULL, this results in a zero-length string.
+	buf[*offset] = 0;
+	*offset += 1;
+}
+
+/*
+ *
+ * UNPACK
+ *
+*/
+
+char unpack_char(char *buf, int *offset) {
+	// Unpacks a single byte at the current offset.
+	// The offset parameter is updated to the new position.
+	
+	char byte = buf[*offset];
+	*offset += 1;
+	return byte;
+}
+
+int unpack_int(char *buf, int *offset) {
+	// Unpacks an integer at the current offset.
+	// The offset parameter is updated to the end of the integer.
+	
+	int *int_ptr = (int *) &(buf[*offset]);
+	*offset += sizeof(int);
+	return *int_ptr;
+}
+
+char *unpack_str(char *buf, int *offset) {
 	// Unpacks a string at the current offset by calculating its length and copying it over.
 	// The offset parameter is updated to the end of the string.
 	
-	char *str_ptr = &(raw_params[*offset]);
+	char *str_ptr = &(buf[*offset]);
 	int str_len = MSVCRT$strlen(str_ptr);
 	
 	char *unpacked_str = KERNEL32$VirtualAlloc(0, str_len > 0 ? str_len : 10, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
@@ -20,14 +76,11 @@ char *unpack_str(char *raw_params, int *offset) {
 	return unpacked_str;
 }
 
-int unpack_int(char *raw_params, int *offset) {
-	// Unpacks an integer at the current offset.
-	// The offset parameter is updated to the end of the integer.
-	
-	int *int_ptr = (int *) &(raw_params[*offset]);
-	*offset += sizeof(int);
-	return *int_ptr;
-}
+/*
+ *
+ * PARAMS
+ *
+*/
 
 void unpack_params(char *raw_params, AgentParams *params) {
 	// Takes the packed strings patched in by the linker and unpacks it into an AgentParams struct.

