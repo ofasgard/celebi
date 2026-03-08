@@ -8,9 +8,14 @@ WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, 
 WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD  dwFreeType);
 
 char __CHECKIN_PICO__[0] __attribute__((section("pico_checkin")));
+char __GETUID_PICO__[0] __attribute__((section("pico_getuid")));
 
 char * find_checkin_pico() {
     return (char *)&__CHECKIN_PICO__;
+}
+
+char * find_getuid_pico() {
+    return (char *)&__GETUID_PICO__;
 }
 
 void load_picos(AgentCapabilities *cap) {
@@ -27,9 +32,17 @@ void load_picos(AgentCapabilities *cap) {
 	cap->CheckinPicoData = KERNEL32$VirtualAlloc(NULL, PicoDataSize(src_pico), MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_READWRITE);
 	PicoLoad((IMPORTFUNCS *) &funcs, src_pico, cap->CheckinPicoCode, cap->CheckinPicoData);
 	cap->CheckinPicoEntrypoint = (CHECKIN_PICO) PicoEntryPoint(src_pico, cap->CheckinPicoCode);
+	
+	src_pico = find_getuid_pico();
+	cap->GetuidPicoCode = KERNEL32$VirtualAlloc(NULL, PicoCodeSize(src_pico), MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE);
+	cap->GetuidPicoData = KERNEL32$VirtualAlloc(NULL, PicoDataSize(src_pico), MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_READWRITE);
+	PicoLoad((IMPORTFUNCS *) &funcs, src_pico, cap->GetuidPicoCode, cap->GetuidPicoData);
+	cap->GetuidPicoEntrypoint = (GETUID_PICO) PicoEntryPoint(src_pico, cap->GetuidPicoCode);
 }
 
 void free_picos(AgentCapabilities *cap) {
 	KERNEL32$VirtualFree(cap->CheckinPicoCode, 0, MEM_RELEASE);
 	KERNEL32$VirtualFree(cap->CheckinPicoData, 0, MEM_RELEASE);
+	KERNEL32$VirtualFree(cap->GetuidPicoCode, 0, MEM_RELEASE);
+	KERNEL32$VirtualFree(cap->GetuidPicoData, 0, MEM_RELEASE);
 }

