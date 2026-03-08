@@ -52,6 +52,10 @@ typedef struct TaskPostRequest {
 	char *task_status;
 } TaskPostRequest;
 
+typedef struct TaskPostReply {
+	int success;
+} TaskPostReply;
+
 typedef struct AgentState {
 	HttpHandle *http;
 	AgentParams params;
@@ -107,7 +111,7 @@ void perform_tasking(AgentState *state, TaskingReply *reply);
 
 char *generate_post_message(TaskPostRequest *post);
 void free_post_request(TaskPostRequest *request);
-void perform_post(AgentState *state, TaskInfo *task, char *output, char *status);
+void perform_post(AgentState *state, TaskInfo *task, TaskPostReply *reply, char *output, char *status);
 
 void pack_char(char *buf, int *offset, char paydata);
 void pack_uint(char *buf, int *offset, unsigned int paydata);

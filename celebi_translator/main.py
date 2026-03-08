@@ -30,6 +30,9 @@ class CelebiTranslation(TranslationContainer):
 		if inputMsg.Message["action"] == "get_tasking":
 			serialized_reply = self.serialize_tasking_reply(inputMsg.Message)
 			response.Message = base64.b64encode(serialized_reply)
+		if inputMsg.Message["action"] == "post_response":
+			serialized_reply = self.serialize_post_reply(inputMsg.Message)
+			response.Message = base64.b64encode(serialized_reply)
 			
 		return response
 
@@ -177,6 +180,15 @@ class CelebiTranslation(TranslationContainer):
 				
 				rounded_timestamp = int(task["timestamp"])
 				output.extend(rounded_timestamp.to_bytes(4, "big"))
+		
+		return bytes(output)
+	
+	def serialize_post_reply(self, msg):
+		output = bytearray()
+		
+		output.append(MESSAGE_TYPE_POST)
+		
+		# This is currently ignored by the agent, so don't bother actually sending the data for now...
 		
 		return bytes(output)
 

