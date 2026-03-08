@@ -41,6 +41,12 @@ void agent_exit(AgentState *state, AgentCapabilities *cap) {
 	#endif
 }
 
+void agent_getuid(AgentState *state, AgentCapabilities *cap) {
+	char *username = cap->GetuidPicoEntrypoint();
+	
+	// TODO communicate data or error to C2
+}
+
 void perform_checkin(AgentParams *params, AgentCapabilities *cap, HttpHandle *http, CheckinReply *reply) {
 	// Generate checkin payload.
 	CheckinRequest checkin = { 0 };
@@ -103,6 +109,15 @@ void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
 		#endif
 		
 		agent_exit(state, cap);
+		return;
+	}
+	
+	if (MSVCRT$strcmp(task->command, "getuid") == 0) {
+		#ifdef CELEBI_DEBUG
+		dprintf("Received getuid command.");
+		#endif
+		
+		agent_getuid(state, cap);
 		return;
 	}
 	
