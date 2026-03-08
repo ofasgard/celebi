@@ -34,9 +34,11 @@ void agent_exit(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 		TaskPostReply reply = { 0 };
 		perform_post(state, task, &reply, "", "success");
 		
+		#ifdef CELEBI_EXIT_THREAD
 		if (reply.success == 1) {
 			dprintf("Server acknowledged exit.");
 		}
+		#endif
 	}
 
 	HttpDestroy(state->http);
@@ -56,9 +58,11 @@ void agent_getuid(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	TaskPostReply reply = { 0 };
 	perform_post(state, task, &reply, username, "success"); // TODO check if username is null and perform post based on that
 	
+	#ifdef CELEBI_EXIT_THREAD
 	if (reply.success == 1) {
 		dprintf("Server acknowledged getuid output.");
 	}
+	#endif
 }
 
 void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
