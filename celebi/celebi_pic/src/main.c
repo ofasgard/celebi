@@ -29,10 +29,12 @@ FARPROC resolve_unloaded(char * mod, char * func) {
 	return KERNEL32$GetProcAddress(hModule, func);
 }
 
-void agent_exit(AgentState *state, AgentCapabilities *cap) {
+void agent_exit(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	HttpDestroy(state->http);
 	free_params(&state->params);
 	free_picos(cap);
+	
+	perform_post(state, task, "", "success");
 	
 	#ifdef CELEBI_EXIT_THREAD
 	KERNEL32$ExitThread(0);
@@ -53,7 +55,7 @@ void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
 		dprintf("Received exit command.");
 		#endif
 		
-		agent_exit(state, cap);
+		agent_exit(state, cap, task);
 		return;
 	}
 	
