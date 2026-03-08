@@ -11,6 +11,19 @@ WINBASEAPI char * MSVCRT$strstr(const char *str, const char *strSearch);
 
 /*
  *
+ * HELPER FUNCTIONS
+ *
+*/
+
+void pack_uint(char *buf, int *offset, unsigned int paydata) {
+	for (int i = 0; i < sizeof(unsigned int); i++) {
+		buf[*offset] = ((char *) &paydata)[i];
+		*offset += 1;
+	}
+}
+
+/*
+ *
  * CHECKIN LOGIC
  *
 */
@@ -34,10 +47,7 @@ char *generate_checkin_message(CheckinRequest *checkin) {
 	offset += 1;
 	
 	// 4 bytes for the PID.
-	for (int i = 0; i < sizeof(checkin->pid); i++) {
-		msg[offset] = ((char *) &checkin->pid)[i];
-		offset++;
-	}
+	pack_uint(msg, &offset, checkin->pid);
 	
 	// Optional user field.
 	if (checkin->username != 0) {
