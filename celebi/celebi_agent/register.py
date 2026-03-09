@@ -51,7 +51,7 @@ class RegisterCommand(CommandBase):
 		file_resp = await SendMythicRPCFileGetContent(MythicRPCFileGetContentMessage(AgentFileId=taskData.args.get_arg("file")))
 		
 		if file_resp.Success:
-			taskData.args.add_arg("file", base64.b64encode(file_resp.Content))
+			taskData.args.add_arg("file", base64.b64encode(file_resp.Content).decode("utf-8"))
 		else:
 			raise Exception("Error while registering file: " + str(file_resp.error))
 		
