@@ -76,9 +76,7 @@ void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 		perform_upload(state, &upload);
 	}
 
-	// TODO pull down file, decode and load into memory, perform post, print to debug console.
-	// Easiest way to do this is probably to define a completely new message type (MESSAGE_TYPE_UPLOAD) and associated structs
-	// Even though Mythic treats it as a post_response, our translation container can handle that bit
+	// TODO pull down file, decode and load into memory, perform post, print to debug console, free upload manager
 }
 
 void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {

