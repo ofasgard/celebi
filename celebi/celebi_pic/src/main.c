@@ -77,6 +77,7 @@ void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 		dprintf("DELETEME current chunk: %i", upload.next_chunk);
 		dprintf("DELETEME size of data: %u", upload.buflen);
 	}
+	dprintf("DELETEME upload complete");
 
 	// TODO pull down file, decode and load into memory, perform post, print to debug console, free upload manager
 }
