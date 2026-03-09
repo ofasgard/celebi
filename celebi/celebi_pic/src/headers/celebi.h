@@ -3,6 +3,9 @@
 #define MESSAGE_TYPE_CHECKIN 1
 #define MESSAGE_TYPE_TASKING 2
 #define MESSAGE_TYPE_POST    3
+#define MESSAGE_TYPE_UPLOAD  4
+
+#define FILE_CHUNK_SIZE 1024
 
 typedef struct AgentParams {
 	char *payload_uuid;
@@ -55,6 +58,17 @@ typedef struct TaskPostRequest {
 typedef struct TaskPostReply {
 	int success;
 } TaskPostReply;
+
+typedef struct UploadManager {
+	char *callback_uuid;
+	char *task_id;
+	char *file_uuid;
+	unsigned int chunk_size;
+	unsigned int next_chunk;
+	char *current_buffer;
+	size_t buflen;
+	BOOL finished;
+} UploadManager;
 
 typedef struct AgentState {
 	HttpHandle *http;
@@ -112,6 +126,9 @@ void perform_tasking(AgentState *state, TaskingReply *reply);
 char *generate_post_message(TaskPostRequest *post);
 void free_post_request(TaskPostRequest *request);
 void perform_post(AgentState *state, TaskInfo *task, TaskPostReply *reply, char *output, char *status);
+
+UploadManager initialise_upload_manager(char *callback_uuid, char *task_id, char *file_uuid);
+void perform_upload(AgentState *stage, UploadManager *upload);
 
 void pack_char(char *buf, int *offset, char paydata);
 void pack_uint(char *buf, int *offset, unsigned int paydata);

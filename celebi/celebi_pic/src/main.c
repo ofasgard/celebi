@@ -70,6 +70,12 @@ void agent_getuid(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 }
 
 void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
+	UploadManager upload = initialise_upload_manager(state->params.callback_uuid, task->id, task->parameters);
+	
+	while (upload.finished == FALSE) {
+		perform_upload(state, &upload);
+	}
+
 	// TODO pull down file, decode and load into memory, perform post, print to debug console.
 	// Easiest way to do this is probably to define a completely new message type (MESSAGE_TYPE_UPLOAD) and associated structs
 	// Even though Mythic treats it as a post_response, our translation container can handle that bit
