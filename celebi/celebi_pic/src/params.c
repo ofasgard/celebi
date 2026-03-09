@@ -62,6 +62,15 @@ int unpack_int(char *buf, int *offset) {
 	return *int_ptr;
 }
 
+unsigned int unpack_uint(char *buf, int *offset) {
+	// Unpacks an unsigned integer at the current offset.
+	// The offset parameter is updated to the end of the integer.
+	
+	unsigned int *int_ptr = (unsigned int *) &(buf[*offset]);
+	*offset += sizeof(unsigned int);
+	return *int_ptr;
+}
+
 char *unpack_str(char *buf, int *offset) {
 	// Unpacks a string at the current offset by calculating its length and copying it over.
 	// The offset parameter is updated to the end of the string.

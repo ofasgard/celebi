@@ -290,7 +290,8 @@ UploadManager initialise_upload_manager(char *callback_uuid, char *task_id, char
 	upload.chunk_size = FILE_CHUNK_SIZE;
 	upload.next_chunk = 1;
 	upload.current_buffer = KERNEL32$VirtualAlloc(0, FILE_CHUNK_SIZE, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-	upload.buflen = FILE_CHUNK_SIZE;
+	upload.buflen = 0;
+	upload.bufsize = FILE_CHUNK_SIZE;
 	upload.finished = FALSE;
 	
 	return upload;
@@ -329,6 +330,46 @@ char *generate_upload_message(UploadManager *upload) {
 	return encoded_msg;
 }
 
+void parse_upload_reply(HttpResponse *response, UploadManager *upload) {
+	// Base64 decode the response and unpack the fields into a struct.
+	char *decoded_body = KERNEL32$VirtualAlloc(0, response->body_size, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	base64_decode(response->body, response->body_size, decoded_body);
+	
+	int offset = 1; // skip over the message type byte
+	
+	unsigned int total_chunks = unpack_uint(decoded_body, &offset);
+	upload->next_chunk = unpack_uint(decoded_body, &offset) + 1;
+	
+	if (upload->next_chunk > total_chunks) {
+		upload->finished = TRUE;
+	}
+	
+	char *encoded_chunk_data = unpack_str(decoded_body, &offset);
+	char *decoded_chunk_data = KERNEL32$VirtualAlloc(0, upload->chunk_size, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	base64_decode(encoded_chunk_data, MSVCRT$strlen(encoded_chunk_data), decoded_chunk_data);
+	
+	// If there isn't enough capacity, reallocate the buffer.
+	if ((upload->buflen + upload->chunk_size) > upload->bufsize) {
+		char *new_buffer = KERNEL32$VirtualAlloc(0, upload->bufsize + upload->chunk_size, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+		for (int i = 0; i < upload->buflen; i++) {
+			new_buffer[i] = upload->current_buffer[i];
+		}
+		KERNEL32$VirtualFree(upload->current_buffer, 0, MEM_RELEASE);
+		upload->current_buffer = new_buffer;
+		upload->bufsize += upload->chunk_size;
+		
+	}
+	
+	// Copy the data across.
+	for (int i = 0; i < upload->chunk_size; i++) {
+		upload->current_buffer[upload->buflen + i] = decoded_chunk_data[i];
+	}
+	upload->buflen += upload->chunk_size;
+	
+	KERNEL32$VirtualFree(decoded_body, 0, MEM_RELEASE);
+	KERNEL32$VirtualFree(decoded_chunk_data, 0, MEM_RELEASE);
+}
+
 void perform_upload(AgentState *state, UploadManager *upload) {
 	// Generate upload payload.
 	char *msg = generate_upload_message(upload);
@@ -340,17 +381,13 @@ void perform_upload(AgentState *state, UploadManager *upload) {
 	
 	HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
 	
-	dprintf("DELETEME sent upload request message to the server...");
-	
 	if (response.status_code == 200) {
-		dprintf("DELETEME got an upload reply message from the server...");
-		// TODO parse the reply and use it to update the upload manager
+		parse_upload_reply(&response, upload);
 	}
 	
 	// Free unneeded allocations.
+	// Unlike the other perform_x() functions, we don't need to free the upload manager because it will be reused!
 	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
 	KERNEL32$VirtualFree(response.body, 0, MEM_RELEASE);
-	KERNEL32$VirtualFree(response.content_type, 0, MEM_RELEASE);
-	
-	upload->finished = TRUE; // TODO delete this, just here to avoid infinite loop while testing...
+	KERNEL32$VirtualFree(response.content_type, 0, MEM_RELEASE);	
 }

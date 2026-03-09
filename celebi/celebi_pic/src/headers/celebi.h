@@ -66,7 +66,8 @@ typedef struct UploadManager {
 	unsigned int chunk_size;
 	unsigned int next_chunk;
 	char *current_buffer;
-	size_t buflen;
+	size_t buflen; // current length of data within buffer
+	size_t bufsize; // current capacity of buffer
 	BOOL finished;
 } UploadManager;
 
@@ -135,6 +136,7 @@ void pack_uint(char *buf, int *offset, unsigned int paydata);
 void pack_string(char *buf, int *offset, char *paydata);
 char unpack_char(char *buf, int *offset);
 int unpack_int(char *raw_params, int *offset);
+unsigned int unpack_uint(char *buf, int *offset);
 char *unpack_str(char *raw_params, int *offset);
 void unpack_params(char *raw_params, AgentParams *params);
 void free_params(AgentParams *params);

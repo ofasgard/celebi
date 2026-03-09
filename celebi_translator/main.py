@@ -261,9 +261,6 @@ class CelebiTranslation(TranslationContainer):
 		output.extend(response["total_chunks"].to_bytes(4, "big", signed=False))
 		output.extend(response["chunk_num"].to_bytes(4, "big", signed=False))
 		
-		data_size = len(response["chunk_data"])
-		output.extend(data_size.to_bytes(4, "big", signed=False))
-		
 		output.extend(response["chunk_data"].encode())
 		output.append(0)
 		
