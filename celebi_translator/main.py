@@ -34,7 +34,9 @@ class CelebiTranslation(TranslationContainer):
 		if inputMsg.Message["action"] == "post_response":
 			# Is this a normal reply to post_response, or are we replying to an upload request?
 			if "responses" in inputMsg.Message and "chunk_data" in inputMsg.Message["responses"][0]:
-				raise Exception("Uh oh! I don't know how to translate an upload reply yet!")
+				serialized_reply = self.serialize_upload_reply(inputMsg.Message)
+				response.Message = base64.b64encode(serialized_reply)
+				
 			else:
 				serialized_reply = self.serialize_post_reply(inputMsg.Message)
 				response.Message = base64.b64encode(serialized_reply)
@@ -240,6 +242,30 @@ class CelebiTranslation(TranslationContainer):
 		output.append(MESSAGE_TYPE_POST)
 		
 		# This is currently ignored by the agent, so don't bother actually sending the data for now...
+		
+		return bytes(output)
+		
+	def serialize_upload_reply(self, msg):
+		output = bytearray()
+		
+		output.append(MESSAGE_TYPE_UPLOAD)
+		
+		if len(msg["responses"]) > 1:
+			raise Exception("Celebi doesn't currently support more than one response in a post_response reply (found {})".format(len(msg["responses"])))
+		
+		response = msg["responses"][0]
+		
+		if response["status"] == "error":
+			raise Exception("Failed to respond to upload request with error: {}".format(response["error"]))
+			
+		output.extend(msg["total_chunks"].to_bytes(4, "big", signed=False))
+		output.extend(msg["chunk_num"].to_bytes(4, "big", signed=False))
+		
+		data_size = len(msg["chunk_data"])
+		output.extend(data_size.to_bytes(4, "big", signed=False))
+		
+		output.extend(msg["chunk_data"].encode())
+		output.append(0)
 		
 		return bytes(output)
 
