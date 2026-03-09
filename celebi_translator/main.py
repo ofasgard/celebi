@@ -6,7 +6,8 @@ from mythic_container.TranslationBase import *
 
 MESSAGE_TYPE_CHECKIN = 1
 MESSAGE_TYPE_TASKING = 2
-MESSAGE_TYPE_POST	= 3
+MESSAGE_TYPE_POST    = 3
+MESSAGE_TYPE_UPLOAD  = 4
 
 class CelebiTranslation(TranslationContainer):
 	name = "celebi_translator"
@@ -48,6 +49,9 @@ class CelebiTranslation(TranslationContainer):
 			return response
 		if inputMsg.Message[0] == MESSAGE_TYPE_POST:
 			response.Message = self.deserialize_post_request(inputMsg.Message) 
+			return response
+		if inputMsg.Message[0] == MESSAGE_TYPE_UPLOAD:
+			response.Message = self.deserialize_upload_request(inputMsg.Message)
 			return response
 		
 		raise Exception("UNRECOGNISED INPUT MESSAGE TYPE: {}".format(inputMsg.Message))
@@ -144,6 +148,48 @@ class CelebiTranslation(TranslationContainer):
 		offset +=1 # terminator byte		   
 		
 		response["completed"] = True
+		data["responses"] = [response]
+		return data
+		
+	def deserialize_upload_request(self, packed_msg):
+		data = {}
+		data["action"] = "post_response"
+		
+		response = {}
+		offset = 1
+		
+		# Parse task ID
+		response["task_id"] = ""
+		for byte in packed_msg[offset:]:
+			if byte == 0x00:
+				break
+			response["task_id"] += chr(byte)
+			offset += 1
+		
+		offset +=1 # terminator byte  
+			
+		response["upload"] = {}
+		
+		# Parse file ID
+		response["upload"]["file_id"] = ""
+		for byte in packed_msg[offset:]:
+			if byte == 0x00:
+				break
+			response["upload"]["file_id"] += chr(byte)
+			offset += 1
+			
+		offset +=1 # terminator byte
+		
+		# Parse chunk size
+		chunk_size_raw = packed_msg[offset:offset+4]
+		response["upload"]["chunk_size"] = int.from_bytes(chunk_size_raw, "little", signed=False)
+		offset += 4
+		
+		# Parse chunk number
+		chunk_num_raw = packed_msg[offset:offset+4]
+		response["upload"]["chunk_num"] = int.from_bytes(chunk_num_raw, "little", signed=False)
+		offset += 4		
+		
 		data["responses"] = [response]
 		return data
 
