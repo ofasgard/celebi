@@ -175,7 +175,8 @@ class CelebiTranslation(TranslationContainer):
 				output.extend(task["command"].encode())
 				output.append(0)
 				
-				output.extend(task["parameters"].encode())
+				raw_params = self.process_parameters(task["parameters"])
+				output.extend(raw_params.encode())
 				output.append(0)
 				
 				rounded_timestamp = int(task["timestamp"])
@@ -191,5 +192,20 @@ class CelebiTranslation(TranslationContainer):
 		# This is currently ignored by the agent, so don't bother actually sending the data for now...
 		
 		return bytes(output)
+
+	def process_parameters(self, params):
+		# Helper function to convert JSON file parameters into the raw strings expected by the agent.
+		# This is a pretty brittle implementation that assumes there's only a single parameter. 
+		# Will probably need to be rewritten when I have a command that takes multiple params.
+		
+		try:
+			param_data = json.loads(params)
+		except:
+			return params
+		
+		if "file" in param_data:
+			return param_data["file"]
+			
+		raise Exception("Unrecognised command parameter! Original JSON: {}".format(params))
 
 mythic_container.mythic_service.start_and_run_forever()

@@ -26,9 +26,9 @@ class RegisterArguments(TaskArguments):
 		
 class RegisterCommand(CommandBase):
 	cmd = "register" # Name of the command
-	help_cmd = "register [file]" # Help information presented to the user
+	help_cmd = "register" # Help information presented to the user
 	argument_class = RegisterArguments # The class used for processing & validating arguments
-	description = "Upload a file to the agent and load it into mapped memory."
+	description = "Upload a file (via modal popup) to the agent and load it into mapped memory."
 	needs_admin = False
 	version = 1
 	author = "@ofasgard"
