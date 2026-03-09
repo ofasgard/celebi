@@ -1,6 +1,6 @@
 from mythic_container.MythicCommandBase import *
 
-import base64
+import base64, json
 
 class RegisterArguments(TaskArguments):
 
@@ -25,7 +25,7 @@ class RegisterArguments(TaskArguments):
 		
 class RegisterCommand(CommandBase):
 	cmd = "register" # Name of the command
-	help_cmd = "register <file>" # Help information presented to the user
+	help_cmd = "register [file]" # Help information presented to the user
 	argument_class = RegisterArguments # The class used for processing & validating arguments
 	description = "Upload a file to the agent and load it into mapped memory."
 	needs_admin = False
@@ -43,5 +43,15 @@ class RegisterCommand(CommandBase):
 			TaskID=taskData.Task.ID,
 			Success=True,
 		)
+		
+		# For now, send the file as a raw parameter rather than implementing any fancy pull-down logic (TODO)
+		# https://docs.mythic-c2.net/customizing/hooking-features/action-upload
+		
+		file_resp = await SendMythicRPCFileSearch(MythicRPCFileSearchMessage(TaskID=taskData.Task.ID, AgentFileID=taskData.args.get_arg("file")))
+		
+		if file_resp.Success:
+			taskData.args.add_arg("file", base64.b64encode(file_resp.Content))
+		else:
+			raise Exception("Error while registering file: " + str(file_resp.error))
 		
 		return response
