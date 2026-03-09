@@ -74,7 +74,7 @@ void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	
 	while (upload.finished == FALSE) {
 		perform_upload(state, &upload);
-		dprintf("DELETEME current chunk: %u", upload.next_chunk);
+		dprintf("DELETEME current chunk: %i", upload.next_chunk);
 		dprintf("DELETEME size of data: %u", upload.buflen);
 	}
 

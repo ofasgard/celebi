@@ -337,8 +337,8 @@ void parse_upload_reply(HttpResponse *response, UploadManager *upload) {
 	
 	int offset = 1; // skip over the message type byte
 	
-	unsigned int total_chunks = unpack_uint(decoded_body, &offset);
-	upload->next_chunk = unpack_uint(decoded_body, &offset) + 1;
+	int total_chunks = unpack_int(decoded_body, &offset);
+	upload->next_chunk = unpack_int(decoded_body, &offset) + 1;
 	
 	if (upload->next_chunk > total_chunks) {
 		upload->finished = TRUE;

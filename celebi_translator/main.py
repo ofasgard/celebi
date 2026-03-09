@@ -258,8 +258,8 @@ class CelebiTranslation(TranslationContainer):
 		if response["status"] == "error":
 			raise Exception("Failed to respond to upload request with error: {}".format(response["error"]))
 			
-		output.extend(response["total_chunks"].to_bytes(4, "big", signed=False))
-		output.extend(response["chunk_num"].to_bytes(4, "big", signed=False))
+		output.extend(response["total_chunks"].to_bytes(4, "big"))
+		output.extend(response["chunk_num"].to_bytes(4, "big"))
 		
 		output.extend(response["chunk_data"].encode())
 		output.append(0)

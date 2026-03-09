@@ -64,7 +64,7 @@ typedef struct UploadManager {
 	char *task_id;
 	char *file_uuid;
 	unsigned int chunk_size;
-	unsigned int next_chunk;
+	int next_chunk;
 	char *current_buffer;
 	size_t buflen; // current length of data within buffer
 	size_t bufsize; // current capacity of buffer
