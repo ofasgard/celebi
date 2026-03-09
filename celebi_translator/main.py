@@ -32,8 +32,12 @@ class CelebiTranslation(TranslationContainer):
 			serialized_reply = self.serialize_tasking_reply(inputMsg.Message)
 			response.Message = base64.b64encode(serialized_reply)
 		if inputMsg.Message["action"] == "post_response":
-			serialized_reply = self.serialize_post_reply(inputMsg.Message)
-			response.Message = base64.b64encode(serialized_reply)
+			# Is this a normal reply to post_response, or are we replying to an upload request?
+			if "responses" in inputMsg.Message and "chunk_data" in inputMsg.Message["responses"][0]:
+				raise Exception("Uh oh! I don't know how to translate an upload reply yet!")
+			else:
+				serialized_reply = self.serialize_post_reply(inputMsg.Message)
+				response.Message = base64.b64encode(serialized_reply)
 			
 		return response
 
