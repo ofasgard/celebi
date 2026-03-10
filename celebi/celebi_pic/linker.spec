@@ -4,6 +4,9 @@ x64:
 	make coff
 	
 	# Merge in other objects.
+	load "bin/vault.o"
+	merge
+	
 	load "bin/message.o"
 	merge
 	

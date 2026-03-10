@@ -6,6 +6,7 @@
 #define MESSAGE_TYPE_UPLOAD  4
 
 #define FILE_CHUNK_SIZE 1024
+#define VAULT_INITIAL_SIZE 8192
 
 typedef struct AgentParams {
 	char *payload_uuid;
@@ -71,6 +72,19 @@ typedef struct UploadManager {
 	BOOL finished;
 	BOOL error;
 } UploadManager;
+
+typedef struct DataBuffer {
+	char  *name;
+	char  *buf;
+	size_t buflen;
+} DataBuffer;
+
+typedef struct DataVault {
+	char *data;
+	size_t data_size;
+	DataBuffer *buffers;
+	size_t buffer_count;
+} DataVault;
 
 typedef struct AgentState {
 	HttpHandle *http;

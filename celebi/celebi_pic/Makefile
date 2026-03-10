@@ -11,6 +11,7 @@ libwinhttp: lib/LibWinHttp/
 
 objects:
 	x86_64-w64-mingw32-gcc $(CFLAGS) -DWIN_X64 -shared -masm=intel -Wall -Wno-pointer-arith -fno-toplevel-reorder -c src/main.c -o bin/main.o
+	x86_64-w64-mingw32-gcc $(CFLAGS) -DWIN_X64 -shared -masm=intel -Wall -Wno-pointer-arith -fno-toplevel-reorder -c src/vault.c -o bin/vault.o
 	x86_64-w64-mingw32-gcc $(CFLAGS) -DWIN_X64 -shared -masm=intel -Wall -Wno-pointer-arith -fno-toplevel-reorder -c src/message.c -o bin/message.o
 	x86_64-w64-mingw32-gcc $(CFLAGS) -DWIN_X64 -shared -masm=intel -Wall -Wno-pointer-arith -fno-toplevel-reorder -c src/params.c -o bin/params.o
 	x86_64-w64-mingw32-gcc $(CFLAGS) -DWIN_X64 -shared -masm=intel -Wall -Wno-pointer-arith -fno-toplevel-reorder -c src/pico.c -o bin/pico.o
