@@ -58,6 +58,4 @@ void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen) {
 	vault->buffer_count++;
 }
 
-// TODO: diagnose crash when invoking add_to_vault() - will probably need to stick some dprintf() into the function
-// TODO: test the data is intact by printing it...?
 // TODO: retrieve from vault, remove from vault, free the vault
