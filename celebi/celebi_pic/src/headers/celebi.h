@@ -75,8 +75,8 @@ typedef struct UploadManager {
 
 typedef struct DataBuffer {
 	char  *name;
-	char  *buf;
-	size_t buflen;
+	size_t buffer_offset;
+	size_t buffer_size;
 } DataBuffer;
 
 typedef struct DataVault {

@@ -33,7 +33,7 @@ void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen) {
 	size_t offset = 0;
 	
 	for (int i = 0; i < vault->buffer_count; i++) {
-		offset += vault->buffers[i].buflen;
+		offset += vault->buffers[i].buffer_size;
 	}
 	
 	// Check if we have enough space to simply perform a copy.
@@ -50,8 +50,8 @@ void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen) {
 	// Create a new DataBuffer to track this new object.
 	DataBuffer databuf = { 0 };
 	databuf.name = clone_str(name);
-	databuf.buf = &vault->data[offset];
-	databuf.buflen = buflen;
+	databuf.buffer_offset = offset;
+	databuf.buffer_size = buflen;
 	
 	// Add it to the vault.
 	vault->buffers[vault->buffer_count] = databuf;
