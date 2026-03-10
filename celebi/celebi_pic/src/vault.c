@@ -28,6 +28,11 @@ void extend_vault(DataVault *vault, size_t new_size) {
 	vault->data_size = new_size;
 }
 
+void free_vault(DataVault *vault) {
+	KERNEL32$VirtualFree(vault->data, 0, MEM_RELEASE);
+	KERNEL32$VirtualFree(vault->buffers, 0, MEM_RELEASE);
+}
+
 void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen) {
 	// Find the "end" of the current data in the vault.
 	size_t offset = 0;
@@ -58,4 +63,4 @@ void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen) {
 	vault->buffer_count++;
 }
 
-// TODO: retrieve from vault, remove from vault, free the vault
+// TODO: retrieve from vault by name, remove from vault by name

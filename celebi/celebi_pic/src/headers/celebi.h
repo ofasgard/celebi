@@ -163,4 +163,5 @@ void free_builtin_picos(AgentCapabilities *cap);
 
 DataVault new_vault();
 void extend_vault(DataVault *vault, size_t new_size);
+void free_vault(DataVault *vault);
 void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen);
