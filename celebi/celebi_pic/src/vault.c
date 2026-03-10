@@ -23,12 +23,14 @@ void extend_vault(DataVault *vault, size_t new_size) {
 	}
 	
 	KERNEL32$VirtualFree(vault->data, 0, MEM_RELEASE);
+	
 	vault->data = new_data;
+	vault->data_size = new_size;
 }
 
 void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen) {
 	// Find the "end" of the current data in the vault.
-	long int offset = 0;
+	size_t offset = 0;
 	
 	for (int i = 0; i < vault->buffer_count; i++) {
 		offset += vault->buffers[i].buflen;
@@ -56,4 +58,6 @@ void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen) {
 	vault->buffer_count++;
 }
 
-// TODO: remove from vault, free the vault
+// TODO: diagnose crash when invoking add_to_vault() - will probably need to stick some dprintf() into the function
+// TODO: test the data is intact by printing it...?
+// TODO: retrieve from vault, remove from vault, free the vault
