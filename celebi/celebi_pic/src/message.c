@@ -295,6 +295,7 @@ UploadManager initialise_upload_manager(char *callback_uuid, char *task_id, char
 	upload.buflen = 0;
 	upload.bufsize = FILE_CHUNK_SIZE;
 	upload.finished = FALSE;
+	upload.error = FALSE;
 	
 	return upload;
 }
@@ -379,7 +380,7 @@ void free_upload_manager(UploadManager *upload) {
 	if (upload->current_buffer != NULL) { KERNEL32$VirtualFree(upload->current_buffer, 0, MEM_RELEASE); }
 }
 
-void perform_upload(AgentState *state, UploadManager *upload) {
+BOOL perform_upload(AgentState *state, UploadManager *upload) {
 	// Generate upload payload.
 	char *msg = generate_upload_message(upload);
 	
@@ -388,10 +389,12 @@ void perform_upload(AgentState *state, UploadManager *upload) {
 	HttpBody body = {msg, MSVCRT$strlen(msg)};
 	HttpResponse response = {0};
 	
-	HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
+	BOOL result = HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
 	
-	if (response.status_code == 200) {
+	if (result == TRUE && response.status_code == 200) {
 		parse_upload_reply(&response, upload);
+	} else {
+		result = FALSE;
 	}
 	
 	// Free unneeded allocations.
@@ -399,4 +402,6 @@ void perform_upload(AgentState *state, UploadManager *upload) {
 	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
 	MSVCRT$free(response.body);
 	MSVCRT$free(response.content_type);
+	
+	return result;
 }

