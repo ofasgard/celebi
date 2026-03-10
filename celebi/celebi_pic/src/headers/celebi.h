@@ -143,5 +143,5 @@ char *unpack_str(char *raw_params, int *offset);
 void unpack_params(char *raw_params, AgentParams *params);
 void free_params(AgentParams *params);
 
-void load_picos(AgentCapabilities *cap);
-void free_picos(AgentCapabilities *cap);
+void load_builtin_picos(AgentCapabilities *cap);
+void free_builtin_picos(AgentCapabilities *cap);

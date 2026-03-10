@@ -42,7 +42,7 @@ void agent_exit(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 
 	HttpDestroy(state->http);
 	free_params(&state->params);
-	free_picos(cap);	
+	free_builtin_picos(cap);	
 	
 	#ifdef CELEBI_EXIT_THREAD
 	KERNEL32$ExitThread(0);
@@ -136,7 +136,7 @@ void go() {
 	dprintf("Parameters unpacked.");
 	#endif
 	
-	load_picos(&capabilities);
+	load_builtin_picos(&capabilities);
 	
 	#ifdef CELEBI_DEBUG
 	dprintf("Loaded PICO capabilities.");

@@ -18,7 +18,7 @@ char * find_getuid_pico() {
     return (char *)&__GETUID_PICO__;
 }
 
-void load_picos(AgentCapabilities *cap) {
+void load_builtin_picos(AgentCapabilities *cap) {
 	char *src_pico;
 	
 	WIN32FUNCS funcs;
@@ -38,9 +38,11 @@ void load_picos(AgentCapabilities *cap) {
 	cap->GetuidPicoData = KERNEL32$VirtualAlloc(NULL, PicoDataSize(src_pico), MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_READWRITE);
 	PicoLoad((IMPORTFUNCS *) &funcs, src_pico, cap->GetuidPicoCode, cap->GetuidPicoData);
 	cap->GetuidPicoEntrypoint = (GETUID_PICO) PicoEntryPoint(src_pico, cap->GetuidPicoCode);
+	
+	// TODO I probably want these to be a contiguous block of memory for sleepmasking, rather than a bunch of small allocations
 }
 
-void free_picos(AgentCapabilities *cap) {
+void free_builtin_picos(AgentCapabilities *cap) {
 	KERNEL32$VirtualFree(cap->CheckinPicoCode, 0, MEM_RELEASE);
 	KERNEL32$VirtualFree(cap->CheckinPicoData, 0, MEM_RELEASE);
 	KERNEL32$VirtualFree(cap->GetuidPicoCode, 0, MEM_RELEASE);
