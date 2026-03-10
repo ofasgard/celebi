@@ -8,6 +8,12 @@
 #define FILE_CHUNK_SIZE 1024
 #define VAULT_INITIAL_SIZE 8192
 
+/*
+ *
+ * Parameters
+ *
+*/
+
 typedef struct AgentParams {
 	char *payload_uuid;
 	char *callback_uuid;
@@ -16,6 +22,12 @@ typedef struct AgentParams {
 	int callback_https;
 	char *callback_uri;
 } AgentParams;
+
+/*
+ *
+ * Messages
+ *
+*/
 
 typedef struct CheckinRequest {
 	char *payload_uuid;
@@ -73,6 +85,12 @@ typedef struct UploadManager {
 	BOOL error;
 } UploadManager;
 
+/*
+ *
+ * Vault
+ *
+*/
+
 typedef struct DataBuffer {
 	char  *name;
 	size_t buffer_offset;
@@ -85,6 +103,12 @@ typedef struct DataVault {
 	DataBuffer *buffers;
 	size_t buffer_count;
 } DataVault;
+
+/*
+ *
+ * State Management
+ *
+*/
 
 typedef struct AgentState {
 	HttpHandle *http;
