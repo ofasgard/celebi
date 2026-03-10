@@ -372,6 +372,13 @@ void parse_upload_reply(HttpResponse *response, UploadManager *upload) {
 	KERNEL32$VirtualFree(decoded_chunk_data, 0, MEM_RELEASE);
 }
 
+void free_upload_manager(UploadManager *upload) {
+	if (upload->callback_uuid != NULL) { KERNEL32$VirtualFree(upload->callback_uuid, 0, MEM_RELEASE); }
+	if (upload->task_id != NULL) { KERNEL32$VirtualFree(upload->task_id, 0, MEM_RELEASE); }
+	if (upload->file_uuid != NULL) { KERNEL32$VirtualFree(upload->file_uuid, 0, MEM_RELEASE); }
+	if (upload->current_buffer != NULL) { KERNEL32$VirtualFree(upload->current_buffer, 0, MEM_RELEASE); }
+}
+
 void perform_upload(AgentState *state, UploadManager *upload) {
 	// Generate upload payload.
 	char *msg = generate_upload_message(upload);

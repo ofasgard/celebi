@@ -79,7 +79,9 @@ void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	dprintf("Retrieved a file from server, final size: %u", upload.buflen);
 	#endif
 
-	// TODO load into persistent memory, perform post, print to debug console, free upload manager
+	// TODO load into persistent memory, perform post, print to debug console
+	
+	free_upload_manager(&upload);
 }
 
 void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
