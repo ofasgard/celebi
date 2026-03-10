@@ -73,12 +73,13 @@ void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	
 	while (upload.finished == FALSE) {
 		perform_upload(state, &upload);
-		dprintf("DELETEME current chunk: %i", upload.next_chunk);
-		dprintf("DELETEME size of data: %u", upload.buflen);
 	}
-	dprintf("DELETEME upload complete");
+	
+	#ifdef CELEBI_DEBUG
+	dprintf("Retrieved a file from server, final size: %u", upload.buflen);
+	#endif
 
-	// TODO pull down file, decode and load into memory, perform post, print to debug console, free upload manager
+	// TODO load into persistent memory, perform post, print to debug console, free upload manager
 }
 
 void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
