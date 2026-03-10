@@ -55,3 +55,5 @@ void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen) {
 	vault->buffers[vault->buffer_count] = databuf;
 	vault->buffer_count++;
 }
+
+// TODO: remove from vault, free the vault

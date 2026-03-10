@@ -88,12 +88,14 @@ void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	}
 	#endif
 
-	// TODO load into persistent memory
+	if (upload.error == FALSE) {
+		add_to_vault(&state->file_vault, "(TODO)", upload.current_buffer, upload.buflen); // TODO provide some kind of identifier
+	}
 
 	BOOL result;
 	TaskPostReply reply = { 0 };
 	if (upload.error == FALSE) {
-		result = perform_post(state, task, &reply, "(TODO)", "success"); // TODO when persistent memory loading is implemented, provide some kind of identifier
+		result = perform_post(state, task, &reply, "(TODO)", "success"); // TODO provide some kind of identifier
 	} else {
 		result = perform_post(state, task, &reply, "upload failed", "error: upload failed");
 	}
@@ -148,6 +150,12 @@ void go() {
 	
 	#ifdef CELEBI_DEBUG
 	dprintf("Parameters unpacked.");
+	#endif
+	
+	state.file_vault = new_vault();
+	
+	#ifdef CELEBI_DEBUG
+	dprintf("Vault allocated.");
 	#endif
 	
 	load_builtin_picos(&capabilities);
