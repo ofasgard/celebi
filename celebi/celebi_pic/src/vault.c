@@ -11,6 +11,7 @@ DataVault new_vault(DWORD protection) {
 	
 	vault.data = KERNEL32$VirtualAlloc(0, VAULT_INITIAL_SIZE, MEM_COMMIT|MEM_RESERVE, protection);
 	vault.data_size = VAULT_INITIAL_SIZE;
+	vault.data_len = 0;
 	vault.buffers = KERNEL32$VirtualAlloc(0, sizeof(DataBuffer) * 1024, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 	vault.buffer_count = 0;
 	
@@ -36,24 +37,19 @@ void free_vault(DataVault *vault) {
 	KERNEL32$VirtualFree(vault->buffers, 0, MEM_RELEASE);
 }
 
-void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen) {
-	// Find the "end" of the current data in the vault.
-	size_t offset = 0;
-	
-	for (int i = 0; i < vault->buffer_count; i++) {
-		offset += vault->buffers[i].buffer_size;
-	}
-	
+void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen) {	
 	// Check if we have enough space to simply perform a copy.
-	if ((offset + buflen + 1) > vault->data_size) {
+	if ((vault->data_len + buflen) >= vault->data_size) {
 		// If not, extend the vault until it is big enough.
 		extend_vault(vault, buflen * 2);
 	}
 	
 	// Perform the copy.
+	size_t offset = vault->data_len;
 	for(int i = 0; i < buflen; i++) {
 		vault->data[offset + i] = buf[i];
 	}
+	vault->data_len += buflen;
 	
 	// Create a new DataBuffer to track this new object.
 	DataBuffer databuf = { 0 };

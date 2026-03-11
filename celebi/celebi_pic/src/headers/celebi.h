@@ -100,6 +100,7 @@ typedef struct DataBuffer {
 typedef struct DataVault {
 	char *data;
 	size_t data_size;
+	size_t data_len;
 	DataBuffer *buffers;
 	size_t buffer_count;
 } DataVault;
