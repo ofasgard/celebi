@@ -16,7 +16,7 @@ class RegisterArguments(TaskArguments):
 				parameter_group_info=[ ParameterGroupInfo(required=True) ]
 			),
 			CommandParameter(
-				name="name"
+				name="name",
 				cli_name="name",
 				display_name="name",
 				type=ParameterType.String,
