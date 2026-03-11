@@ -45,7 +45,7 @@ void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen) {
 	}
 	
 	// Check if we have enough space to simply perform a copy.
-	if ((offset + buflen) > vault->data_size) {
+	if ((offset + buflen + 1) > vault->data_size) {
 		// If not, extend the vault until it is big enough.
 		extend_vault(vault, buflen * 2);
 	}
