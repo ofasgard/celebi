@@ -4,6 +4,8 @@
 WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
 WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD  dwFreeType);
 
+WINBASEAPI int MSVCRT$strcmp(const char *string1, const char *string2);
+
 DataVault new_vault() {
 	DataVault vault = { 0 };
 	
@@ -61,6 +63,17 @@ void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen) {
 	// Add it to the vault.
 	vault->buffers[vault->buffer_count] = databuf;
 	vault->buffer_count++;
+}
+
+BOOL retrieve_from_vault(DataVault *vault, DataBuffer *out, char *key) {
+	for (int i = 0; i < vault->buffer_count; i++) {
+		if (MSVCRT$strcmp(key, vault->buffers[i].name) == 0) {
+			out = &vault->buffers[i];
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 // TODO: retrieve from vault by name, remove from vault by name

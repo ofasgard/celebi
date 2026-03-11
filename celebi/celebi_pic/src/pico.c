@@ -39,7 +39,7 @@ void load_builtin_picos(AgentCapabilities *cap) {
 	PicoLoad((IMPORTFUNCS *) &funcs, src_pico, cap->GetuidPicoCode, cap->GetuidPicoData);
 	cap->GetuidPicoEntrypoint = (GETUID_PICO) PicoEntryPoint(src_pico, cap->GetuidPicoCode);
 	
-	// TODO I probably want these to be a contiguous block of memory for sleepmasking, rather than a bunch of small allocations
+	// TODO I probably want these to be a contiguous block of memory for sleepmasking, rather than a bunch of small allocations. I should re-implement with my DataVault struct.
 }
 
 void free_builtin_picos(AgentCapabilities *cap) {

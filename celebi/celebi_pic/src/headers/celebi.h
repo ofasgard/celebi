@@ -189,3 +189,4 @@ DataVault new_vault();
 void extend_vault(DataVault *vault, size_t new_size);
 void free_vault(DataVault *vault);
 void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen);
+BOOL retrieve_from_vault(DataVault *vault, DataBuffer *out, char *key);
