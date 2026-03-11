@@ -41,7 +41,7 @@ ResolvedPico resolve_loaded_pico(DataVault *vault, char *key) {
 	
 	ResolvedPico pico = { 0 };
 	pico.codelen = PicoCodeSize(buf);
-	pico.code = KERNEL32$VirtualAlloc(NULL, pico.codelen, MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE);
+	pico.code = KERNEL32$VirtualAlloc(NULL, pico.codelen, MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE); // TODO allocate RW and reprotect after calling PicoLoad()
 	pico.datalen = PicoDataSize(buf);
 	pico.data = KERNEL32$VirtualAlloc(NULL, pico.datalen, MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_READWRITE);
 	

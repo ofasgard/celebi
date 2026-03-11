@@ -28,7 +28,7 @@ void extend_vault(DataVault *vault, size_t amount) {
 	KERNEL32$VirtualFree(vault->data, 0, MEM_RELEASE);
 	
 	vault->data = new_data;
-	vault->data_size = vault->data_size + new_size;
+	vault->data_size = new_size;
 }
 
 void free_vault(DataVault *vault) {
