@@ -75,3 +75,8 @@ BOOL retrieve_from_vault(DataVault *vault, DataBuffer *out, char *key) {
 
 	return FALSE;
 }
+
+char *resolve_databuffer(DataVault *vault, DataBuffer *databuf) {
+	return &(vault->data[databuf->buffer_offset]);
+}
+

@@ -94,7 +94,7 @@ void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	#endif
 
 	if (upload.error == FALSE) {
-		add_to_vault(&state->file_vault, "name", upload.current_buffer, upload.buflen); 
+		add_to_vault(&state->file_vault, name, upload.current_buffer, upload.buflen); 
 	}
 
 	BOOL result;
