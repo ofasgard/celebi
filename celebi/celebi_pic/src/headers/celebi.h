@@ -132,14 +132,18 @@ typedef struct {
     __typeof__(VirtualFree)    * VirtualFree;
 } WIN32FUNCS;
 
-typedef struct {
-	char        *CheckinPicoCode;
-	char        *CheckinPicoData;
-	CHECKIN_PICO CheckinPicoEntrypoint;
-	char        *GetuidPicoCode;
-	char        *GetuidPicoData;
-	GETUID_PICO  GetuidPicoEntrypoint;
-} AgentCapabilities;
+typedef struct _EMBEDDED_PICO {
+    int   length;
+    char  value[];
+} _EMBEDDED_PICO;
+
+typedef struct ResolvedPico {
+	char *code;
+	char *data;
+	size_t codelen;
+	size_t datalen;
+	void *entrypoint;
+} ResolvedPico;
 
 /*
  *
@@ -156,7 +160,7 @@ char *generate_checkin_message(CheckinRequest *checkin);
 void parse_checkin_reply(HttpResponse *response, CheckinReply *reply);
 void free_checkin_request(CheckinRequest *request);
 void free_checkin_reply(CheckinReply *reply);
-BOOL perform_checkin(AgentState *state, AgentCapabilities *cap, CheckinReply *reply);
+BOOL perform_checkin(AgentState *state, CheckinReply *reply);
 
 char *generate_tasking_message(TaskingRequest *tasking);
 void parse_tasking_reply(HttpResponse *response, TaskingReply *reply);
@@ -182,8 +186,9 @@ char *unpack_str(char *raw_params, int *offset);
 void unpack_params(char *raw_params, AgentParams *params);
 void free_params(AgentParams *params);
 
-void load_builtin_picos(AgentCapabilities *cap);
-void free_builtin_picos(AgentCapabilities *cap);
+void load_builtin_picos(DataVault *vault);
+ResolvedPico resolve_loaded_pico(DataVault *vault, char *key);
+void free_resolved_pico(ResolvedPico *pico);
 
 DataVault new_vault();
 void extend_vault(DataVault *vault, size_t new_size);

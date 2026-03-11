@@ -42,11 +42,13 @@ x64:
 	load "bin/pico_checkin.o"
 		make object +optimize
 		export
+		preplen
 		link "pico_checkin"
 		
 	load "bin/pico_getuid.o"
 		make object +optimize
 		export
+		preplen
 		link "pico_getuid"
 
  	# Export the resulting PIC.
