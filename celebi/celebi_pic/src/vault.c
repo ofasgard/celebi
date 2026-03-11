@@ -17,7 +17,8 @@ DataVault new_vault(DWORD protection) {
 	return vault;
 }
 
-void extend_vault(DataVault *vault, size_t new_size) {
+void extend_vault(DataVault *vault, size_t amount) {
+	size_t new_size = vault->data_size + amount;
 	char *new_data = KERNEL32$VirtualAlloc(0, new_size, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 	
 	for (int i = 0; i < vault->data_size; i++) {
@@ -27,7 +28,7 @@ void extend_vault(DataVault *vault, size_t new_size) {
 	KERNEL32$VirtualFree(vault->data, 0, MEM_RELEASE);
 	
 	vault->data = new_data;
-	vault->data_size = new_size;
+	vault->data_size = vault->data_size + new_size;
 }
 
 void free_vault(DataVault *vault) {
@@ -46,7 +47,7 @@ void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen) {
 	// Check if we have enough space to simply perform a copy.
 	if ((offset + buflen) > vault->data_size) {
 		// If not, extend the vault until it is big enough.
-		extend_vault(vault, vault->data_size + (buflen * 2));
+		extend_vault(vault, buflen * 2);
 	}
 	
 	// Perform the copy.
