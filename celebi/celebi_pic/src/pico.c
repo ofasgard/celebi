@@ -43,7 +43,7 @@ ResolvedPico resolve_loaded_pico(DataVault *vault, char *key) {
 	pico.codelen = PicoCodeSize(buf);
 	pico.code = KERNEL32$VirtualAlloc(NULL, pico.codelen, MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE);
 	pico.datalen = PicoDataSize(buf);
-	pico.data = KERNEL32$VirtualAlloc(NULL, pico.datalen, MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE);
+	pico.data = KERNEL32$VirtualAlloc(NULL, pico.datalen, MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_READWRITE);
 	
 	PicoLoad((IMPORTFUNCS *) &funcs, buf, pico.code, pico.data);
 	pico.entrypoint = PicoEntryPoint(buf, pico.code);
