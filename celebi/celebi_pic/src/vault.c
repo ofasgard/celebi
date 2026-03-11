@@ -75,5 +75,3 @@ BOOL retrieve_from_vault(DataVault *vault, DataBuffer *out, char *key) {
 
 	return FALSE;
 }
-
-// TODO: retrieve from vault by name, remove from vault by name

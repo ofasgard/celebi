@@ -131,7 +131,7 @@ void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
 	
 	if (MSVCRT$strcmp(task->command, "register") == 0) {
 		#ifdef CELEBI_DEBUG
-		dprintf("Received register command with file UUID %s.", task->parameters);
+		dprintf("Received register command with file name '%s'.", task->parameters);
 		#endif
 		
 		agent_register(state, cap, task);

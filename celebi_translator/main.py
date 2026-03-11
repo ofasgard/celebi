@@ -277,7 +277,7 @@ class CelebiTranslation(TranslationContainer):
 			return params
 		
 		if "file" in param_data:
-			return param_data["file"]
+			return param_data["name"] + "\x00" + param_data["file"]
 			
 		raise Exception("Unrecognised command parameter! Original JSON: {}".format(params))
 

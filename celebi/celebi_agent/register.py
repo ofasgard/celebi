@@ -14,6 +14,13 @@ class RegisterArguments(TaskArguments):
 				display_name="file",
 				type=ParameterType.File,
 				parameter_group_info=[ ParameterGroupInfo(required=True) ]
+			),
+			CommandParameter(
+				name="name"
+				cli_name="name",
+				display_name="name",
+				type=ParameterType.String,
+				parameter_group_info=[ ParameterGroupInfo(required=True) ]
 			)
 		]
 
