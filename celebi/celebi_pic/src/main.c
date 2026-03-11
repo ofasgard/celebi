@@ -14,6 +14,7 @@ WINBASEAPI VOID WINAPI KERNEL32$ExitThread(DWORD dwExitCode);
 
 WINBASEAPI size_t MSVCRT$strlen(const char *str);
 WINBASEAPI int MSVCRT$strcmp(const char *string1, const char *string2);
+WINBASEAPI char *MSVCRT$strtok(char *strToken, const char *strDelimit);
 
 FARPROC resolve(DWORD modHash, DWORD funcHash) {
 	HANDLE hModule = findModuleByHash(modHash);
@@ -71,9 +72,8 @@ void agent_getuid(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
 }
 
 void agent_register(AgentState *state, AgentCapabilities *cap, TaskInfo *task) {
-	int offset = 0;
-	char *name = unpack_str(task->parameters, &offset);
-	char *uuid = unpack_str(task->parameters, &offset);
+	char *name = MSVCRT$strtok(task->parameters, " ");
+	char *uuid = MSVCRT$strtok(task->parameters, " ");
 
 	UploadManager upload = initialise_upload_manager(state->params.callback_uuid, task->id, uuid);
 	
@@ -135,7 +135,7 @@ void process_task(TaskInfo *task, AgentState *state, AgentCapabilities *cap) {
 	
 	if (MSVCRT$strcmp(task->command, "register") == 0) {
 		#ifdef CELEBI_DEBUG
-		dprintf("Received register command with file name '%s'.", task->parameters);
+		dprintf("Received register command with parameters: '%s'", task->parameters);
 		#endif
 		
 		agent_register(state, cap, task);
