@@ -4,7 +4,7 @@
 
 A WIP Mythic agent for x64 Windows that uses Crystal Palace to build its payloads.
 
-To be clear, this agent currently **only performs checkin and tasking**. As of right now, that's it. The only commands it implements are `exit` and `getuid`. It is an unfinished WIP, and it is also not opsec safe. Please don't try to use it in a real red team engagement.
+To be clear, this agent is an unfinished WIP, and it is also not opsec safe. Please don't try to use it in a real red team engagement.
 
 Current features:
 
@@ -12,6 +12,7 @@ Current features:
 - Supports the `callback_host` and `callback_port` parameters to specify the C2 listener
 - Supports the `post_uri` parameter to specify the URI for checking in
 - Supports the `exit` and `getuid` commands
+- Supports a `register` command to upload files to the agent and cache them in memory
 
 Current limitations:
 
@@ -22,13 +23,13 @@ Current limitations:
 - Ignores most C2 profile parameters
 - Completely opsec unsafe: no sleep masking, no obfuscation logic, no tradecraft (yet!)
 - Very little error handling, will probably crash if something unexpected happens
+- The `register` command uses a very simple/naive "memory vault" implementation that endlessly grows as you register more files.
 
 Longterm goals:
 
 - Fully implement parameters from the http C2 profile
 - Implement AES256 traffic encryption
 - Implement "core" obfuscation logic such as sleepmasking as a set of PICOs (default PICOs aren't opsec-safe, but you can swap them out for any PICO that follows the same convention!)
-- Implement a `register` command to load files into memory
 - Implement an `unregister` command to clear files from memory
 - Implement an `execute_bof` and `execute_pico` command to invoke a loaded file as an executable capability.
 - Implement a `morph` command to hotswap a built-in PICO with one you uploaded with the `register` command
