@@ -39,6 +39,9 @@ ResolvedPico resolve_loaded_pico(DataVault *vault, char *key) {
 	retrieve_from_vault(vault, &databuf, key);
 	char *buf = resolve_databuffer(vault, &databuf);
 	
+	// Note that buf is a pointer into the vault, which might become invalid if the vault is extended (reallocated).
+	// It's the caller's responsibility to resolve the pico, invoke it, then free it BEFORE calling add_to_vault() again.
+	
 	ResolvedPico pico = { 0 };
 	pico.codelen = PicoCodeSize(buf);
 	pico.code = KERNEL32$VirtualAlloc(NULL, pico.codelen, MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE); // TODO allocate RW and reprotect after calling PicoLoad()
