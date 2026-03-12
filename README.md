@@ -13,7 +13,7 @@ Current features:
 - Supports the `post_uri` parameter to specify the URI for checking in.
 - Supports the `exit` and `getuid` built-in commands.
 - Supports a `register` and `unregister` command to upload or delete files from the agent's memory vault.
-- Supports an `execute_pico` command to interpret an upload file as a Crystal Palace PICO and run it.
+- Supports an `execute_pico` command to interpret a registered file as a Crystal Palace PICO and run it.
 
 Current limitations:
 
