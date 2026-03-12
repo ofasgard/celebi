@@ -11,14 +11,14 @@ class ExecutePicoArguments(TaskArguments):
 				cli_name="name",
 				display_name="name",
 				type=ParameterType.String,
-				parameter_group_info=[ ParameterGroupInfo(required=True) ]
+				parameter_group_info=[ ParameterGroupInfo(required=True, ui_position=0) ]
 			),
 			CommandParameter(
 				name="pico_args",
 				cli_name="pico_args",
 				display_name="pico_args",
 				type=ParameterType.String,
-				parameter_group_info=[ ParameterGroupInfo(required=True) ]
+				parameter_group_info=[ ParameterGroupInfo(required=True, ui_position=1) ]
 			)
 		]
 		
