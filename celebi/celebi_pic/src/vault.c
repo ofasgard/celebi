@@ -22,7 +22,7 @@ void extend_vault(DataVault *vault, size_t amount) {
 	size_t new_size = vault->data_size + amount;
 	char *new_data = KERNEL32$VirtualAlloc(0, new_size, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 	
-	for (int i = 0; i < vault->data_size; i++) {
+	for (int i = 0; i < vault->data_len; i++) {
 		new_data[i] = vault->data[i];
 	}
 	
