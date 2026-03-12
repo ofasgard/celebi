@@ -52,7 +52,7 @@ ResolvedPico resolve_loaded_pico(DataVault *vault, char *key) {
 	pico.entrypoint = PicoEntryPoint(buf, pico.code);
 	
 	return pico;
-}
+} // TODO error handling - what if the pico can't be loaded? and then add checks to places where picos get resolved
 
 void free_resolved_pico(ResolvedPico *pico) {
 	KERNEL32$VirtualFree(pico->code, 0, MEM_RELEASE);
