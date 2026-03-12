@@ -18,13 +18,13 @@ class ExecutePicoArguments(TaskArguments):
 				cli_name="pico_args",
 				display_name="pico_args",
 				type=ParameterType.String,
-				parameter_group_info=[ ParameterGroupInfo(required=True, ui_position=1) ]
+				parameter_group_info=[ ParameterGroupInfo(required=False, ui_position=1) ]
 			)
 		]
 		
 	async def parse_arguments(self):
 		if len(self.command_line) == 0:
-			raise Exception("Please provide the name of a loaded PICO and some arguments.")
+			raise Exception("Please provide the name of a loaded PICO.")
 		if self.command_line[0] != "{":
 			raise Exception("Require JSON blob, but got raw command line.")
 		self.load_args_from_json_string(self.command_line)

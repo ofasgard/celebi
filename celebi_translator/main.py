@@ -277,7 +277,8 @@ class CelebiTranslation(TranslationContainer):
 			return param_data["name"] + "\t" + param_data["file"]
 			
 		if cmd == "execute_pico":
-			return param_data["name"] + "\t" + param_data["pico_args"]
+			args = param_data["pico_args"] if "pico_args" in param_data else ""
+			return param_data["name"] + "\t" + args
 			
 		raise Exception("Unrecognised command parameter! Original JSON: {}".format(params))
 
