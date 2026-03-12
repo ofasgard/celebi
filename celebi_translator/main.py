@@ -268,9 +268,6 @@ class CelebiTranslation(TranslationContainer):
 
 	def process_parameters(self, params):
 		# Helper function to convert JSON file parameters into the raw strings expected by the agent.
-		# This is a pretty brittle implementation that assumes there's only a single parameter. 
-		# Will probably need to be rewritten when I have a command that takes multiple params.
-		
 		try:
 			param_data = json.loads(params)
 		except:
@@ -278,6 +275,9 @@ class CelebiTranslation(TranslationContainer):
 		
 		if "file" in param_data:
 			return param_data["name"] + "\t" + param_data["file"]
+			
+		if "pico_args" in param_data:
+			return param_data["name"] + "\t" + param_data["pico_args"]
 			
 		raise Exception("Unrecognised command parameter! Original JSON: {}".format(params))
 
