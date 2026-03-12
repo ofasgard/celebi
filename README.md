@@ -57,7 +57,7 @@ The list of built-in PICOs currently includes:
 - `checkin.c`: Performs basic information gathering about the target system and uses the collected data to enrich a `CheckinRequest` struct.
 - `getuid.c`: Basically the same as the checkin PICO, except it only returns the current user's username. Used by the `getuid` built-in command.
 
-In addition, the design calls for the ability to change every aspect about the implant while it is running. This is currently not implemented, but will come in the form of a command that allows you to replace any of the built-in PICOs with an uploaded PICO at runtime. This allows your agent to dynamically change its TTPs and behaviour without recompiling the underlying shellcode.
+In addition, the design calls for the ability to change every aspect of the implant while it is running. Currently, you can do this with the `unregister` and `register` commands. For example, if you unregister `_builtin_getuid` and register a new PICO with the same name, the behaviour of the getuid command will change. This allows your agent to dynamically change its TTPs and behaviour without recompiling the underlying shellcode; I plan to implement a `morph` command to streamline this process.
 
 I don't intend to write a large number of commands for this agent. Beyond basic convenience commands like `getuid` or `download`, the plan is for most of the agent's capabilities to be loaded *after* it starts running, in the form of BOFs or PICOs. I plan to provide support for both. Likewise, I don't plan to implement many (or maybe any) of Mythic's "optional" commands, because most of the implant's capabilities are intended to be loaded in remotely.
 
