@@ -107,18 +107,6 @@ typedef struct DataVault {
 
 /*
  *
- * State Management
- *
-*/
-
-typedef struct AgentState {
-	HttpHandle *http;
-	AgentParams params;
-	DataVault file_vault;
-} AgentState;
-
-/*
- *
  * PICOs
  *
 */
@@ -145,6 +133,18 @@ typedef struct ResolvedPico {
 	size_t datalen;
 	void *entrypoint;
 } ResolvedPico;
+
+/*
+ *
+ * State Management
+ *
+*/
+
+typedef struct AgentState {
+	HttpHandle *http;
+	AgentParams params;
+	DataVault file_vault;
+} AgentState;
 
 /*
  *
