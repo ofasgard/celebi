@@ -84,16 +84,18 @@ BOOL retrieve_from_vault(DataVault *vault, DataBuffer *out, char *key) {
 }
 
 BOOL remove_from_vault(DataVault *vault, char *key) {
-	DataBuffer databuf = { 0 };
-	if (retrieve_from_vault(vault, &databuf, key) == FALSE) { return FALSE; }
-	
-	databuf.name = "(UNALLOCATED)";
-	char *buf = resolve_databuffer(vault, &databuf);
-	for (int i = 0; i < databuf.buffer_size; i++) {
-		buf[i] = 0;
+	for (int i = 0; i < vault->buffer_count; i++) {
+		if (MSVCRT$strcmp(key, vault->buffers[i].name) == 0) {
+			vault->buffers[i].name = "(UNALLOCATED)";
+			char *buf = resolve_databuffer(vault, &vault->buffers[i]);
+			for (int i = 0; i < vault->buffers[i].buffer_size; i++) {
+				buf[i] = 0;
+			}
+			return TRUE;
+		}
 	}
 	
-	return TRUE;
+	return FALSE;
 }
 
 char *resolve_databuffer(DataVault *vault, DataBuffer *databuf) {
