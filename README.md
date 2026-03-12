@@ -97,7 +97,7 @@ Use Crystal Palace to do so:
 $ piclink linker.spec x64 dbg_pico.bin
 ```
 
-Then you can use Mythic to upload and execute the PICO!
+Then you can use the `register` command to upload your PICO, and `execute_pico` to invoke it!
 
 
 ![A screenshot demonstrating executing a PICO with Celebi](docs/execute-pico-1.png)
