@@ -209,7 +209,7 @@ void go() {
 	dprintf("Parameters unpacked.");
 	#endif
 	
-	state.file_vault = new_vault(PAGE_READWRITE);
+	state.file_vault = new_vault();
 	
 	#ifdef CELEBI_DEBUG
 	dprintf("Vault allocated.");

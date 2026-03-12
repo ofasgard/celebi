@@ -6,10 +6,10 @@ WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWO
 
 WINBASEAPI int MSVCRT$strcmp(const char *string1, const char *string2);
 
-DataVault new_vault(DWORD protection) { // TODO remove protection parameter, no longer needed
+DataVault new_vault() {
 	DataVault vault = { 0 };
 	
-	vault.data = KERNEL32$VirtualAlloc(0, VAULT_INITIAL_SIZE, MEM_COMMIT|MEM_RESERVE, protection);
+	vault.data = KERNEL32$VirtualAlloc(0, VAULT_INITIAL_SIZE, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 	vault.data_size = VAULT_INITIAL_SIZE;
 	vault.data_len = 0;
 	vault.buffers = KERNEL32$VirtualAlloc(0, sizeof(DataBuffer) * 1024, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE); // TODO edge case handling to fail if we have somehow loaded 1024 files
