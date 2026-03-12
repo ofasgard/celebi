@@ -24,7 +24,7 @@ class ExecutePicoArguments(TaskArguments):
 		
 	async def parse_arguments(self):
 		if len(self.command_line) == 0:
-			raise Exception("Please provide the name of a loaded PICO and some arguments.") # TODO
+			raise Exception("Please provide the name of a loaded PICO and some arguments.")
 		if self.command_line[0] != "{":
 			raise Exception("Require JSON blob, but got raw command line.")
 		self.load_args_from_json_string(self.command_line)

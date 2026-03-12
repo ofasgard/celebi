@@ -227,7 +227,7 @@ class CelebiTranslation(TranslationContainer):
 				output.extend(task["command"].encode())
 				output.append(0)
 				
-				raw_params = self.process_parameters(task["parameters"])
+				raw_params = self.process_parameters(task["command"], task["parameters"])
 				output.extend(raw_params.encode())
 				output.append(0)
 				
@@ -266,17 +266,17 @@ class CelebiTranslation(TranslationContainer):
 		
 		return bytes(output)
 
-	def process_parameters(self, params):
+	def process_parameters(self, cmd, params):
 		# Helper function to convert JSON file parameters into the raw strings expected by the agent.
 		try:
 			param_data = json.loads(params)
 		except:
 			return params
 		
-		if "file" in param_data:
+		if cmd == "register":
 			return param_data["name"] + "\t" + param_data["file"]
 			
-		if "pico_args" in param_data:
+		if cmd == "execute_pico":
 			return param_data["name"] + "\t" + param_data["pico_args"]
 			
 		raise Exception("Unrecognised command parameter! Original JSON: {}".format(params))
