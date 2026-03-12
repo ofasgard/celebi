@@ -37,6 +37,16 @@ void free_vault(DataVault *vault) {
 	KERNEL32$VirtualFree(vault->buffers, 0, MEM_RELEASE);
 }
 
+BOOL is_in_vault(DataVault *vault, char *key) {
+	for (int i = 0; i < vault->buffer_count; i++) {
+		if (MSVCRT$strcmp(key, vault->buffers[i].name) == 0) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen) {	
 	// Check if we have enough space to simply perform a copy.
 	if ((vault->data_len + buflen) >= vault->data_size) {
@@ -71,6 +81,19 @@ BOOL retrieve_from_vault(DataVault *vault, DataBuffer *out, char *key) {
 	}
 
 	return FALSE;
+}
+
+BOOL remove_from_vault(DataVault *vault, char *key) {
+	DataBuffer databuf = { 0 };
+	if (retrieve_from_vault(vault, &databuf, key) == FALSE) { return FALSE; }
+	
+	databuf.name = "(UNALLOCATED)";
+	char *buf = resolve_databuffer(vault, &databuf);
+	for (int i = 0; i < databuf.buffer_size; i++) {
+		buf[i] = 0;
+	}
+	
+	return TRUE;
 }
 
 char *resolve_databuffer(DataVault *vault, DataBuffer *databuf) {

