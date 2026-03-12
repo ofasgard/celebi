@@ -6,7 +6,7 @@ WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWO
 
 WINBASEAPI int MSVCRT$strcmp(const char *string1, const char *string2);
 
-DataVault new_vault(DWORD protection) {
+DataVault new_vault(DWORD protection) { // TODO remove protection parameter, no longer needed
 	DataVault vault = { 0 };
 	
 	vault.data = KERNEL32$VirtualAlloc(0, VAULT_INITIAL_SIZE, MEM_COMMIT|MEM_RESERVE, protection);

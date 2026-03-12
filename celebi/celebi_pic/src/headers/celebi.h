@@ -189,7 +189,7 @@ void unpack_params(char *raw_params, AgentParams *params);
 void free_params(AgentParams *params);
 
 void load_builtin_picos(DataVault *vault);
-ResolvedPico resolve_loaded_pico(DataVault *vault, char *key);
+BOOL resolve_loaded_pico(DataVault *vault, ResolvedPico *pico, char *key);
 void free_resolved_pico(ResolvedPico *pico);
 
 DataVault new_vault();

