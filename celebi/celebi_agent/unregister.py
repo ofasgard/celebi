@@ -3,18 +3,11 @@ from mythic_container.MythicRPC import *
 
 import base64, json
 
-class RegisterArguments(TaskArguments):
+class UnregisterArguments(TaskArguments):
 
 	def __init__(self, command_line, **kwargs):
 		super().__init__(command_line, **kwargs)
 		self.args = [
-			CommandParameter(
-				name="file",
-				cli_name="file",
-				display_name="file",
-				type=ParameterType.File,
-				parameter_group_info=[ ParameterGroupInfo(required=True) ]
-			),
 			CommandParameter(
 				name="name",
 				cli_name="name",
@@ -26,20 +19,20 @@ class RegisterArguments(TaskArguments):
 
 	async def parse_arguments(self):
 		if len(self.command_line) == 0:
-			raise Exception("Please provide a file to register via the GUI.")
+			raise Exception("Please provide the name of a file to unregister.")
 		if self.command_line[0] != "{":
 			raise Exception("Require JSON blob, but got raw command line.")
 		self.load_args_from_json_string(self.command_line)
 		
-class RegisterCommand(CommandBase):
-	cmd = "register" # Name of the command
-	help_cmd = "register" # Help information presented to the user
-	argument_class = RegisterArguments # The class used for processing & validating arguments
-	description = "Upload a file (via modal popup) to the agent and load it into mapped memory."
+class UnregisterCommand(CommandBase):
+	cmd = "unregister" # Name of the command
+	help_cmd = "unregister [name]" # Help information presented to the user
+	argument_class = UnregisterArguments # The class used for processing & validating arguments
+	description = "Task the agent to clear a registered file from its mapped memory."
 	needs_admin = False
 	version = 1
 	author = "@ofasgard"
-	attackmapping = ["T1620"] # "Allocating then executing payloads directly within the memory of the process"
+	attackmapping = ["T1070"] # "Adversaries may delete or modify artifacts generated within systems to remove evidence of their presence"
 	supported_ui_features = []
 	attributes = CommandAttributes(
 		builtin=True, # Is this command always compiled into this payload type?
