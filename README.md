@@ -32,6 +32,7 @@ Longterm goals:
 - Fully implement parameters from the http C2 profile
 - Implement AES256 traffic encryption
 - Implement "core" obfuscation logic such as sleepmasking as a set of PICOs (default PICOs aren't opsec-safe, but you can swap them out for any PICO that follows the same convention!)
+- Port over TrustedSec's situational awareness BOFs (GPL) and use them to provide some built-in PICO commands to the agent.
 - Implement `execute_bof` and `execute_shellcode` commands as a supplement to the `execute_pico` command.
 - Implement a `morph` command to hotswap a built-in PICO with one you uploaded with the `register` command
 - Support other C2 profiles
