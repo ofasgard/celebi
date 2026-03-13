@@ -113,7 +113,7 @@ typedef struct DataVault {
 */
 
 typedef void (*CHECKIN_PICO)(CheckinRequest *req);
-typedef char *(*GETUID_PICO)();
+typedef char *(*WHOAMI_PICO)();
 typedef char *(*GENERIC_PICO)(char *cmdline);
 
 typedef struct {

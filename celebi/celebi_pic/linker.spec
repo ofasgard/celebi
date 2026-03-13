@@ -45,11 +45,11 @@ x64:
 		preplen
 		link "pico_checkin"
 		
-	load "bin/pico_getuid.o"
+	load "bin/pico_whoami.o"
 		make object +optimize
 		export
 		preplen
-		link "pico_getuid"
+		link "pico_whoami"
 
  	# Export the resulting PIC.
 	export

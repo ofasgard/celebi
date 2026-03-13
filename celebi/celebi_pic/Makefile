@@ -19,7 +19,7 @@ objects:
 
 pico:
 	x86_64-w64-mingw32-gcc $(CFLAGS) -DWIN_X64 -shared -masm=intel -Wall -Wno-pointer-arith -c src/pico/checkin.c -o bin/pico_checkin.o
-	x86_64-w64-mingw32-gcc $(CFLAGS) -DWIN_X64 -shared -masm=intel -Wall -Wno-pointer-arith -c src/pico/getuid.c -o bin/pico_getuid.o
+	x86_64-w64-mingw32-gcc $(CFLAGS) -DWIN_X64 -shared -masm=intel -Wall -Wno-pointer-arith -c src/pico/whoami.c -o bin/pico_whoami.o
 	
 pic: dirs libtcg libwinhttp objects pico linker.spec
 	java -Dcrystalpalace.verbose=false -jar ${CPL_PATH} buildPic ./linker.spec x64 out/main.bin @config.spec

@@ -1,6 +1,6 @@
 from mythic_container.MythicCommandBase import *
 
-class GetuidArguments(TaskArguments):
+class WhoamiArguments(TaskArguments):
 
 	def __init__(self, command_line, **kwargs):
 		super().__init__(command_line, **kwargs)
@@ -8,13 +8,13 @@ class GetuidArguments(TaskArguments):
 
 	async def parse_arguments(self):
 		if len(self.command_line) > 0:
-			raise Exception("Getuid command takes no parameters.")
+			raise Exception("Whoami command takes no parameters.")
 
-class GetuidCommand(CommandBase):
-	cmd = "getuid" # Name of the command
-	help_cmd = "getuid" # Help information presented to the user
-	argument_class = GetuidArguments # The class used for processing & validating arguments
-	description = "Get the username of the logged in user."
+class WhoamiCommand(CommandBase):
+	cmd = "whoami" # Name of the command
+	help_cmd = "whoami" # Help information presented to the user
+	argument_class = WhoamiArguments # The class used for processing & validating arguments
+	description = "Get the username of the logged in user (ported to PICO format from TrustedSec's CS-Situational-Awareness-BOF repository)."
 	needs_admin = False
 	version = 1
 	author = "@ofasgard"

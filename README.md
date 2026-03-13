@@ -11,7 +11,7 @@ Current features:
 - Performs a plaintext checkin with the specified C2 server via HTTP(S).
 - Supports the `callback_host` and `callback_port` parameters to specify the C2 listener.
 - Supports the `post_uri` parameter to specify the URI for checking in.
-- Supports the `exit` and `getuid` built-in commands.
+- Supports the `exit` and `whoami` built-in commands.
 - Supports a `register` and `unregister` command to upload or delete files from the agent's memory vault.
 - Supports an `execute_pico` command to interpret a registered file as a Crystal Palace PICO and run it.
 
@@ -56,11 +56,11 @@ The overall design goal of Celebi is to hardcode as little functionality as poss
 The list of built-in PICOs currently includes:
 
 - `checkin.c`: Performs basic information gathering about the target system and uses the collected data to enrich a `CheckinRequest` struct.
-- `getuid.c`: Basically the same as the checkin PICO, except it only returns the current user's username. Used by the `getuid` built-in command.
+- `whoami.c`: A port of the whoami BOF from TrustedSec's CS-Situational-Awareness-BOF repository. Used by the `whoami` built-in command.
 
-In addition, the design calls for the ability to change every aspect of the implant while it is running. Currently, you can do this with the `unregister` and `register` commands. For example, if you unregister `_builtin_getuid` and register a new PICO with the same name, the behaviour of the getuid command will change. This allows your agent to dynamically change its TTPs and behaviour without recompiling the underlying shellcode; I plan to implement a `morph` command to streamline this process.
+In addition, the design calls for the ability to change every aspect of the implant while it is running. Currently, you can do this with the `unregister` and `register` commands. For example, if you unregister `_builtin_whoami` and register a new PICO with the same name, the behaviour of the whoami command will change. This allows your agent to dynamically change its TTPs and behaviour without recompiling the underlying shellcode; I plan to implement a `morph` command to streamline this process.
 
-I don't intend to write a large number of commands for this agent. Beyond basic convenience commands like `getuid` or `download`, the plan is for most of the agent's capabilities to be loaded *after* it starts running, in the form of BOFs or PICOs. I plan to provide support for both. Likewise, I don't plan to implement many (or maybe any) of Mythic's "optional" commands, because most of the implant's capabilities are intended to be loaded in remotely.
+I don't intend to write a large number of commands for this agent. Beyond basic convenience commands like `whoami` or `download`, the plan is for most of the agent's capabilities to be loaded *after* it starts running, in the form of BOFs or PICOs. I plan to provide support for both. Likewise, I don't plan to implement many (or maybe any) of Mythic's "optional" commands, because most of the implant's capabilities are intended to be loaded in remotely.
 
 ## Example: Executing a PICO
 
@@ -113,3 +113,4 @@ Thanks to:
 - [@pard0p](https://github.com/pard0p/LibWinHttp) for the LibWinHttp library that made implementing messaging much less of a headache.
 - [Cody Thomas](https://github.com/its-a-feature) for Mythic (and excellent documentation!)
 - [Leonardo Tamiano](https://blog.leonardotamiano.xyz/tech/base64/) for a nice self-contained base64 implementation that plays nicely with PIC.
+- [TrustedSec](https://github.com/trustedsec/CS-Situational-Awareness-BOF) for some open-source BOFs which I ported into PICOs to implement some of celebi's built-in commands.
