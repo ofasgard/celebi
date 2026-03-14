@@ -111,7 +111,7 @@ void agent_whoami(AgentState *state, TaskInfo *task) {
 }
 
 void agent_register(AgentState *state, TaskInfo *task) {
-	if (task->parameters[0] == 0x09 || MSVCRT$strlen(task->parameters)) {
+	if (task->parameters[0] == 0x09 || MSVCRT$strlen(task->parameters) == 0) {
 		agent_post(state, task, "no filename provided", "error: no filename provided");
 		return;
 	}
