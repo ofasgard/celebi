@@ -132,14 +132,12 @@ void agent_register(AgentState *state, TaskInfo *task) {
 	}
 	#endif
 
-	if (upload.error == FALSE) {
-		add_to_vault(&state->file_vault, name, upload.current_buffer, upload.buflen); 
-	}
-
-	if (upload.error == FALSE) {
+	if (upload.error == TRUE) {
+		agent_post(state, task, "upload failed", "error: upload failed");
+	} else if (add_to_vault(&state->file_vault, name, upload.current_buffer, upload.buflen) == TRUE) {
 		agent_post(state, task, name, "success");
 	} else {
-		agent_post(state, task, "upload failed", "error: upload failed");
+		agent_post(state, task, "vault full", "error: vault full");
 	}
 	
 	free_upload_manager(&upload);

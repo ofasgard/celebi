@@ -8,6 +8,7 @@
 #define FILE_CHUNK_SIZE 1024
 #define MAXIMUM_POST_SIZE 1024
 #define VAULT_INITIAL_SIZE 8192
+#define VAULT_MAX_BUFFERS 1024
 
 /*
  *
@@ -199,7 +200,7 @@ DataVault new_vault();
 void extend_vault(DataVault *vault, size_t new_size);
 void free_vault(DataVault *vault);
 BOOL is_in_vault(DataVault *vault, char *key);
-void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen);
+BOOL add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen);
 BOOL retrieve_from_vault(DataVault *vault, DataBuffer *out, char *key);
 BOOL remove_from_vault(DataVault *vault, char *key);
 char *resolve_databuffer(DataVault *vault, DataBuffer *databuf);

@@ -12,7 +12,7 @@ DataVault new_vault() {
 	vault.data = KERNEL32$VirtualAlloc(0, VAULT_INITIAL_SIZE, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 	vault.data_size = VAULT_INITIAL_SIZE;
 	vault.data_len = 0;
-	vault.buffers = KERNEL32$VirtualAlloc(0, sizeof(DataBuffer) * 1024, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE); // TODO edge case handling to fail if we have somehow loaded 1024 files
+	vault.buffers = KERNEL32$VirtualAlloc(0, sizeof(DataBuffer) * VAULT_MAX_BUFFERS, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 	vault.buffer_count = 0;
 	
 	return vault;
@@ -47,7 +47,11 @@ BOOL is_in_vault(DataVault *vault, char *key) {
 	return FALSE;
 }
 
-void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen) {	
+BOOL add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen) {
+	if (vault->buffer_count == VAULT_MAX_BUFFERS) {
+		return FALSE;
+	}
+
 	// Check if we have enough space to simply perform a copy.
 	if ((vault->data_len + buflen) >= vault->data_size) {
 		// If not, extend the vault until it is big enough.
@@ -70,6 +74,8 @@ void add_to_vault(DataVault *vault, char *name, char *buf, size_t buflen) {
 	// Add it to the vault.
 	vault->buffers[vault->buffer_count] = databuf;
 	vault->buffer_count++;
+	
+	return TRUE;
 }
 
 BOOL retrieve_from_vault(DataVault *vault, DataBuffer *out, char *key) {
