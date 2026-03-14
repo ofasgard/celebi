@@ -15,22 +15,19 @@ WINBASEAPI NET_API_STATUS WINAPI NETAPI32$NetWkstaGetInfo(LMSTR, DWORD, LPBYTE*)
 WINBASEAPI NET_API_STATUS WINAPI NETAPI32$NetApiBufferFree(LPVOID);
 
 void go(CheckinRequest *req) {
-	BOOL result;
 	DWORD len;
 	
 	req->pid = KERNEL32$GetCurrentProcessId();
 	
 	char *username = KERNEL32$VirtualAlloc(0, 256, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-	result = SECUR32$GetUserNameExA(NameSamCompatible, username, &len);
-	if (result == TRUE) {
+	if (SECUR32$GetUserNameExA(NameSamCompatible, username, &len) == TRUE) {
 		req->username = username;
 	} else {
 		KERNEL32$VirtualFree(username, 0, MEM_RELEASE);
 	}
 	
 	char *hostname = KERNEL32$VirtualAlloc(0, 256, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-	result = KERNEL32$GetComputerNameA(hostname, &len);
-	if (result == TRUE) {
+	if (KERNEL32$GetComputerNameA(hostname, &len) == TRUE) {
 		req->hostname = hostname;
 	} else {
 		KERNEL32$VirtualFree(hostname, 0, MEM_RELEASE);
