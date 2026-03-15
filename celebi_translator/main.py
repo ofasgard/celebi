@@ -274,23 +274,17 @@ class CelebiTranslation(TranslationContainer):
 			return params
 		
 		if cmd == "register":
-			if len(param_data["name"]) == 0:
-				raise Exception("PICO name cannot be blank!")
-		
 			return param_data["name"] + "\t" + param_data["file"]
 			
 		if cmd == "unregister":
-			if len(param_data["name"]) == 0:
-				raise Exception("PICO name cannot be blank!")
-		
 			return param_data["name"]
 			
 		if cmd == "execute_pico":
-			if len(param_data["name"]) == 0:
-				raise Exception("PICO name cannot be blank!")
-		
 			args = param_data["pico_args"] if "pico_args" in param_data else ""
 			return param_data["name"] + "\t" + args
+			
+		if cmd == "morph":
+			return param_data["command"] + "\t" + param_data["pico_name"]
 			
 		raise Exception("Unrecognised command parameter! Original JSON: {}".format(params))
 
