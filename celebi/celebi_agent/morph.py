@@ -29,7 +29,13 @@ class MorphArguments(TaskArguments):
 			raise Exception("Please provide command to morph and the name of a registered PICO.")
 		if self.command_line[0] != "{":
 			raise Exception("Require JSON blob, but got raw command line.")
+
 		self.load_args_from_json_string(self.command_line)
+		
+		if len(self.get_arg("command")) == 0:
+			raise Exception("You must provide a value for the command argument")
+		if len(self.get_arg("pico_name")) == 0:
+			raise Exception("You must provide a value for the pico_name argument")
 		
 class MorphCommand(CommandBase):
 	cmd = "morph" # Name of the command

@@ -29,7 +29,11 @@ class RegisterArguments(TaskArguments):
 			raise Exception("Please provide a file to register via the GUI.")
 		if self.command_line[0] != "{":
 			raise Exception("Require JSON blob, but got raw command line.")
+		
 		self.load_args_from_json_string(self.command_line)
+		
+		if len(self.get_arg("name")) == 0:
+			raise Exception("You must provide a value for the name argument")
 		
 class RegisterCommand(CommandBase):
 	cmd = "register" # Name of the command
