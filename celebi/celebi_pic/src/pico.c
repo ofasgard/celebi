@@ -30,14 +30,20 @@ char * find_whoami_pico() {
     return (char *)&__WHOAMI_PICO__;
 }
 
-void load_builtin_picos(DataVault *vault) {
+BuiltinPicos load_builtin_picos(DataVault *vault) {
+	BuiltinPicos picos = { 0 };
+
+	picos.checkin = "_builtin_checkin";
 	_EMBEDDED_PICO *checkin = (_EMBEDDED_PICO *) find_checkin_pico();
-	add_to_vault(vault, "_builtin_checkin", checkin->value, checkin->length);
-	for (int i = 0; i < checkin->length; i++) { checkin->value[i] = 0; }
+	add_to_vault(vault, picos.checkin, checkin->value, checkin->length);
+	for (int i = 0; i < checkin->length; i++) { checkin->value[i] = 0; }	
 	
+	picos.whoami = "_builtin_whoami";
 	_EMBEDDED_PICO *whoami = (_EMBEDDED_PICO *) find_whoami_pico();
-	add_to_vault(vault, "_builtin_whoami", whoami->value, whoami->length);
+	add_to_vault(vault, picos.whoami, whoami->value, whoami->length);
 	for (int i = 0; i < whoami->length; i++) { whoami->value[i] = 0; }
+	
+	return picos;
 }
 
 BOOL resolve_loaded_pico(DataVault *vault, WIN32FUNCS *funcs, ResolvedPico *pico, char *key) {

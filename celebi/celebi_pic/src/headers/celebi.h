@@ -137,6 +137,11 @@ typedef struct ResolvedPico {
 	void *entrypoint;
 } ResolvedPico;
 
+typedef struct BuiltinPicos {
+	char *checkin;
+	char *whoami;
+} BuiltinPicos;
+
 /*
  *
  * State Management
@@ -147,6 +152,7 @@ typedef struct AgentState {
 	HttpHandle *http;
 	AgentParams params;
 	DataVault file_vault;
+	BuiltinPicos builtin_picos;
 	WIN32FUNCS funcs;
 } AgentState;
 
@@ -192,7 +198,7 @@ void unpack_params(char *raw_params, AgentParams *params);
 void free_params(AgentParams *params);
 
 WIN32FUNCS resolve_pico_functions();
-void load_builtin_picos(DataVault *vault);
+BuiltinPicos load_builtin_picos(DataVault *vault);
 BOOL resolve_loaded_pico(DataVault *vault, WIN32FUNCS *funcs, ResolvedPico *pico, char *key);
 void free_resolved_pico(ResolvedPico *pico);
 

