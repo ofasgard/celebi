@@ -58,7 +58,9 @@ The list of built-in PICOs currently includes:
 - `checkin.c`: Performs basic information gathering about the target system and uses the collected data to enrich a `CheckinRequest` struct.
 - `whoami.c`: A port of the whoami BOF from TrustedSec's CS-Situational-Awareness-BOF repository. Used by the `whoami` built-in command.
 
-In addition, the design calls for the ability to change every aspect of the implant while it is running. You can upload new PICO capabilities with the `register` capabilities, and you can replace built-in functinality with the `morph` command. For example, if you register a PICO named `custom_whoami`, you can replace the built-in `whoami` command by running `morph whoami custom_whoami`. This will also unregister the old PICO and clear it from memory. This allows your agent to dynamically change its TTPs and behaviour without recompiling the underlying shellcode
+In addition, the design calls for the ability to change every aspect of the implant while it is running. You can upload new PICO capabilities with the `register` command, and you can replace built-in functinality with the `morph` command. 
+
+For example, if you register a PICO named `custom_whoami` with the agent, you can replace the built-in `whoami` command with it by running `morph whoami custom_whoami`. This will also unregister the old PICO and clear it from memory. This allows your agent to dynamically change its TTPs and behaviour without recompiling the underlying shellcode.
 
 I don't intend to write a large number of commands for this agent. Beyond basic convenience commands like `whoami` or `download`, the plan is for most of the agent's capabilities to be loaded *after* it starts running, in the form of BOFs or PICOs. I plan to provide support for both. Likewise, I don't plan to implement many (or maybe any) of Mythic's "optional" commands, because most of the implant's capabilities are intended to be loaded in remotely with `register` and `execute_pico`.
 
