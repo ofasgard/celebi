@@ -52,12 +52,14 @@ x64:
 	load "bin/pico_checkin.o"
 		make object +optimize
 		export
+		xor $XORKEY
 		preplen
 		link "pico_checkin"
 		
 	load "bin/pico_whoami.o"
 		make object +optimize
 		export
+		xor $XORKEY
 		preplen
 		link "pico_whoami"
 

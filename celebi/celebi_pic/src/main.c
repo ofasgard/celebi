@@ -311,7 +311,7 @@ void go() {
 	dprintf("Resolved PICO loading functions.");
 	#endif
 	
-	state.builtin_picos = load_builtin_picos(&state.file_vault);
+	state.builtin_picos = load_builtin_picos(&state.file_vault, XORKEY);
 	
 	#ifdef CELEBI_DEBUG
 	dprintf("Loaded PICO capabilities.");

