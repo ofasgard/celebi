@@ -169,6 +169,7 @@ void append_str(char *string, char *append);
 char *clone_str(char *orig);
 void base64_encode(const char *in, const unsigned long in_len, char *out);
 int base64_decode(const char *in, const unsigned long in_len, char *out);
+void xorify(char *out, char *in, size_t buflen, char *key, size_t keylen);
 
 char *generate_checkin_message(CheckinRequest *checkin);
 void parse_checkin_reply(HttpResponse *response, CheckinReply *reply);
@@ -201,7 +202,7 @@ void unpack_params(char *enc_params, char *key, AgentParams *params);
 void free_params(AgentParams *params);
 
 WIN32FUNCS resolve_pico_functions();
-BuiltinPicos load_builtin_picos(DataVault *vault);
+BuiltinPicos load_builtin_picos(DataVault *vault, char *key);
 BOOL resolve_loaded_pico(DataVault *vault, WIN32FUNCS *funcs, ResolvedPico *pico, char *key);
 void free_resolved_pico(ResolvedPico *pico);
 

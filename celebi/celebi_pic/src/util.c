@@ -143,3 +143,15 @@ int base64_decode(const char *in, const unsigned long in_len, char *out) {
   out[out_index] = '\0';
   return 0;
 }
+
+/*
+ *
+ * OBFUSCATION
+ *
+*/
+
+void xorify(char *out, char *in, size_t buflen, char *key, size_t keylen) {
+	for (int i = 0; i < buflen; i++) {
+		out[i] = in[i] ^ key[i % keylen];
+	}
+}
