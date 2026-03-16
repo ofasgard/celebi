@@ -1,3 +1,8 @@
+name "Celebi PIC Linker"
+author "Callum Murphy-Hale (@ofasgard)"
+reference "https://github.com/ofasgard/celebi"
+license "GPL-2.0"
+
 x64:
 	# Load the COFF.
 	load "bin/main.o"
@@ -48,7 +53,7 @@ x64:
 	# Patch in obfuscated string parameters from the C2.
 	patch "ENC_PARAMS" $ENC_PARAMS
 	
-	# Load built-in PICOs.
+	# Load and obfuscate built-in PICOs.
 	load "bin/pico_checkin.o"
 		make object +optimize
 		export
