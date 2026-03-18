@@ -13,6 +13,8 @@
 #define VAULT_INITIAL_SIZE 8192
 #define VAULT_MAX_BUFFERS 1024
 
+#define DEFAULT_SLEEP_TIME 5
+
 /*
  *
  * Parameters
@@ -157,6 +159,7 @@ typedef struct AgentState {
 	DataVault file_vault;
 	BuiltinPicos builtin_picos;
 	WIN32FUNCS funcs;
+	int sleep_time;
 } AgentState;
 
 /*

@@ -14,7 +14,7 @@ class CelebiAgent(PayloadType):
 	supported_os = [
 		SupportedOS.Windows
 	]
-	semver = "0.1.6"
+	semver = "0.1.7"
 	note = "A PoC agent that uses Crystal Palace to build its payload."
 	wrapped_payloads = []
 	supports_dynamic_loading = True
@@ -93,3 +93,9 @@ class CelebiAgent(PayloadType):
 		else:
 			proc = subprocess.Popen(["make", "pic"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd="/Mythic/celebi_pic/")
 		proc.wait()
+		
+# 0.0.x = initial PoC, non-functional
+# 0.1.x = pre-alpha, functional but incomplete
+# 0.2.x = alpha, mostly complete, no expectation of stability
+# 0.3.x = beta, feature complete, stable but needs testing
+# 1.0.0 = stable

