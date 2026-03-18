@@ -2,6 +2,7 @@ import mythic_container
 import asyncio
 
 import celebi_agent.celebi
+import celebi_agent.sleep
 import celebi_agent.exit
 import celebi_agent.whoami
 import celebi_agent.register
