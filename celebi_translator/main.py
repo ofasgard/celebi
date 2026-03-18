@@ -274,7 +274,7 @@ class CelebiTranslation(TranslationContainer):
 			return params
 		
 		if cmd == "sleep":
-			return param_data["interval"]
+			return str(param_data["interval"])
 		
 		if cmd == "register":
 			return param_data["name"] + "\t" + param_data["file"]
