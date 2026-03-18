@@ -16,6 +16,7 @@ WINBASEAPI VOID WINAPI KERNEL32$ExitThread(DWORD dwExitCode);
 WINBASEAPI size_t MSVCRT$strlen(const char *str);
 WINBASEAPI int MSVCRT$strcmp(const char *string1, const char *string2);
 WINBASEAPI char *MSVCRT$strtok(char *strToken, const char *strDelimit);
+WINBASEAPI int MSVCRT$atoi(const char *str);
 
 WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
 WINBASEAPI BOOL WINAPI KERNEL32$VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD  dwFreeType);
@@ -68,6 +69,17 @@ void agent_post(AgentState *state, TaskInfo *task, char *output, char *success) 
 		}
 		#endif
 	}
+}
+
+void agent_sleep(AgentState *state, TaskInfo *task) {
+	int interval = MSVCRT$atoi(task->parameters);
+	state->sleep_time = interval;
+	
+	#ifdef CELEBI_DEBUG
+	dprintf("Changed sleep interval to: %i", state->sleep_time);
+	#endif
+	
+	agent_post(state, task, "changed sleep interval", "success");
 }
 
 void agent_exit(AgentState *state, TaskInfo *task) {
@@ -237,6 +249,15 @@ void process_task(TaskInfo *task, AgentState *state) {
 		#endif
 		
 		agent_exit(state, task);
+		return;
+	}
+
+	if (MSVCRT$strcmp(task->command, "sleep") == 0) {
+		#ifdef CELEBI_DEBUG
+		dprintf("Received sleep command with parameters: '%s'", task->parameters);
+		#endif
+		
+		agent_sleep(state, task);
 		return;
 	}
 	
