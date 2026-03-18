@@ -23,7 +23,7 @@ class SleepArguments(TaskArguments):
 		
 		self.load_args_from_json_string(self.command_line)
 		
-		if len(self.get_arg("interval")) > 43200:
+		if self.get_arg("interval") > 43200:
 			raise Exception("Maximum sleep interval is 12 hours (43200 seconds).")
 		
 class SleepCommand(CommandBase):
