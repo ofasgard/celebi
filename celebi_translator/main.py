@@ -76,7 +76,6 @@ class CelebiTranslation(TranslationContainer):
 			return response
 		if inputMsg.Message[0] == MESSAGE_TYPE_UPLOAD:
 			response.Message = self.deserialize_upload_request(inputMsg.Message)
-			response.Message = self.resolve_post_messages(response.Message)
 			return response
 		
 		raise Exception("UNRECOGNISED INPUT MESSAGE TYPE: {}".format(inputMsg.Message))
