@@ -291,7 +291,7 @@ class CelebiTranslation(TranslationContainer):
 			status = int(status_str)
 			
 			if status in POST_STATUSES:
-				msg["responses"][0]["status"] = POST_STATUSES[response["status"]]	
+				msg["responses"][0]["status"] = POST_STATUSES[status]	
 
 		except ValueError:
 			pass
