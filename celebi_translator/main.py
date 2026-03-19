@@ -286,9 +286,15 @@ class CelebiTranslation(TranslationContainer):
 
 	def resolve_post_status(self, msg):
 		# Converts a "terse" numerical status field from the agent into a human-readable status message.
-		status = msg["responses"][0]["status"]
-		if status in POST_STATUSES:
-			msg["responses"][0]["status"] = POST_STATUSES[response["status"]]
+		try:
+			status_str = msg["responses"][0]["status"]
+			status = int(status_str)
+			
+			if status in POST_STATUSES:
+				msg["responses"][0]["status"] = POST_STATUSES[response["status"]]	
+
+		except ValueError:
+			pass
 
 		return msg
 
