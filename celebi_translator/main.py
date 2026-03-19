@@ -9,6 +9,22 @@ MESSAGE_TYPE_TASKING = 2
 MESSAGE_TYPE_POST    = 3
 MESSAGE_TYPE_UPLOAD  = 4
 
+POST_STATUSES = {
+	1:  "success",
+	2:  "error: failed to resolve PICO",
+	3:  "error: no filename provided",
+	4:  "error: duplicate filename",
+	5:  "error: upload failed",
+	6:  "error: vault full",
+	7:  "error: removal failed",
+	8:  "error: no command provided",
+	9: "error: pico not found",
+	10: "error: command not found"
+}
+
+POST_MESSAGES = {
+}
+
 class CelebiTranslation(TranslationContainer):
 	name = "celebi_translator"
 	description = "Translator used by Celebi to serialize/deserialize message data in a custom format."
@@ -54,10 +70,12 @@ class CelebiTranslation(TranslationContainer):
 			response.Message = self.deserialize_tasking_request(inputMsg.Message)
 			return response
 		if inputMsg.Message[0] == MESSAGE_TYPE_POST:
-			response.Message = self.deserialize_post_request(inputMsg.Message) 
+			response.Message = self.deserialize_post_request(inputMsg.Message)
+			response.Message = self.resolve_post_status(response.Message)
 			return response
 		if inputMsg.Message[0] == MESSAGE_TYPE_UPLOAD:
 			response.Message = self.deserialize_upload_request(inputMsg.Message)
+			response.Message = self.resolve_post_status(response.Message)
 			return response
 		
 		raise Exception("UNRECOGNISED INPUT MESSAGE TYPE: {}".format(inputMsg.Message))
@@ -265,6 +283,14 @@ class CelebiTranslation(TranslationContainer):
 		output.append(0)
 		
 		return bytes(output)
+
+	def resolve_post_status(self, msg):
+		# Converts a "terse" numerical status field from the agent into a human-readable status message.
+		status = msg["responses"][0]["status"]
+		if status in POST_STATUSES:
+			msg["responses"][0]["status"] = POST_STATUSES[response["status"]]
+
+		return msg
 
 	def process_parameters(self, cmd, params):
 		# Helper function to convert JSON file parameters into the raw strings expected by the agent.

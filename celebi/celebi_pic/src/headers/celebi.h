@@ -15,6 +15,21 @@
 
 #define DEFAULT_SLEEP_TIME 5
 
+#define STATUS_SUCCESS                    1
+#define STATUS_CANNOT_RESOLVE_PICO        2
+#define STATUS_MISSING_FILENAME           3
+#define STATUS_DUPLICATE_FILENAME         4
+#define STATUS_UPLOAD_FAILED              5
+#define STATUS_VAULT_FULL                 6
+#define STATUS_VAULT_REMOVAL_FAILED       7
+#define STATUS_MISSING_COMMAND            8
+#define STATUS_UNKNOWN_PICO               9
+#define STATUS_UNKNOWN_COMMAND            10
+
+// Macro for turning a defined constant into a string literal.
+#define STR_(X) #X
+#define STR(X) STR_(X)
+
 /*
  *
  * Parameters
