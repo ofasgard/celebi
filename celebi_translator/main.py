@@ -12,14 +12,14 @@ MESSAGE_TYPE_UPLOAD  = 4
 POST_STATUSES = {
 	1:  "success",
 	2:  "error: failed to resolve PICO",
-	3:  "error: no filename provided",
+	3:  "error: missing filename",
 	4:  "error: duplicate filename",
 	5:  "error: upload failed",
 	6:  "error: vault full",
-	7:  "error: removal failed",
-	8:  "error: no command provided",
-	9: "error: pico not found",
-	10: "error: command not found"
+	7:  "error: vault removal failed",
+	8:  "error: missing command",
+	9: "error: unknown pico",
+	10: "error: unknown command"
 }
 
 POST_MESSAGES = {
