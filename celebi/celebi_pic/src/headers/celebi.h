@@ -25,6 +25,7 @@
 #define STATUS_MISSING_COMMAND            8
 #define STATUS_UNKNOWN_PICO               9
 #define STATUS_UNKNOWN_COMMAND            10
+#define STATUS_COMMAND_FAILED             11
 
 // Macro for turning a defined constant into a string literal.
 #define STR_(X) #X

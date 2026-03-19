@@ -18,8 +18,9 @@ POST_STATUSES = {
 	6:  "error: vault full",
 	7:  "error: vault removal failed",
 	8:  "error: missing command",
-	9: "error: unknown pico",
-	10: "error: unknown command"
+	9:  "error: unknown pico",
+	10: "error: unknown command",
+	11: "error: command failed"
 }
 
 POST_MESSAGES = {
@@ -71,11 +72,11 @@ class CelebiTranslation(TranslationContainer):
 			return response
 		if inputMsg.Message[0] == MESSAGE_TYPE_POST:
 			response.Message = self.deserialize_post_request(inputMsg.Message)
-			response.Message = self.resolve_post_status(response.Message)
+			response.Message = self.resolve_post_messages(response.Message)
 			return response
 		if inputMsg.Message[0] == MESSAGE_TYPE_UPLOAD:
 			response.Message = self.deserialize_upload_request(inputMsg.Message)
-			response.Message = self.resolve_post_status(response.Message)
+			response.Message = self.resolve_post_messages(response.Message)
 			return response
 		
 		raise Exception("UNRECOGNISED INPUT MESSAGE TYPE: {}".format(inputMsg.Message))
@@ -284,7 +285,7 @@ class CelebiTranslation(TranslationContainer):
 		
 		return bytes(output)
 
-	def resolve_post_status(self, msg):
+	def resolve_post_messages(self, msg):
 		# Converts a "terse" numerical status field from the agent into a human-readable status message.
 		try:
 			status_str = msg["responses"][0]["status"]

