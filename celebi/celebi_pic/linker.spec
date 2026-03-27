@@ -67,6 +67,13 @@ x64:
 		xor $ENC_KEY
 		preplen
 		link "pico_whoami"
+		
+	load "bin/pico_mask_vault.o"
+		make object +optimize
+		export
+		xor $ENC_KEY
+		preplen
+		link "pico_mask_vault"
 
  	# Export the resulting PIC.
 	export

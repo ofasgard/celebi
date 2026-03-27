@@ -136,6 +136,7 @@ typedef struct DataVault {
 
 typedef void (*CHECKIN_PICO)(CheckinRequest *req);
 typedef char *(*WHOAMI_PICO)();
+typedef void (*MASK_VAULT_PICO)(char *vault, int vault_size, char *key, int keylen);
 typedef char *(*GENERIC_PICO)(char *cmdline);
 
 typedef struct {
@@ -161,6 +162,7 @@ typedef struct ResolvedPico {
 typedef struct BuiltinPicos {
 	char *checkin;
 	char *whoami;
+	char *mask_vault;
 } BuiltinPicos;
 
 /*
