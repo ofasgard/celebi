@@ -74,6 +74,13 @@ x64:
 		xor $ENC_KEY
 		preplen
 		link "pico_mask_vault"
+		
+	load "bin/pico_mask_sleep.o"
+		make object +optimize
+		export
+		xor $ENC_KEY
+		preplen
+		link "pico_mask_sleep"
 
  	# Export the resulting PIC.
 	export
