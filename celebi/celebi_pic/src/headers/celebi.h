@@ -221,7 +221,7 @@ void unpack_params(char *enc_params, char *key, AgentParams *params);
 void free_params(AgentParams *params);
 
 WIN32FUNCS resolve_pico_functions();
-BuiltinPicos load_builtin_picos(DataVault *vault, char *key);
+BuiltinPicos load_builtin_picos(DataVault *vault, char *key, int keylen);
 BOOL resolve_loaded_pico(DataVault *vault, WIN32FUNCS *funcs, ResolvedPico *pico, char *key);
 void free_resolved_pico(ResolvedPico *pico);
 
