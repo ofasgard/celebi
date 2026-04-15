@@ -61,7 +61,7 @@ The list of built-in PICOs currently includes:
 - `mask_sleep.c`: The other half of celebi's sleep masking functionality. Does nothing but invoke `WaitForSingleObject()`, but you can swap it out for a custom sleepmasking implementation.
 - `whoami.c`: A port of the whoami BOF from TrustedSec's CS-Situational-Awareness-BOF repository. Used by the `whoami` built-in command.
 
-In addition, the design calls for the ability to change every aspect of the implant while it is running. You can upload new PICO capabilities with the `register` command, and you can replace built-in functinality with the `morph` command. 
+In addition, the design calls for the ability to change every aspect of the implant while it is running. You can upload new PICO capabilities with the `register` command, and you can replace built-in functionality with the `morph` command. 
 
 For example, if you register a PICO named `custom_whoami` with the agent, you can replace the built-in `whoami` command with it by running `morph whoami custom_whoami`. This will also unregister the old PICO and clear it from memory. This allows your agent to dynamically change its TTPs and behaviour without recompiling the underlying shellcode.
 
