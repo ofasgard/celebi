@@ -15,6 +15,8 @@ Current features:
 - Supports a `register` and `unregister` command to upload or delete files from the agent's memory vault.
 - Supports an `execute_pico` command to interpret a registered file as a Crystal Palace PICO and run it.
 - Supports a `morph` command to hotswap the PICO used by a built-in command, replacing it with a registered file.
+- Performs basic XOR-based sleepmasking of the memory vault, implemented as a PICO so you can swap it out if desired.
+- Does not perform sleepmasking of the executable PIC, but offers a PICO hook so you can swap in your own implementation if desired.
 
 Current limitations:
 
@@ -23,7 +25,7 @@ Current limitations:
 - Only communicates using plaintext (no AES256)
 - Only supports the http C2 profile
 - Ignores most C2 profile parameters
-- Completely opsec unsafe: no sleep masking, no obfuscation logic, no tradecraft (yet!)
+- Fairly opsec unsafe, some basic (but limited) obfuscation measures are implemented
 - Very little error handling, will probably crash if something unexpected happens
 - The `register` command uses a very simple/naive "memory vault" implementation that endlessly grows as you register more files.
 - Likewise, the `unregister` command literally just zeroes out the file and replaces its name with a dummy string.
@@ -32,7 +34,6 @@ Longterm goals:
 
 - Fully implement parameters from the http C2 profile
 - Implement AES256 traffic encryption
-- Implement "core" obfuscation logic such as sleepmasking as a set of PICOs (default PICOs aren't opsec-safe, but you can swap them out for any PICO that follows the same convention!)
 - Port over more of TrustedSec's situational awareness BOFs (GPL) and use them to provide some built-in PICO commands to the agent.
 - Implement `execute_bof` and `execute_shellcode` commands as a supplement to the `execute_pico` command.
 - Support other C2 profiles
@@ -56,6 +57,8 @@ The overall design goal of Celebi is to hardcode as little functionality as poss
 The list of built-in PICOs currently includes:
 
 - `checkin.c`: Performs basic information gathering about the target system and uses the collected data to enrich a `CheckinRequest` struct.
+- `mask_vault.c`: One half of celebi's sleep masking functionality. Performs XOR-based obfuscation of the memory vault used to store PICOs in memory.
+- `mask_sleep.c`: The other half of celebi's sleep masking functionality. Does nothing but invoke `WaitForSingleObject()`, but you can swap it out for a custom sleepmasking implementation.
 - `whoami.c`: A port of the whoami BOF from TrustedSec's CS-Situational-Awareness-BOF repository. Used by the `whoami` built-in command.
 
 In addition, the design calls for the ability to change every aspect of the implant while it is running. You can upload new PICO capabilities with the `register` command, and you can replace built-in functinality with the `morph` command. 
