@@ -1,4 +1,4 @@
-export CPL_PATH=/crystal-palace/dist/crystalpalace.jar
+export CPL_PATH=/crystal-palace/crystalpalace/crystalpalace.jar
 
 dirs:
 	mkdir -p bin out
