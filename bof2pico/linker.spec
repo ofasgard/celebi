@@ -3,8 +3,6 @@ x86:
 	make object +optimize
 	entry "_go"
 	
-	mergelib "lib/libtcg/libtcg.x86.zip"
-	
 	load "bin/bofapi.x86.o"
 		merge
 		
@@ -34,8 +32,6 @@ x64:
 	push $OBJECT
 	make object +optimize
 	entry "_go"
-	
-	mergelib "lib/libtcg/libtcg.x64.zip"
 	
 	load "bin/bofapi.x64.o"
 		merge
