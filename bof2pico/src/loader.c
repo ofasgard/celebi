@@ -69,7 +69,7 @@ void bof_process_args(char *arg, char *bof_args, int *bof_args_len) {
 	
 	while (token != NULL) {
 		size_t token_len = MSVCRT$strlen(token);
-		pack_uint(bof_args, bof_args_len, token_len);
+		pack_uint(bof_args, bof_args_len, token_len+1);
 		pack_string(bof_args, bof_args_len, token);
 		token = MSVCRT$strtok(NULL, " ");
 	}
