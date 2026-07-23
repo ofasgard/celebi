@@ -7,8 +7,8 @@ Note that the current version prints output using `dprintf()`, so the output won
 Usage:
 
 ```sh
-$ make x64
-$ cpl link ./linker.spec /path/to/get_session_info.x64.o ./get_session_info.pico
+$ make all
+$ cpl link ./linker.spec /path/to/get_session_info.x64.o ./get_session_info.x64.pico
 ```
 
 Requires Crystal Palace.

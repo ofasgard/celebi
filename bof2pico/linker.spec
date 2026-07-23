@@ -1,3 +1,35 @@
+x86:
+	push $OBJECT
+	make object +optimize
+	entry "_go"
+	
+	mergelib "lib/libtcg/libtcg.x86.zip"
+	
+	load "bin/bofapi.x86.o"
+		merge
+		
+	load "bin/loader.x86.o"
+		merge
+		
+	attach "$BeaconDataExtract"    "_BeaconDataExtract"
+	attach "$BeaconDataLength"     "_BeaconDataLength"
+	attach "$BeaconDataParse"      "_BeaconDataParse"
+	attach "$BeaconDataPtr"        "_BeaconDataPtr"
+	attach "$BeaconDataInt"        "_BeaconDataInt"
+	attach "$BeaconDataShort"      "_BeaconDataShort"
+
+	attach "$BeaconFormatAlloc"    "_BeaconFormatAlloc"
+	attach "$BeaconFormatReset"    "_BeaconFormatReset"
+	attach "$BeaconFormatAppend"   "_BeaconFormatAppend"
+	attach "$BeaconFormatPrintf"   "_BeaconFormatPrintf"
+	attach "$BeaconFormatToString" "_BeaconFormatToString"
+	attach "$BeaconFormatFree"     "_BeaconFormatFree"
+	attach "$BeaconFormatInt"      "_BeaconFormatInt"
+	attach "$BeaconPrintf"         "_BeaconPrintf"
+	attach "$BeaconOutput"         "_BeaconOutput"
+	
+	export
+
 x64:
 	push $OBJECT
 	make object +optimize
