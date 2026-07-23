@@ -204,7 +204,12 @@ void agent_execute_pico(AgentState *state, TaskInfo *task) {
 	}
 	
 	GENERIC_PICO entrypoint = (GENERIC_PICO) pico.entrypoint;
-	char *pico_output = entrypoint(args);
+	char *pico_output;
+	if (args == NULL) {
+		pico_output = entrypoint(NULL, 0);
+	} else {
+		pico_output = entrypoint(args, MSVCRT$strlen(args));
+	}
 	
 	if (pico_output != NULL) {
 		agent_post(state, task, pico_output, STR(STATUS_SUCCESS));
