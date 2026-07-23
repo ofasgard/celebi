@@ -1,14 +1,36 @@
 #include <windows.h>
 
-// If BOF output is larger than this value, it will be truncated.
+#define MAX_INPUT_SIZE  10240
 #define MAX_OUTPUT_SIZE 10240
 
 WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc (LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
 WINBASEAPI WINBOOL WINAPI KERNEL32$VirtualFree (LPVOID lpAddress, SIZE_T dwSize, DWORD dwFreeType);
 WINBASEAPI int __cdecl MSVCRT$vsnprintf(char * __restrict__ d,size_t n,const char * __restrict__ format,va_list arg);
 WINBASEAPI size_t MSVCRT$strlen(const char *str);
+WINBASEAPI char *MSVCRT$strtok(char *strToken, const char *strDelimit);
 
 char *output_buffer;
+
+void pack_uint(char *buf, int *offset, unsigned int paydata) {
+	for (int i = 0; i < sizeof(unsigned int); i++) {
+		buf[*offset] = ((char *) &paydata)[i];
+		*offset += 1;
+	}
+}
+
+void pack_string(char *buf, int *offset, char *paydata) {
+	if (paydata != NULL) {
+		int len = MSVCRT$strlen(paydata);
+		for (int i = 0; i < len; i++) {
+			buf[*offset] = paydata[i];
+			*offset += 1;
+		}
+	}
+	
+	// Add the null byte. If paydata is NULL, this results in a zero-length string.
+	buf[*offset] = 0;
+	*offset += 1;
+}
 
 void bof_printf(char * format, ...) {
 	int    len;
@@ -42,6 +64,17 @@ void bof_printf(char * format, ...) {
 	KERNEL32$VirtualFree(temp, 0, MEM_RELEASE);
 }
 
+void bof_process_args(char *arg, char *bof_args, int *bof_args_len) {
+	char *token = MSVCRT$strtok(arg, " ");
+	
+	while (token != NULL) {
+		size_t token_len = MSVCRT$strlen(token);
+		pack_uint(bof_args, bof_args_len, token_len);
+		pack_string(bof_args, bof_args_len, token);
+		token = MSVCRT$strtok(NULL, " ");
+	}
+}
+
 void BeaconOutput(int type, char * data, int len) {
 	bof_printf("BeaconOut[%x]: %s\n", type, data);
 }
@@ -54,9 +87,12 @@ char *_go(char *arg, size_t len) {
 	if (arg == NULL || len == 0) {
 		go("", 0); // Run with no arguments.
 	} else {
-		// TODO you can't just pass the cmdline straight to beacon, needs some packing into the beacon argument format
-		bof_printf("WARNING: Swallowed your arguments, passing arguments to converted BOFs is not supported yet!\n");
-		go("", 0); 
+		char *args_buffer = KERNEL32$VirtualAlloc(0, MAX_INPUT_SIZE, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+		int args_len = 0;
+		
+		bof_process_args(arg, args_buffer, &args_len);
+		go(args_buffer, args_len); 
+		KERNEL32$VirtualFree(args_buffer, 0, MEM_RELEASE);
 	}
 	
 	return output_buffer;

@@ -1,8 +1,6 @@
 # bof2pico
 
-Helper utility for converting a compiled BOF into a PICO that celebi knows how to execute. Adapted from [Simple BOF Runner](https://tradecraftgarden.org/simplebof.html) by Raphael Mudge, and reproduces the `bofapi.c` file in its entirety. 
-
-Note that the current version drops arguments, so it only works with BOFs that don't require any (i.e. `whoami` or `get_session_info`). I'm planning to implement support for BOF-style arguments soon!
+Helper utility for converting a compiled BOF into a PICO that celebi knows how to execute. Adapted from [Simple BOF Runner](https://tradecraftgarden.org/simplebof.html) by Raphael Mudge, and reproduces the `bofapi.c` file in its entirety. Only supports string arguments.
 
 Usage:
 
