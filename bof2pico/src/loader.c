@@ -50,8 +50,14 @@ VOID go(	IN PCHAR Buffer, IN ULONG Length);
 
 char *_go(char *arg, size_t len) {
 	output_buffer = KERNEL32$VirtualAlloc(0, MAX_OUTPUT_SIZE, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-
-	go("", 0); // TODO you can't just pass the cmdline straight to beacon, needs some packing into the beacon argument format
+	
+	if (arg == NULL || len == 0) {
+		go("", 0); // Run with no arguments.
+	} else {
+		// TODO you can't just pass the cmdline straight to beacon, needs some packing into the beacon argument format
+		bof_printf("WARNING: Swallowed your arguments, passing arguments to converted BOFs is not supported yet!\n");
+		go("", 0); 
+	}
 	
 	return output_buffer;
 }
