@@ -72,7 +72,7 @@ I don't intend to write a large number of commands for this agent. Beyond basic 
 The function signature for a generic PICO that celebi knows how to execute is:
 
 ```c
-typedef char *(*GENERIC_PICO)(char *cmdline);
+typedef char *(*GENERIC_PICO)(char *cmdline, size_t len);
 ```
 
 Here's an example of a very simple PICO that implements this interface:
@@ -82,7 +82,7 @@ Here's an example of a very simple PICO that implements this interface:
  
 WINBASEAPI VOID WINAPI KERNEL32$OutputDebugStringA (LPCSTR lpOutputString);
  
-char *go(char * arg) {
+char *go(char * arg, size_t len) {
     KERNEL32$OutputDebugStringA(arg);
     return "printed a debug string!";
 }
