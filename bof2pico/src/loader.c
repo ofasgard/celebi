@@ -10,6 +10,6 @@ void BeaconOutput(int type, char * data, int len) {
 VOID go(	IN PCHAR Buffer, IN ULONG Length);
 
 char *_go(char *arg, size_t len) {
-	go(arg, len);
+	go("", 0); // TODO you can't just pass the cmdline straight to beacon, needs some packing into the beacon argument format
 	return "SEE DPRINTF FOR OUTPUT"; // TODO output
 }

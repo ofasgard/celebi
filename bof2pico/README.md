@@ -2,7 +2,7 @@
 
 Helper utility for converting a compiled BOF into a PICO that celebi knows how to execute. Adapted from [Simple BOF Runner](https://tradecraftgarden.org/simplebof.html) by Raphael Mudge, and reproduces the `bofapi.c` file in its entirety. 
 
-Note that the current version prints output using `dprintf()`, so the output won't be returned to the agent. I'm planning to make it return output properly at some point, but until then this is just for testing purposes.
+Note that the current version prints output using `dprintf()`, so the output won't be returned to the agent. I'm planning to make it return output properly at some point, but until then this is just for testing purposes. The current version also drops arguments, so it only works with BOFs that don't require any.
 
 Usage:
 
