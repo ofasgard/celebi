@@ -1,5 +1,8 @@
 #include <windows.h>
 
+// If BOF output is larger than this value, it will be truncated.
+#define MAX_OUTPUT_SIZE 10240
+
 WINBASEAPI LPVOID WINAPI KERNEL32$VirtualAlloc (LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
 WINBASEAPI WINBOOL WINAPI KERNEL32$VirtualFree (LPVOID lpAddress, SIZE_T dwSize, DWORD dwFreeType);
 WINBASEAPI int __cdecl MSVCRT$vsnprintf(char * __restrict__ d,size_t n,const char * __restrict__ format,va_list arg);
@@ -31,7 +34,7 @@ void bof_printf(char * format, ...) {
 	/* print it */
 	size_t current_len = MSVCRT$strlen(output_buffer);
 	size_t temp_len = MSVCRT$strlen(temp);
-	for (int i = 0; i < temp_len && current_len + i < 10240; i++) {
+	for (int i = 0; i < temp_len && current_len + i < MAX_OUTPUT_SIZE; i++) {
 		output_buffer[current_len + i] = temp[i];
 	}
 
@@ -46,7 +49,7 @@ void BeaconOutput(int type, char * data, int len) {
 VOID go(	IN PCHAR Buffer, IN ULONG Length);
 
 char *_go(char *arg, size_t len) {
-	output_buffer = KERNEL32$VirtualAlloc(0, 10240, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	output_buffer = KERNEL32$VirtualAlloc(0, MAX_OUTPUT_SIZE, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 
 	go("", 0); // TODO you can't just pass the cmdline straight to beacon, needs some packing into the beacon argument format
 	
