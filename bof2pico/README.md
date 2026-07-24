@@ -6,32 +6,23 @@ Usage:
 
 ```sh
 $ make all
-$ cpl link ./bof2pico.spec /path/to/somebof.x64.o ./somebof.x64.pico
+$ cpl link ./bof2pico.spec /path/to/somebof.x64.o ./somebof.x64.pico '$BOF_ARGS=00'
 ```
 
 ## Passing Arguments
 
-By default, no arguments will be passed to the BOF. If you want to pass arguments, modify `bof2pico.spec` and change this:
+If you want to pass arguments, you will need to construct your arguments in the BOF argument format and pass them in the `BOF_ARGS` variable. I recommend using the generator from [COFFLoader](https://github.com/trustedsec/COFFLoader/blob/main/beacon_generate.py):
 
 ```
-# No arguments.
-pack $BOF_ARGS "i" 0x0
-push $BOF_ARGS
-link "bargs"
+Beacon Argument Generator
+Beacon>addString C:\Users\wirt
+Beacon>generate
+b'120000000e000000433a5c55736572735c7769727400'
 ```
 
-To something like this:
+Then just provide your serialized arguments when linking the BOF:
 
 ```
-# Pack hardcoded arguments in BOF argument format.
-setg "%ARG1" "wirt"
-setg "%ARG2" "WSearch"
-pack $BOF_ARGS "iziz" 5 %ARG1 8 %ARG2
-
-# Link hardcoded arguments to the PICO.
-push $BOF_ARGS
-preplen
-link "bargs"
+$ cpl link ./bof2pico.spec /path/to/somebof.x64.o ./somebof.x64.pico '$BOF_ARGS=120000000e000000433a5c55736572735c7769727400'
 ```
 
-The BOF argument format is fairly simple, but you'll need to know what arguments your BOF is expecting. I recommend using [COFFLoader](https://github.com/trustedsec/COFFLoader/blob/main/beacon_generate.py) as a reference.

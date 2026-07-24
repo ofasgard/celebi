@@ -30,8 +30,7 @@ x86:
 	attach "$BeaconPrintf"         "_BeaconPrintf"
 	attach "$BeaconOutput"         "_BeaconOutput"
 
-	# No arguments.
-	pack $BOF_ARGS "i" 0x0
+	# Grab arguments from the commandline.
 	push $BOF_ARGS
 	link "bargs"
 	
@@ -70,8 +69,7 @@ x64:
 	attach "$BeaconPrintf"         "BeaconPrintf"
 	attach "$BeaconOutput"         "BeaconOutput"
 	
-	# No arguments.
-	pack $BOF_ARGS "i" 0x0
+	# Grab arguments from the commandline.
 	push $BOF_ARGS
 	link "bargs"
 	
