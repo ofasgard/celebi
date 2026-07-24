@@ -1,6 +1,9 @@
 x86:
+	# Load the BOF and make it into a PICO.
 	push $OBJECT
 	make object +optimize
+	
+	# Set _go() as the new entrypoint and merge in BOF APIs and hooks.
 	entry "_go"
 	
 	load "bin/bofapi.x86.o"
@@ -8,7 +11,8 @@ x86:
 		
 	load "bin/loader.x86.o"
 		merge
-		
+	
+	# Hook BOF APIs.
 	attach "$BeaconDataExtract"    "_BeaconDataExtract"
 	attach "$BeaconDataLength"     "_BeaconDataLength"
 	attach "$BeaconDataParse"      "_BeaconDataParse"
@@ -25,12 +29,21 @@ x86:
 	attach "$BeaconFormatInt"      "_BeaconFormatInt"
 	attach "$BeaconPrintf"         "_BeaconPrintf"
 	attach "$BeaconOutput"         "_BeaconOutput"
+
+	# No arguments.
+	pack $BOF_ARGS "i" 0x0
+	push $BOF_ARGS
+	link "bargs"
 	
+	# Export the PICO.
 	export
 
 x64:
+	# Load the BOF and make it into a PICO.
 	push $OBJECT
 	make object +optimize
+	
+	# Set _go() as the new entrypoint and merge in BOF APIs and hooks.
 	entry "_go"
 	
 	load "bin/bofapi.x64.o"
@@ -38,7 +51,8 @@ x64:
 		
 	load "bin/loader.x64.o"
 		merge
-		
+	
+	# Hook BOF APIs.
 	attach "$BeaconDataExtract"    "BeaconDataExtract"
 	attach "$BeaconDataLength"     "BeaconDataLength"
 	attach "$BeaconDataParse"      "BeaconDataParse"
@@ -56,4 +70,10 @@ x64:
 	attach "$BeaconPrintf"         "BeaconPrintf"
 	attach "$BeaconOutput"         "BeaconOutput"
 	
+	# No arguments.
+	pack $BOF_ARGS "i" 0x0
+	push $BOF_ARGS
+	link "bargs"
+	
+	# Export the PICO.
 	export
